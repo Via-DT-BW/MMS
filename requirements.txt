@@ -1,0 +1,5 @@
+flask
+pyodbc
+flask_mail
+flask_toastr
+fpdf
