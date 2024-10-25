@@ -1,0 +1,589 @@
+{% extends 'home_portaria.html' %}
+{% block content %}
+
+<head>
+
+    <meta http-equiv="refresh" content="30">
+    <style type="text/css">
+    #coisas_do_card {
+        margin: 10px;
+        border-radius: 4px;
+        background: ghostwhite;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, .08), 0 0 6px rgba(0, 0, 0, .05);
+        transition: .3s transform cubic-bezier(.155, 1.105, .295, 1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155, 1.105, .295, 1.12);
+    }
+
+    #coisas_do_card_red {
+        margin: 10px;
+        border-radius: 4px;
+        background: red;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, .08), 0 0 6px rgba(0, 0, 0, .05);
+        transition: .3s transform cubic-bezier(.155, 1.105, .295, 1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155, 1.105, .295, 1.12);
+    }
+
+    #coisas_do_card_2 {
+        margin: 10px;
+        border-radius: 4px;
+        background: lightgoldenrodyellow;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, .08), 0 0 6px rgba(0, 0, 0, .05);
+        transition: .3s transform cubic-bezier(.155, 1.105, .295, 1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155, 1.105, .295, 1.12);
+    }
+    </style>
+</head>
+
+<body>
+    <br>
+    <div class="container.fluid">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card" id="coisas_do_card">
+                    <div class="card-header">
+                        <h4><strong>Controlo Acessos </strong> </h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm ">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Localização</th>
+                                    <th scope="col">Quantidade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Geral</td>
+                                    <td>{{contagem_dashboard[0][0]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cobertura</td>
+                                    <td>{{contagem_dashboard[0][1]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Produção</td>
+                                    <td>{{contagem_dashboard[0][2]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Recursos Humanos</td>
+                                    <td>{{contagem_dashboard[0][3]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Refeitório</td>
+                                    <td>{{contagem_dashboard[0][4]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Armazém</td>
+                                    <td>{{contagem_dashboard[0][5]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Edificio Administrativo</td>
+                                    <td>{{contagem_dashboard[0][6]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Posto Médico</td>
+                                    <td>{{contagem_dashboard[0][7]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Zona Técnica</td>
+                                    <td>{{contagem_dashboard[0][8]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;"><b>Total nas Instalações</b></td>
+                                    <td>{{contagem_acessos[0][0]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;"><b>Total dia</b></td>
+                                    <td>{{contagem_acessos[0][1]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="card" id="coisas_do_card">
+                    <div class="card-header">
+                        <h4><strong>Cargas e Descargas</strong></h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm ">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Aguarda Seleção de Cais</th>
+                                </tr>
+                            </thead>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Empresa</th>
+                                    <th scope="col">Matricula</th>
+                                    <th scope="col">Motorista</th>
+                                    <th scope="col">Contacto</th>
+                                    <th scope="col">Tipo</th>
+                                    <th scope="col">Tempo Espera Real</th>
+                                    <th scope="col">Entrada Prevista</th>
+                                    <th scope="col">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>{% for row in pendentes_armazem %}
+                                    <td>{{row.0}}</td>
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.3}}</td>
+                                    <td>{{row.4}}</td>
+                                    <td>{{row.5}} min</td>
+                                    {% if row.6 == None %}
+                                    <td></td>
+                                    {% else %}
+                                    <td>{{row.6}} h </td>
+                                    {% endif %}
+                                    <td> Aguarda Seleção</td>
+                                </tr>{% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card" id="coisas_do_card">
+                    <div class="card-header">
+                        <h4><strong>Parque Externo </strong> </h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm ">
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Empresa</th>
+                                    <th scope="col">Matrícula</th>
+                                    <th scope="col"></th>
+                                    <th scope="col">Empresa</th>
+                                    <th scope="col">Matrícula</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 1</td>
+                                    <td> {{contagem_lugares_servicos[0][0]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][1]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 2</td>
+                                    <td>{{contagem_lugares_servicos[0][2]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][3]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 3</td>
+                                    <td>{{contagem_lugares_servicos[0][4]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][5]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 4</td>
+                                    <td>{{contagem_lugares_servicos[0][6]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][7]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 5</td>
+                                    <td>{{contagem_lugares_servicos[0][8]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][9]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 6</td>
+                                    <td>{{contagem_lugares_servicos[0][10]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][11]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 7</td>
+                                    <td>{{contagem_lugares_servicos[0][12]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][13]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 8</td>
+                                    <td>{{contagem_lugares_servicos[0][14]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][15]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 9</td>
+                                    <td>{{contagem_lugares_servicos[0][16]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][17]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 10</td>
+                                    <td>{{contagem_lugares_servicos[0][18]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][19]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 11</td>
+                                    <td>{{contagem_lugares_servicos[0][20]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][21]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 12</td>
+                                    <td>{{contagem_lugares_servicos[0][22]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][23]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 13</td>
+                                    <td>{{contagem_lugares_servicos[0][24]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][25]}}</td>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 14</td>
+                                    <td>{{contagem_lugares_servicos[0][26]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][27]}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:lightsteelblue; color: white;">Lugar 15</td>
+                                    <td>{{contagem_lugares_servicos[0][28]}}</td>
+                                    <td>{{contagem_lugares_servicos[0][29]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-7">
+                <div class="card" id="coisas_do_card">
+                    <div class="card-header">
+                        <h4><strong>Estado dos Cais</strong></h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-md ">
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Empresa</th>
+                                    <th scope="col">Matrícula</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Tempo em Trabalho (min)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Cais 1</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][0]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][1]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][2] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][2] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][2] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][2] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][3]}} </td>
+                                </tr>
+                                <tr>
+                                    <td>Cais 2</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][4]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][5]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][6] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][6] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][6] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][6] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][7]}} </td>
+                                </tr>
+                                <tr>
+                                    <td>Cais 3</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][8]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][9]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][10] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][10] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][10] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][10] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][11]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cais 4</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][12]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][13]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][14] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][14] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][14] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][14] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][15]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cais 5</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][16]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][17]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][18] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][18] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][18] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][18] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][19]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cais Lateral</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][20]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][21]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][22] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][22] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][22] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][22] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][23]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Área Exterior</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][24]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][25]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][26] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][26] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][26] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][26] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][27]}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Área Tubos 6 metros</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][28]}}</td>
+                                    <td>{{dashboard_armazem_estado_cais[0][29]}}</td>
+                                    {% if dashboard_armazem_estado_cais[0][30] == '' %}
+                                    <td></td>
+                                    {% elif dashboard_armazem_estado_cais[0][30] == '1' %}
+                                    <td>Aguarda Registo</td>
+                                    {% elif dashboard_armazem_estado_cais[0][30] == '2' %}
+                                    <td>Em trabalho</td>
+                                    {% elif dashboard_armazem_estado_cais[0][30] == '3' %}
+                                    <td>Aguarda validação Portaria</td>
+                                    {% else %}
+                                    <td>Nada registado</td>
+                                    {% endif %}
+                                    <td>{{dashboard_armazem_estado_cais[0][31]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Dashboard Vigilantes</h1>
+
+        </div>
+        <div class="row">
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total nas Instalações</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_acessos[0][0]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Total Dia</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_acessos[0][1]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Geral</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][0]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Cobertura</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][1]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Produção
+                                </div>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{contagem_dashboard[0][2]}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Recursos Humanos</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][3]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-comments fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Refeitórios</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][4]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Armazém</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][5]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Edificio Administrativo</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][6]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Posto Médico</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][7]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Zona Técnica</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][8]}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div-->
+</body>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+<script src="static/scripts/js/datatables-simple-demo.js"></script>
+{% endblock %}

@@ -1,0 +1,356 @@
+{% extends 'portaria/homepage_portaria_new.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div>
+    </div>
+    <div class="container.fluid" id="coisas">
+        <div class="row" style="margin:5px;height: 50px; box-shadow: 0 4px 6px -6px #222;">
+            <div class="col-md-3">
+                <h4 style="padding: 10px;">Status Cartões</h4>
+            </div>
+            <div class="col-md-6">
+            </div>
+        </div>
+        <br>
+        <div class="modal fade" id="adicionar_registo" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Criar Cartão</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/add_card" method="POST">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Id Cartão</label>
+                                        <div>
+                                            <input type="text" class="form-control" id="cartao" name="cartao" placeholder="Identificação do cartão" maxlength="50" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Tipo</label>
+                                        <select class="form-control" type="text" name="type" id="type" required>
+                                            <option value="">Selecione uma opção</option>
+                                            <option value="Serviços">Serviços</option>
+                                            <option value="Visitas">Visitas</option>
+                                            <option value="Provisório">Provisório</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary ">Adicionar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn" style="background-color: grey;color: white;" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="coisas">
+            <div class="col-md-6">
+                <div class="card mb-4" style="box-shadow: 0 4px 4px -6px #222;">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong> <i class="fas fa-table me-1"></i>Cartões</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#adicionar_registo">Registar</button>
+                            </div>
+                            <div class="col-md-5">
+                                {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                                {% if messages %}
+                                {% for category,message in messages %}
+                                {% if category == 'warning' %}
+                                <div class="alert alert-warning" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% elif category == 'info' %}
+                                <div class="alert alert-info" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% elif category == 'success' %}
+                                <div class="alert alert-success" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% elif category == 'error' %}
+                                <div class="alert alert-danger" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-responsive" id="dataTable-prepare" width="100%" cellspacing="0" style="font-size: 15px;">
+                            <thead id="box" class="bg-light">
+                                <tr>
+                                    <th data-field="1" data-sortable="false">Data</th>
+                                    <th data-field="2" data-sortable="true">Id cartão</th>
+                                    <th data-field="3" data-sortable="true">Tipo</th>
+                                    <th data-field="4" data-sortable="false">Estado</th>
+                                    <th data-field="5" data-sortable="false">Info</th>
+                                    <th data-field="6" data-sortable="false">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="datatable">
+                                <tr>{% for row in cartoes_data %}
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.3}}</td>
+                                    {% if row.4 == '1' %}
+                                    <td>Ocupado</td>
+                                    <td> </td>
+                                    
+                                    <td><a class="btn btn-warning" href="{{ url_for('libertar_cartao', id=row.0) }}" onclick="return confirm('Quer mesmo desbloquear o cartão {{row.2}} ?')"><i class="fas fa-unlock-alt" aria-hidden="true"></i></a></td>
+                                    {% elif row.4 == '2' %}
+                                    <td>Indisponivel</td>
+                                    <td><button type="button" class="btn btn-primary" onclick="abrirModal({{row.0}})"><i class="fa fa-info-circle" aria-hidden="true"></i></button></td>
+                                    <td><a class="btn btn-success" href="{{ url_for('desbloquear_cartao', id=row.0) }}"><i class="fas fa-check-square" aria-hidden="true"></i></a></td>
+                                    {% else %}
+                                    <td>Livre</td>
+                                    <td></td>
+                                    <td><a class="btn btn-danger" data-toggle="modal" data-target="#AnularCartão{{row.0}}"><i class="fas fa-times" aria-hidden="true"></i></a></td>
+                                    
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card shadow mb-2 ml-1">
+                            <div class="card-header ">
+                                <p style="text-align: center"><b>Legenda</b></p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <a class="btn btn-success disabled"><i class="fas fa-check-square" aria-hidden="true"></i></a>
+                                        <p style="font-size: 14px;">Desbloquear Cartão</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a class="btn btn-primary disabled"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                        <p style="font-size: 14px;">Ver Informações</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a class="btn btn-warning disabled"><i class="fa fa-unlock-alt" aria-hidden="true"></i></a>
+                                        <p style="font-size: 14px;">Libertar Cartão</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a class="btn btn-danger disabled"><i class="fas fa-times" aria-hidden="true"></i></a>
+                                        <p style="font-size: 14px;">Bloquear Cartão</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card shadow mb-2 ml-1">
+                            <div class="card-header ">
+                                <p style="text-align: center"><b>Tabela Registos de bloqueios</b></p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <table class="table table-bordered table-responsive" id="dataTable-follow-up" width="100%" cellspacing="0" style="font-size: 15px; height: 425px;">
+                                        <thead id="box" class="bg-light">
+                                            <tr>
+                                                <th scope="col">Data de Registo</th>
+                                                <th scope="col">Identificação Cartão</th>
+                                                <th scope="col">Tipo</th>
+                                                <th scope="col">Motivo</th>
+                                                <th scope="col">Utilizador</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="font-size: 16px; ">
+                                            {% for row in cartoes_data_followup %}
+                                            <tr>
+                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                <td>{{row.2}}</td>
+                                                <td>{{row.3}}</td>
+                                                <td>{{row.4}}</td>
+                                                <td>{{row.5}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% for row in cartoes_data %}
+        <div class="modal fade" id="AnularCartão{{row.0}}" role="dialog">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Anular Cartão: {{row.2}} - {{row.3}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/bloquear_cartao/{{row.0}}" method="POST">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="control-label">Motivo</label>
+                                        <div>
+                                            <input type="text" class="form-control" id="var_1" name="var_1" placeholder="Descrição do motivo" maxlength="150" required />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Bloquear Cartão</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% for row in cartoes_data %}
+        <div id="get_info{{row.0}}" class="modal fade">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Cartão {{row.2}} - Tipo {{row.3}} </h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="table" class="table table-striped table-responsive table-bordered" data-toggle="table">
+                                    <thead id="box" class="bg-light">
+                                        <tr>
+                                            <th data-field="1" data-sortable="false">Data</th>
+                                            <th data-field="2" data-sortable="false">Id cartão</th>
+                                            <th data-field="3" data-sortable="false">Tipo</th>
+                                            <th data-field="4" data-sortable="false">Motivo</th>
+                                            <th data-field="5" data-sortable="false">Utilizador</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableInfos2{{row.0}}">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>
+<script type="text/javascript">
+function abrirModal(index) {
+    var modal = document.getElementById('get_info' + index);
+    var bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+
+    // Uncomment the fetch code if you want to fetch data from the server
+
+
+    const tableInfos = document.getElementById('tableInfos2' + index);
+
+    fetch('/get_info_estado_cartoes?id=' + index + '&format=json', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    }).then(data => {
+        // Limpa a tabela antes de adicionar novos dados
+        tableInfos.innerHTML = '';
+
+        // Função para formatar a data
+        function formatDate(dateStr) {
+            var date = new Date(dateStr);
+            var year = date.getFullYear();
+            var month = (date.getMonth() + 1).toString().padStart(2, '0');
+            var day = date.getDate().toString().padStart(2, '0');
+            var hours = date.getHours().toString().padStart(2, '0');
+            var minutes = date.getMinutes().toString().padStart(2, '0');
+            var seconds = date.getSeconds().toString().padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // Itera sobre os dados e adiciona linhas à tabela
+        data.forEach(item => {
+            var row = "<tr>";
+            row += "<td style='white-space: nowrap;'>" + formatDate(item['CreationDate']) + "</td>";
+            row += "<td >" + item['CardId'] + "</td>";
+            row += "<td>" + item['Type'] + "</td>";
+            row += "<td>" + item['Motive'] + "</td>";
+            row += "<td>" + item['Owner'] + "</td>";
+            row += "</tr>";
+            tableInfos.innerHTML += row;
+        });
+    }).catch(error => {
+        console.error('Erro ao obter dados:', error);
+    });
+
+}
+</script>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<!-- Inicialize as tabelas DataTables -->
+<script>
+$(document).ready(function() {
+    $('#dataTable-prepare').DataTable();
+    $('#dataTable-follow-up').DataTable();
+});
+</script>
+{% endblock %}

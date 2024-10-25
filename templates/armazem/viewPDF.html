@@ -1,0 +1,36 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+<head>
+    <style>
+        .pdf-container {
+            width: 100%;
+            height: 100vh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pdf-container object {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<div class="pdf-container">
+    <object data="static/content/teste.pdf" type="application/pdf">
+        <p>Seu navegador não tem um plugin pra PDF</p>
+    </object>
+</div>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+ 
+    <!-- Core plugin JavaScript-->
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+ 
+    <!-- Page level plugins -->
+    <script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+ 
+    <!-- Page level custom scripts -->
+    <script src="static/plat_static/js/demo/datatables-demo.js"></script>
+{% endblock %}

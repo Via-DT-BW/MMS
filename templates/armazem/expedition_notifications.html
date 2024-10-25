@@ -1,0 +1,217 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+
+<head>
+    <style type="text/css">
+    .ball {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+        margin: 10px;
+    }
+    </style>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-2 ml-1">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow mb-2 ml-1">
+                            <form action="/expedition_notifications_filters" method="POST">
+                                <div class="card-header ">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p style="text-align: center"><b>Filters</b></p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-primary" type="submit">Apply Filters</button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="expedition_notifications_remove_filters" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove the filters ?')">Clean filters</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By Date:</p>
+                                                {% if session.filter_date_expedition is none %}
+                                                <input type="date" class="form-control" name="filter_date_expedition">
+                                                {% elif session.filter_date_expedition %}
+                                                <input type="date" class="form-control" name="filter_date_expedition" value="{{session.filter_date_expedition}}">
+                                                {% else %}
+                                                <input type="date" class="form-control" name="filter_date_expedition" value="{{session.filter_date_expedition}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By InternalCode:</p>
+                                                {% if session.filter_internalcode_expedition is none %}
+                                                <input type="text" class="form-control" name="filter_internalcode_expedition">
+                                                {% elif session.filter_internalcode_expedition %}
+                                                <input type="text" class="form-control" name="filter_internalcode_expedition" value="{{session.filter_internalcode_expedition}}">
+                                                {% else %}
+                                                <input type="text" class="form-control" name="filter_internalcode_expedition" value="{{session.filter_internalcode_expedition}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By Login:</p>
+                                                {% if session.filter_login_expedition is none %} 
+                                                <input type="text" class="form-control" name="filter_login_expedition">
+                                                {% elif session.filter_login_expedition %}
+                                                <input type="text" class="form-control" name="filter_login_expedition" value="{{session.filter_login_expedition}}">
+                                                {% else %}
+                                                <input type="text" class="form-control" name="filter_login_expedition" value="{{session.filter_login_expedition}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By Type:</p>
+                                                <select class="form-control" name="filter_type_expedition" id="filter_type_expedition" type="text">
+                                                    {% if session.filter_type_expedition is none %}
+                                                    <option value="None">Select route</option>
+                                                    {% elif session.filter_type_expedition %}
+                                                    <option value="{{session.filter_type_expedition}}">{{session.filter_type_expedition}}</option>
+                                                    {% else %}
+                                                    <option value="{{session.filter_type_expedition}}">{{session.filter_type_expedition}}</option>
+                                                    {% endif %}
+                                                    {% for row in MRPGetNotificationsTypeFilter %}
+                                                    <option value="{{row.0}}">{{row.0}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow mb-2 ml-1">
+                        <div class="card-header ">
+                            <p style="text-align: center"><b>Legend</b></p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="ball" style="background-color: lightblue;"></div>
+                                <p style="margin: 10px; font-size: 18px;font-weight: 600;">Shipment ready</p>
+                            </div>
+                            <div class="row">
+                                <div class="ball" style="background-color: green"></div>
+                                <p style="margin: 10px;font-size: 18px; font-weight: 600;">Shipment dispatched</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-2 ml-1">
+            <div class="card-header ">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p style="text-align: center;font-size: 18px;"><b>Notifications Feed</b></p>
+                    </div>
+                    <div class="col-md-8">
+                        {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                        {% if messages %}
+                        {% for category,message in messages %}
+                        {% if category == 'warning' %}
+                        <div class="alert alert-warning " role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'info' %}
+                        <div class="alert alert-info mt-2" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'success' %}
+                        <div class="alert alert-success mt-2" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'error' %}
+                        <div class="alert alert-danger mt-2" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <table id="table" class="table table-striped table-responsive table-bordered">
+                            <thead style="font-size:16px">
+                                <tr>
+                                    <!--th scope="col">Internalcode</th-->
+                                    <th scope="col">Creation date</th>
+                                    <th scope="col">InternalCode</th>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Observation</th>
+                                    
+                                    
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 16px; ">
+                                {% for row in MRPGetRequests %}
+                                <tr>
+                                    <td style="white-space: nowrap;">{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.3}}</td>
+                                    <td>{{row.4}}</td>
+                                    <td style="font-size:12px;">{{row.6}}</td>                                
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <p style="text-align: center;font-size: 18px;"><b>Expedition Requests</b><p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#table').DataTable();
+});
+</script>
+{% endblock %}

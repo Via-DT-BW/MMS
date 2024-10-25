@@ -1,0 +1,381 @@
+{% extends 'transports/homepage_transports.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container.fluid" id="coisas">
+        <div class="col-md-12">
+            <div class="card shadow mb-2 ml-1">
+                <div class="card-body">
+                    <form action="recurring_id_transport_filters" method="POST">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card shadow mb-2 ml-1">
+                                <div class="card-body">
+                                    <p style="text-align: center"><b>Insert Data</b></p>
+                                    <div class="row">
+                                        <a href="" class="btn btn-success btn-block mt-1" data-toggle="modal" data-target="#insertsporadictrasnportid">Generate Recurring Transport ID </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                                <div class="form-group">
+                                    <p style="text-align:center;">Transport ID</p>
+                                    {% if session.filter_type_id_recurring is none %}
+                                    <input type="text" class="form-control" name="filter_type_id_recurring" placeholder="ID transport">
+                                    {% elif session.filter_type_id_recurring %}
+                                    <input type="text" class="form-control" name="filter_type_id_recurring" value="{{session.filter_type_id_recurring}}">
+                                    {% else %}
+                                    <input type="text" class="form-control" name="filter_type_id_recurring"placeholder="Transport ID" value="{{session.filter_type_id_recurring}}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <p style="text-align:center;">Date</p>
+                                    {% if session.filter_date_recurring is none %}
+                                    <input type="date" class="form-control" name="filter_date_recurring">
+                                    {% elif session.filter_date_recurring %}
+                                    <input type="date" class="form-control" name="filter_date_recurring" value="{{session.filter_date_recurring}}">
+                                    {% else %}
+                                    <input type="date" class="form-control" name="filter_date_recurring" value="{{session.filter_date_recurring}}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <p style="text-align:center;">Week</p>
+                                    {% if session.filter_week_recurring is none %}
+                                    <input type="number" class="form-control" name="filter_week_recurring">
+                                    {% elif session.filter_week_recurring %}
+                                    <input type="number" class="form-control" name="filter_week_recurring" value="{{session.filter_week_recurring}}">
+                                    {% else %}
+                                    <input type="number" class="form-control" name="filter_week_recurring" placeholder ="Week number"value="{{session.filter_week_recurring}}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary" type="submit">Apply Filters</button>
+                                <a href="recurring_id_transport_remove_filters" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove the filters ?')">Clean filters</a>
+                            </div>
+                        
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="insertsporadictrasnportid" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Generate Recurring Transport ID</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/add_recurring_transport_id" method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Client</label>
+                                        <div>
+                                            <input type="text" id="client" name="client" class="form-control" required maxlength="50" placeholder="Client">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Begin Date</label>
+                                                <div>
+                                                    <input type="date" id="begin_date_var" name="begin_date_var" class="form-control" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">End Date</label>
+                                                <div>
+                                                    <input type="date" id="end_date_var" name="end_date_var" class="form-control" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Begin Hour</label>
+                                                <div>
+                                                    <input type="time" id="beginhour" name="beginhour" class="form-control beginhour" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">End Hour</label>
+                                                <div>
+                                                    <input type="time" id="endhour" name="endhour" class="form-control endhour" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row erro">
+                                        <div class="col-md-12">
+                                            <p id="error-message" class="error-message" style="color: red; display: none;">Data de Fim não pode ser anterior à Data de Início.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Monday</label>
+                                                <select class="form-control" type="text" name="monday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Tuesday</label>
+                                                <select class="form-control" type="text" name="tuesday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Wednesday</label>
+                                                <select class="form-control" type="text" name="wednesday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Thursday</label>
+                                                <select class="form-control" type="text" name="thursday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Friday</label>
+                                                <select class="form-control" type="text" name="friday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Saturday</label>
+                                                <select class="form-control" type="text" name="saturday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="control-label">Sunday</label>
+                                                <select class="form-control" type="text" name="sunday" required>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Comments</label>
+                                        <div>
+                                            <textarea id="comments" class="form-control" name="comments" rows="8" cols="50" maxlength="100"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary ">Confirm</button>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card mb-4 mt-2">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="mt-4">Transports ID</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <!--  FLASH MENSAGENS!-->
+                                {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                                {% if messages %}
+                                {% for category,message in messages %}
+                                {% if category == 'warning' %}
+                                <div class="alert alert-warning" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% elif category == 'info' %}
+                                <div class="alert alert-info" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% elif category == 'success' %}
+                                <div class="alert alert-success" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% elif category == 'error' %}
+                                <div class="alert alert-danger" role="alert">
+                                    <span>{{ message }}</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table id="table" class="table table-striped table-responsive table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">ID Transport</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Begin</th>
+                                        <th scope="col">End</th>
+                                        <th scope="col">Duration</th>
+                                        <th scope="col">Comments</th>
+                                        <th scope="col">Customer</th>
+                                        <!--th scope="col">Status</th-->
+                                        <th scope="col">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in MRPGetTransportsID %}
+                                    <tr>
+                                        <td>{{row.2}}</td>
+                                        <td style="white-space: nowrap;">{{row.3}}</td>
+                                        <td style="white-space: nowrap;">{{row.4}}</td>
+                                        <td>{{row.5}}</td>
+                                        <td>{{row.6}} </td>
+                                        <td>{{row.7}}min</td>
+                                        <td>{{row.8}}</td>
+                                        <td>{{row.10}}</td>
+                                        
+                                        
+                                        {% if row.9 == '0' %}
+                                        <!--td style="font-size:22px"><span class="badge badge-pill badge-success">Available</span></td-->
+                                        <td><a href="/delete_transports_recurring/{{row.0}}" class="btn btn-danger" onclick="return confirm('Do you want to delete this ID ?')"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+                                        {% elif row.9 =='1' %}
+                                        <!--td style="font-size:22px"><span class="badge badge-pill badge-info">Closed</span></td-->
+                                        <td></td>
+                                        {% elif row.9 =='2' %}
+                                        <!--td style="font-size:22px"><span class="badge badge-pill badge-danger">Ready</span></td-->
+                                        <td></td>
+                                        {% endif %}
+                                        
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            var form = document.getElementById('Form1');
+
+            form.addEventListener('change', function(event) {
+                if (event.target.classList.contains('endhour') || event.target.classList.contains('beginhour')) {
+                    var row = event.target.closest('.row');
+                    var dateIni = row.querySelector('.beginhour');
+                    var dateFim = row.querySelector('.endhour');
+                    var errorMessage = document.getElementById("error-message");
+                    console.log(dateFim.value)
+                    console.log("Data Inicio")
+                    console.log(dateIni.value)
+                    if (dateIni && dateFim && errorMessage) {
+                        if (dateFim.value < dateIni.value) {
+                            console.log("AQui")
+                            errorMessage.style.display = 'block';
+                            form.querySelector('button[type="submit"]').disabled = true;
+                        } else {
+                            console.log("Erro")
+                            errorMessage.style.display = 'none';
+                            form.querySelector('button[type="submit"]').disabled = false;
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+    <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+ 
+    <!-- Core plugin JavaScript-->
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+ 
+    <!-- Page level plugins -->
+    <script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+ 
+    <!-- Page level custom scripts -->
+    <script src="static/plat_static/js/demo/datatables-demo.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#table').DataTable();
+        });
+    </script>
+</body>
+
+</html>
+{% endblock %}

@@ -1,0 +1,1624 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+
+
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div>
+    </div>
+    <div class="container.fluid" id="coisas">
+    	<div class="row">
+    		<div class="col">
+    			<h1 class="mt-4">Registo entradas Armazém </h1>
+    		</div>
+    		
+    	</div>
+        <br>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table "></i>
+                Registo Entradas Armazém 
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-responsive" id="dataTable-pickings" width="100%" cellspacing="0" style="font-size: 11px;">
+                    <thead id="box" class="bg-light">
+                        <tr>
+                            <th data-field="1" data-sortable="true" >Motorista</th>
+                            <th data-field="2" data-sortable="true" >Empresa</th>
+                            <th data-field="3" data-sortable="false">Matricula</th>
+                            <th data-field="4" data-sortable="false">Reboque</th>
+                            <th data-field="5" data-sortable="true">Tipo</th>
+                            <th data-field="6" data-sortable="false">Destino</th>
+                            <th data-field="7" data-sortable="false">Cliente</th>
+                            <th data-field="8" data-sortable="false">Nº Carga</th>
+                            <th data-field="10" data-sortable="false">Fornecedor</th>
+                            <th data-field="11" data-sortable="false">Notas</th>
+                            <th data-field="12" data-sortable="false">Chegada</th>
+                            <th data-field="13" data-sortable="false">Entrada</th>
+                            <th data-field="14" data-sortable="false">Saida</th>
+                            <th data-field="15" data-sortable="false">Cais</th>
+                            <th data-field="16" data-sortable="false">Estado</th>  
+                        </tr>
+                    </thead>
+                    <tbody id="datatable">
+                        <tr>{% for row in all_cargas_descargas_data %}
+
+                            {% if row.22 == 'Carga' %}
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.3}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.6}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.7}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.37}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.22}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.25}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.26}}</td>
+                                <td style="background-color:#16d579;color: white;white-space: nowrap;">{{row.27}}</td>
+                                    
+
+                                    {% if row.16 == None %}
+                                    <td style="background-color:#16d579;color: white;"></td>
+                                    {% else %}
+                                    <td style="background-color:#16d579;color: white;">{{row.16}}</td>
+                                    {% endif %}
+                                    <td style="background-color:#16d579;color: white;">{{row.81}}</td>
+                                    {% if row.19 == None %}
+                                    <td style="background-color:#16d579;color: white;">{{row.1}}</td>
+                                    <td style="background-color:#16d579;color: white;"></td>
+                                    <td style="background-color:#16d579;color: white;"></td>
+                                    <td style="background-color:#16d579;color: white;"></td>
+
+                                    <td style="background-color:#007dc3;color: white;" >Validação entrada Pendente</td>
+                                    {% elif row.19 == 1 %}
+                                    <td style="background-color:#16d579;color: white;">{{row.1}}</td>
+                                        {% if row.22 == 'Carga' %}
+                                        <td style="background-color:#16d579;color: white;"><button type="button" style="background-color: #ddedec;color:black;" class="btn btn-info"  data-toggle="modal" data-target="#dar_entrada_carga{{row.0}}">Registar carga</button></td>
+                                        {% elif row.22 == 'Descarga' %}
+                                        <td style="background-color:#16d579;color: white;"><button type="button" class="btn btn-success" data-toggle="modal" data-target="#dar_entrada_descarga{{row.0}}" >Descarga</button></td>
+                                        {% endif %}
+                                        <td style="background-color:#16d579;color: white;"></td>
+
+                                        {% if row.13 == 2 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td style="background-color:#16d579;color: white;">Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td style="background-color:#16d579;color: white;">Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td style="background-color:#16d579;color: white;">Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td style="background-color:#16d579;color: white;"></td>
+                                        {% endif %}
+                                    <td style="background-color:#FFFF33;color: black;">Entrada Validada por Vigilante</td>
+                                    {% elif row.19 == 2 %}
+                                    <td style="background-color:#16d579;color: white;">{{row.1}}</td>
+                                    <td style="background-color:#16d579;color: white;">{{row.2}}</td>
+                                    <td style="background-color:#16d579;color: white;"><a href="/validar_saida_armazem/{{row.0}}" class="btn btn-success " style="background-color: #ddedec;border-color:#ddedec; color: black;">Saida</a></td>
+                                        {% if row.13 == 2 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td style="background-color:#16d579;color: white;">Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td style="background-color:#16d579;color: white;">Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td style="background-color:#16d579;color: white;">Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td style="background-color:#16d579;color: white;"></td>
+                                        {% endif %}
+                                    <td style="background-color:#f8971d;color: white;">Em trabalho</td>
+                                    {% else %}
+                                    <td style="background-color:#16d579;color: white;">{{row.1}}</td>
+                                    <td style="background-color:#16d579;color: white;">{{row.2}}</td>
+                                    <td style="background-color:#16d579;color: white;">{{row.23}}</td>
+                                        {% if row.13 == 2 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td style="background-color:#16d579;color: white;">Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td style="background-color:#16d579;color: white;">Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td style="background-color:#16d579;color: white;">Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td style="background-color:#16d579;color: white;">Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td style="background-color:#16d579;color: white;"></td>
+                                        {% endif %}
+                                    <td style="background-color:#002369;color: white;">Validação saida Pendente</td>
+                                    {% endif %}
+
+                            {% elif row.22 == 'Descarga' %}
+
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.3}}</td>
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.6}}</td>
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.7}}</td>
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.37}}</td>                               
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.22}}</td>
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.25}}</td>
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.26}}</td>
+                                <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.27}}</td>
+                                    
+
+                                    {% if row.16 == None %}
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;"></td>
+                                    {% else %}
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;"> <button type="button" class="btn btn-success" style="background-color: #ddedec;color:black;" data-toggle="modal" data-target="#ver_fornecedores{{row.0}}">Ver Fornecedores</button></td>
+                                    {% endif %}
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.81}}</td>
+                                    {% if row.19 == None %}
+
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.1}}</td>
+                                    <td style="background-color:#0e8587;color: white;"></td>
+                                    <td style="background-color:#0e8587;color: white;"></td>
+                                    <td style="background-color:#0e8587;color: white;"></td>
+                                    <td style="background-color:#007dc3;color: white;white-space: nowrap;" >Validação entrada Pendente</td>
+
+                                    {% elif row.19 == 1 %}
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.1}}</td>
+                                    {% if row.22 == 'Carga' %}
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;"><button type="button" class="btn btn-info" style="background-color: #ddedec;color:black;"data-toggle="modal" data-target="#dar_entrada_carga{{row.0}}">Registar</button></td>
+                                    {% elif row.22 == 'Descarga' %}
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;"><button type="button" class="btn btn-success" style="background-color: #ddedec;color:black;"data-toggle="modal" data-target="#dar_entrada_descarga{{row.0}}">Registar descarga</button></td>
+                                    {% endif %}
+                                    <td style="background-color:#0e8587;color: white;"></td>
+
+                                        {% if row.13 == 2 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;"></td>
+                                        {% endif %}
+                                    <td style="background-color:#FFFF33;color: black;white-space: nowrap;">Entrada Validada por Vigilante</td>
+
+                                    {% elif row.19 == 2 %}
+
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.1}}</td>
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.2}}</td>
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;"><a href="/validar_saida_armazem/{{row.0}}" class="btn btn-success" style="background-color: #ddedec;color:black;">Saida</a></td>
+                                        {% if row.13 == 2 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;"></td>
+                                        {% endif %}
+                                    <td style="background-color:#f8971d;color: white;white-space: nowrap;">Em trabalho</td>
+
+                                    {% else %}
+
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.1}}</td>
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.2}}</td>
+                                    <td style="background-color:#0e8587;color: white;white-space: nowrap;">{{row.23}}</td>
+                                        {% if row.13 == 2 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;">Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td style="background-color:#0e8587;color: white;white-space: nowrap;"></td>
+                                        {% endif %}
+                                    <td style="background-color:#002369;color: white;white-space: nowrap;">Validação saida Pendente</td>
+                                    {% endif %}
+                            {% else %}
+
+                                <td>{{row.3}}</td>
+                                <td>{{row.6}}</td>
+                                <td>{{row.7}}</td>
+                                <td>{{row.37}}</td>
+                                <td>{{row.22}}</td>
+                                <td>{{row.25}}</td>
+                                <td>{{row.26}}</td>
+                                <td>{{row.27}}</td>
+
+
+
+                                    {% if row.16 == None %}
+                                    <td></td>
+                                    {% else %}
+                                    <td><button type="button" class="btn btn-success" style="background-color: #ddedec;color:black;" data-toggle="modal" data-target="#ver_fornecedores{{row.0}}">Ver Fornecedores</button></td>
+                                    {% endif %}
+
+                                    <td>{{row.81}}</td>
+
+                                    {% if row.19 == None %}
+                                    <td>{{row.1}}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td style="background-color:#007dc3;color: white;">Validação entrada Pendente</td>
+
+                                    {% elif row.19 == 1 %}
+                                    <td>{{row.1}}</td>
+                                    {% if row.22 == 'Carga' %}
+                                    <td><button type="button" class="btn btn-info" style="background-color: #ddedec;color:black;"data-toggle="modal" data-target="#dar_entrada_carga{{row.0}}">Registar</button></td>
+                                    {% elif row.22 == 'Descarga' %}
+                                    <td><button type="button" class="btn btn-success" style="background-color: #ddedec;color:black;"data-toggle="modal" data-target="#dar_entrada_descarga{{row.0}}">Registar</button></td>
+                                    {% else %}
+                                    <td><button type="button" class="btn btn-success" style="background-color: #ddedec;color:black;"data-toggle="modal" data-target="#dar_entrada_descarga_and_carga{{row.0}}">Registar Descarga 2</button></td>
+                                    {% endif %}
+                                    <td></td>
+                                    <td>cais</td>     
+                                    <td style="background-color:#FFFF33;color: black;">Entrada Validada por Vigilante</td>
+
+                                    {% elif row.19 == 2 %}
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                        {% if row.38 == None %}
+                                        <td ><a href="" class="btn btn-success" data-toggle="modal" data-target="#dar_entrada_carga_after_descarga{{row.0}}" style="background-color: #ddedec;color:black; ">Iniciar Carga</a></td>
+                                            {% if row.13 == 2 %}
+                                            <td >Cais 1</td>
+                                            {% elif row.13 == 3 %}
+                                            <td >Cais 2</td>
+                                            {% elif row.13 == 4 %}
+                                            <td >Cais 3</td>
+                                            {% elif row.13 == 5 %}
+                                            <td >Cais 4</td>
+                                            {% elif row.13 == 6 %}
+                                            <td >Cais 5</td>
+                                            {% elif row.13 == 7 %}
+                                            <td >Cais Lateral</td>
+                                            {% elif row.13 == 8 %}
+                                            <td >Área Exterior</td>
+                                            {% elif row.13 == 9 %}
+                                            <td >Área Tubos 6 metros</td>
+                                            {% else %}
+                                            <td ></td>
+                                            {% endif %}
+                                        <td >Em trabalho de Descarga</td>
+                                        {% else %}
+                                        <td ><a href="/validar_fim_carga/{{row.0}}" class="btn btn-success" style="background-color: #ddedec;color:black;">Fim de Carga</a></td>
+                                            {% if row.13 == 2 %}
+                                            <td >Cais 1</td>
+                                            {% elif row.13 == 3 %}
+                                            <td >Cais 2</td>
+                                            {% elif row.13 == 4 %}
+                                            <td >Cais 3</td>
+                                            {% elif row.13 == 5 %}
+                                            <td >Cais 4</td>
+                                            {% elif row.13 == 6 %}
+                                            <td >Cais 5</td>
+                                            {% elif row.13 == 7 %}
+                                            <td >Cais Lateral</td>
+                                            {% elif row.13 == 8 %}
+                                            <td >Área Exterior</td>
+                                            {% elif row.13 == 9 %}
+                                            <td >Área Tubos 6 metros</td>
+                                            {% else %}
+                                            <td ></td>
+                                            {% endif %}
+                                        <td style="background-color:#f8971d;color: white;">Em Carga</td>
+                                        {% endif %}
+
+                                    {% elif row.19 == 4 %}
+
+                                    
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                        {% if row.38 == None %}
+                                        <td><a href="" class="btn btn-success" data-toggle="modal" data-target="#dar_entrada_carga_after_descarga{{row.0}}" style="background-color: #ddedec;color:black;" style="background-color: #90b114;border-color:#90b114;">Iniciar Carga 2</a></td>
+                                        <td style="background-color:#f8971d;color: white;">Em trabalho de Descarga 2 </td>
+                                        {% else %}
+                                        <td style="background-color:#f8971d;color: white;">coisas que nao deviar aparecer</td>
+                                            {% if row.13 == 2 %}
+                                            <td >Cais 1</td>
+                                            {% elif row.13 == 3 %}
+                                            <td >Cais 2</td>
+                                            {% elif row.13 == 4 %}
+                                            <td >Cais 3</td>
+                                            {% elif row.13 == 5 %}
+                                            <td >Cais 4</td>
+                                            {% elif row.13 == 6 %}
+                                            <td >Cais 5</td>
+                                            {% elif row.13 == 7 %}
+                                            <td >Cais Lateral</td>
+                                            {% elif row.13 == 8 %}
+                                            <td >Área Exterior</td>
+                                            {% elif row.13 == 9 %}
+                                            <td >Área Tubos 6 metros</td>
+                                            {% else %}
+                                            <td ></td>
+                                            {% endif %}
+                                        <td style="background-color:#f8971d;color: white;">coisas que nao deviar aparecer</td>
+                                        {% endif %}
+
+                                    {% else %}
+                                    
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.23}}</td>
+                                        {% if row.13 == 2 %}
+                                        <td >Cais 1</td>
+                                        {% elif row.13 == 3 %}
+                                        <td >Cais 2</td>
+                                        {% elif row.13 == 4 %}
+                                        <td >Cais 3</td>
+                                        {% elif row.13 == 5 %}
+                                        <td >Cais 4</td>
+                                        {% elif row.13 == 6 %}
+                                        <td >Cais 5</td>
+                                        {% elif row.13 == 7 %}
+                                        <td >Cais Lateral</td>
+                                        {% elif row.13 == 8 %}
+                                        <td >Área Exterior</td>
+                                        {% elif row.13 == 9 %}
+                                        <td >Área Tubos 6 metros</td>
+                                        {% else %}
+                                        <td ></td>
+                                        {% endif %}
+                                    <td>Validação saida Pendente</td>
+                                    {% endif %}
+
+                            {% endif %}                            
+
+                            
+
+                            
+                        </tr>
+                        <!-- Modal escolher opção -->
+                        <div class="modal fade" id="dar_entrada_descarga{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Registar Entrada Descarga</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="registar_armazem_descarga/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <!--div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transporte</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_1" name="var_1"   placeholder="Transporte?"  />
+                                                        </div>
+                                                    </div>
+                                                </div-->
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        
+                                                        
+                                                        <div>
+                                                            <input class="form-check-input" type="checkbox" value="" style="size:25px ;" required>
+                                                        </div>
+                                                        <label class="form-check-label" style="font-size:18px">Entregou chave?</label>
+                                                        
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            
+                                            <br>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 1</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_2" name="var_2"  required placeholder="Fornecedor 1"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_3" id="var_3" required>
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 2</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_4" name="var_4"   placeholder="Fornecedor 2"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_5" id="var_5" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 3</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_6" name="var_6"   placeholder="Fornecedor 3"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_7" id="var_7" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 4</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_8" name="var_8"   placeholder="Fornecedor 4"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_9" id="var_9" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 5</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_10" name="var_10"   placeholder="Fornecedor 5"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_11" id="var_11" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 6</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_12" name="var_12"   placeholder="Fornecedor 6"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_13" id="var_13" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 7</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_14" name="var_14"   placeholder="Fornecedor 7"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_15" id="var_15" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 8</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_16" name="var_16"   placeholder="Fornecedor 8"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_17" id="var_17" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 9</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_18" name="var_18"   placeholder="Fornecedor 9"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_19" id="var_19" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 10</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_20" name="var_20"   placeholder="Fornecedor 10"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_21" id="var_21" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 11</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_22" name="var_22"   placeholder="Fornecedor 11"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_23" id="var_23" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 12</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_24" name="var_24"   placeholder="Fornecedor 12"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_25" id="var_25" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 13</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_26" name="var_26"   placeholder="Fornecedor 13"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_27" id="var_27" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 14</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_28" name="var_28"   placeholder="Fornecedor 14"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_29" id="var_29" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 15</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_30" name="var_30"   placeholder="Fornecedor 15"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_31" id="var_31" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 16</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_32" name="var_32"   placeholder="Fornecedor 16"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_33" id="var_33" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 17</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_34" name="var_34"   placeholder="Fornecedor 17"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_35" id="var_35" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 18</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_36" name="var_36"   placeholder="Fornecedor 18"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_37" id="var_37" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 19</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_38" name="var_38"   placeholder="Fornecedor 19"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_39" id="var_39" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 20</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_40" name="var_40"   placeholder="Fornecedor 20"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_41" id="var_41" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Registar entrada</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn"  data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="dar_entrada_carga{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-md">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Registar Entrada Carga</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="registar_armazem_carga/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="col">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value=""  required>
+                                                            <label class="form-check-label" style="font-size:18px">Entregou chave?</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Registar entrada</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"  data-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="dar_entrada_descarga_and_carga{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Registar Entrada Descarga</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/registar_armazem_descarga/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <!--div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transporte</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_1" name="var_1"   placeholder="Transporte?"  />
+                                                        </div>
+                                                    </div>
+                                                </div-->
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        
+                                                        
+                                                        <div>
+                                                            <input class="form-check-input" type="checkbox" value="" style="size:20px ;" required>
+                                                        </div>
+                                                        <label class="form-check-label" style="font-size:15px">Entregou chave?</label>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 1</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_2" name="var_2"  required placeholder="Fornecedor 1"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_3" id="var_3" required>
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 2</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_4" name="var_4"   placeholder="Fornecedor 2"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_5" id="var_5" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 3</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_6" name="var_6"   placeholder="Fornecedor 3"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_7" id="var_7" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 4</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_8" name="var_8"   placeholder="Fornecedor 4"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_9" id="var_9" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 5</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_10" name="var_10"   placeholder="Fornecedor 5"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_11" id="var_11" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 6</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_12" name="var_12"   placeholder="Fornecedor 6"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_13" id="var_13" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 7</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_14" name="var_14"   placeholder="Fornecedor 7"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_15" id="var_15" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 8</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_16" name="var_16"   placeholder="Fornecedor 8"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_17" id="var_17" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 9</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_18" name="var_18"   placeholder="Fornecedor 9"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_19" id="var_19" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 10</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_20" name="var_20"   placeholder="Fornecedor 10"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_21" id="var_21" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 11</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_22" name="var_22"   placeholder="Fornecedor 11"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_23" id="var_23" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 12</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_24" name="var_24"   placeholder="Fornecedor 12"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_25" id="var_25" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 13</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_26" name="var_26"   placeholder="Fornecedor 13"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_27" id="var_27" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 14</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_28" name="var_28"   placeholder="Fornecedor 14"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_29" id="var_29" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 15</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_30" name="var_30"   placeholder="Fornecedor 15"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_31" id="var_31" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 16</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_32" name="var_32"   placeholder="Fornecedor 16"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_33" id="var_33" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 17</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_34" name="var_34"   placeholder="Fornecedor 17"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_35" id="var_35" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 18</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_36" name="var_36"   placeholder="Fornecedor 18"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_37" id="var_37" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 19</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_38" name="var_38"   placeholder="Fornecedor 19"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_39" id="var_39" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Fornecedor 20</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_40" name="var_40"   placeholder="Fornecedor 20"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Guia</label>
+                                                        <select class="form-control" type="text" name="var_41" id="var_41" >
+                                                            <option value=></option>
+                                                            <option value="Não">Não</option>
+                                                            <option value="Sim">Sim</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Registar entrada</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="dar_entrada_carga_after_descarga{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-md">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Registar Entrada Carga em Descarga</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="registar_armazem_carga_after_descarga/{{row.0}}" method="POST">
+                                            <!--div class="row">
+                                                <div class="col">
+                                                    <div class="col">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value=""  required>
+                                                            <label class="form-check-label" style="font-size:18px">Entregou chave?</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div-->
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Cliente</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_1" name="var_1" required  placeholder="Transporte"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Destino</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_2" name="var_2"  required placeholder="cliente"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Código Carga</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_3" name="var_3"  required placeholder="Transporte"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Registar entrada</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+                {% for row in all_cargas_descargas_data %}
+                <div class="modal fade" id="ver_fornecedores{{row.0}}" role="dialog">
+                    <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Fornecedores</h4>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th scope="col">#</th>
+                                      <th scope="col">Nome</th>
+                                      <th scope="col">Guia</th>
+                                      
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <th scope="row">1</th>
+                                      <td>{{row.16}}</td>
+                                      <td>{{row.18}}</td>
+                                      
+                                    </tr>
+                                    {% if row.28 != '' %}
+                                    <tr>
+                                      <th scope="row">2</th>
+                                      <td>{{row.28}}</td>
+                                      <td>{{row.29}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.30 != '' %}
+                                    <tr>
+                                      <th scope="row">3</th>
+                                      <td>{{row.30}}</td>
+                                      <td>{{row.31}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+                                    {% if row.32 != '' %}
+                                    <tr>
+                                      <th scope="row">4</th>
+                                      <td>{{row.32}}</td>
+                                      <td>{{row.33}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.34 != '' %}
+                                    <tr>
+                                      <th scope="row">5</th>
+                                      <td>{{row.34}}</td>
+                                      <td>{{row.35}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.44 != '' %}
+                                    <tr>
+                                      <th scope="row">6</th>
+                                      <td>{{row.44}}</td>
+                                      <td>{{row.45}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.46 != '' %}
+                                    <tr>
+                                      <th scope="row">7</th>
+                                      <td>{{row.46}}</td>
+                                      <td>{{row.47}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.48 != '' %}
+                                    <tr>
+                                      <th scope="row">8</th>
+                                      <td>{{row.48}}</td>
+                                      <td>{{row.49}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.50 != '' %}
+                                    <tr>
+                                      <th scope="row">9</th>
+                                      <td>{{row.50}}</td>
+                                      <td>{{row.51}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+                                    
+                                    {% if row.52 != '' %}
+                                    <tr>
+                                      <th scope="row">10</th>
+                                      <td>{{row.52}}</td>
+                                      <td>{{row.53}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.54 != '' %}
+                                    <tr>
+                                      <th scope="row">11</th>
+                                      <td>{{row.54}}</td>
+                                      <td>{{row.55}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.57 != '' %}
+                                    <tr>
+                                      <th scope="row">12</th>
+                                      <td>{{row.57}}</td>
+                                      <td>{{row.58}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.59 != '' %}
+                                    <tr>
+                                      <th scope="row">13</th>
+                                      <td>{{row.59}}</td>
+                                      <td>{{row.60}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.61 != '' %}
+                                    <tr>
+                                      <th scope="row">14</th>
+                                      <td>{{row.61}}</td>
+                                      <td>{{row.62}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.63 != '' %}
+                                    <tr>
+                                      <th scope="row">15</th>
+                                      <td>{{row.63}}</td>
+                                      <td>{{row.64}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.65 != '' %}
+                                    <tr>
+                                      <th scope="row">16</th>
+                                      <td>{{row.65}}</td>
+                                      <td>{{row.66}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.66 != '' %}
+                                    <tr>
+                                      <th scope="row">17</th>
+                                      <td>{{row.67}}</td>
+                                      <td>{{row.68}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.69 != '' %}
+                                    <tr>
+                                      <th scope="row">18</th>
+                                      <td>{{row.69}}</td>
+                                      <td>{{row.70}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.71 != '' %}
+                                    <tr>
+                                      <th scope="row">19</th>
+                                      <td>{{row.71}}</td>
+                                      <td>{{row.72}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                    {% if row.72 != '' %}
+                                    <tr>
+                                      <th scope="row">20</th>
+                                      <td>{{row.72}}</td>
+                                      <td>{{row.73}}</td>
+                                    </tr>
+                                    {% else %}
+
+                                    {% endif %}
+
+                                  </tbody>
+                                </table>
+                            </div>
+                            <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"  data-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>{% endfor %}
+                
+                
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
+<!-- Inclua o JavaScript do jQuery primeiro -->
+    <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Page level plugins -->
+    <script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <!-- Page level custom scripts -->
+    <script src="static/plat_static/js/demo/datatables-demo.js"></script>
+    <!-- Inicialize as tabelas DataTables -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTable-pickings').DataTable({"order":[],"pageLength": 20});
+
+    });
+    </script>
+
+
+
+
+
+
+
+
+
+{% endblock %}

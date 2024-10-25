@@ -1,0 +1,398 @@
+{% extends 'home.html' %}
+{% block content %}
+
+<head>
+    <link href="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/libs/jsPDF/jspdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.19.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <style type="text/css">
+    #coisas {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container.fluid" id="coisas">
+        <div class="card mb-4 mt-2">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="mt-4">Transports Closed</h3>
+                    </div>
+                    <div class="col-md-6">
+                        <!--  FLASH MENSAGENS!-->
+                        {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                        {% if messages %}
+                        {% for category,message in messages %}
+                        {% if category == 'warning' %}
+                        <div class="alert alert-warning" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'info' %}
+                        <div class="alert alert-info" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'success' %}
+                        <div class="alert alert-success" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'error' %}
+                        <div class="alert alert-danger" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="table" class="table  " data-search="true" data-toggle="table" data-show-export="false" data-show-columns="false" data-show-multi-sort="false" data-pagination="true" data-toolbar="#toolbar" data-show-toggle="true" data-resizable="true">
+                    <thead id="box" class="bg-light">
+                        <th data-field="1" data-sortable="true">Code</th>
+                        <th data-field="2" data-sortable="true">Creation Date</th>
+                        <th data-field="40" data-sortable="true">Edit</th>
+                        <th data-field="3" data-sortable="true">Estado</th>
+                        <th data-field="4" data-sortable="true">Option selected</th>
+                        <th data-field="5" data-sortable="true">PickUp address</th>
+                        <th data-field="6" data-sortable="false">PickUp Company</th>
+                        <th data-field="7" data-sortable="true">PickUp Country</th>
+                        <th data-field="8" data-sortable="true">PickUp Date</th>
+                        <th data-field="9" data-sortable="true">Delivery address</th>
+                        <th data-field="10" data-sortable="true">Delivery Company</th>
+                        <th data-field="11" data-sortable="false">Delivery Country</th>
+                        <th data-field="12" data-sortable="false">Delivery Date</th>
+                        <th data-field="13" data-sortable="false">Qtd. Pallets</th>
+                        <th data-field="14" data-sortable="false">Lenght</th>
+                        <th data-field="15" data-sortable="false">Width</th>
+                        <th data-field="16" data-sortable="false">Height</th>
+                        <th data-field="17" data-sortable="false">Weight</th>
+                        <th data-field="18" data-sortable="false">Volume</th>
+                        <th data-field="19" data-sortable="false">Reference 1</th>
+                        <th data-field="20" data-sortable="false">Reference 2</th>
+                        <th data-field="21" data-sortable="false">Reference 3</th>
+                        <th data-field="22" data-sortable="false">Imputable</th>
+                        <th data-field="23" data-sortable="false">Suppplier/Client</th>
+                        <th data-field="24" data-sortable="false">Line</th>
+                        <th data-field="25" data-sortable="false">Cost Center</th>
+                        <th data-field="26" data-sortable="false">Urgent</th>
+                        <th data-field="27" data-sortable="false">Justification</th>
+                        <th data-field="28" data-sortable="false">Option 1</th>
+                        <th data-field="29" data-sortable="false">Option 1 Date</th>
+                        <th data-field="30" data-sortable="false">Price</th>
+                        <th data-field="31" data-sortable="false">Option 2</th>
+                        <th data-field="32" data-sortable="false">Option 2 Date</th>
+                        <th data-field="33" data-sortable="false">Price</th>
+                        <th data-field="34" data-sortable="false">Requester Owner</th>
+                        <th data-field="35" data-sortable="false">Transport Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableInfos">
+                        <tr>{% for row in transports_request_data %}
+                            <td>{{row.1}}</td>
+                            <td>{{row.2}}</td>
+                            {% if row.39 == 'Closed' or row.39 == 'Refused' %}
+                            <td><a href="" class="btn btn-primary" style="background-color: #f8971d;border-color:#f8971d;" data-toggle="modal" data-target="#edit_req_option{{row.0}}"><i class="bi bi-pencil-square" aria-hidden="true"></i></a></td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                            {% if row.39 == None %}
+                            <td style="background-color:#FFD3A4;color: black;">Waiting for options </td>
+                            {% elif row.39 == 'Open' %}
+                            <td style="background-color:#d2f8d2;color: black;">Waiting approval supervisor</td>
+                            {% elif row.39 == 'Closed' %}
+                            <td style="background-color:#FFD3A4;color: black;">Closed</td>
+                            {% elif row.39 == 'Refused' %}
+                            <td style="background-color:#FFD3A4;color: black;">Refused</td>
+                            {% else %}
+                            <td style="background-color:#F5F0EB;color: black;">Approved</td>
+                            {% endif %}
+                            {% if row.28 == None %}
+                            <td>Not Selected</td>
+                            {% elif row.28 == 1 %}
+                            <td style="background-color:#FFD3A4;color: white;">Option {{row.28}}</td>
+                            {% else %}
+                            <td style="background-color:#A4D0FF;color: white;">Option {{row.28}}</td>
+                            {% endif %}
+                            <td style="background-color:#16d579;color: white;">{{row.3}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.4}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.5}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.9}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.6}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.7}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.8}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.10}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.11}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.12}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.13}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.14}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.15}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.16}}</td>
+                            <td>{{row.17}}</td>
+                            <td>{{row.18}}</td>
+                            <td>{{row.19}}</td>
+                            <td>{{row.22}}</td>
+                            <td>{{row.23}}</td>
+                            <td>{{row.24}}</td>
+                            <td>{{row.25}}</td>
+                            <td>{{row.26}}</td>
+                            <td>{{row.27}}</td>
+                            {% if row.28 != '' %}
+                            <td style="background-color:#FFD3A4;color: white;">{{row.29}}</td>
+                            <td style="background-color:#FFD3A4;color: white;">{{row.30}}</td>
+                            <td style="background-color:#FFD3A4;color: white;">{{row.31}}</td>
+                            <td style="background-color:#A4D0FF;color: white;">{{row.32}}</td>
+                            <td style="background-color:#A4D0FF;color: white;">{{row.33}}</td>
+                            <td style="background-color:#A4D0FF;color: white;">{{row.34}}</td>
+                            {% else %}
+                            <td style="background-color:#FFD3A4;color: white;">{{row.29}}</td>
+                            <td style="background-color:#FFD3A4;color: white;">{{row.30}}</td>
+                            <td style="background-color:#FFD3A4;color: white;">{{row.31}}</td>
+                            <td style="background-color:#FFD3A4;color: white;"></td>
+                            <td style="background-color:#FFD3A4;color: white;"></td>
+                            <td style="background-color:#FFD3A4;color: white;"></td>
+                            {% endif %}
+                            <td>{{row.36}}</td>
+                            <td>{{row.37}}</td>
+                        </tr>
+                        <div class="modal fade" id="edit_req_option{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-md">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Edit Options</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/option_edit_after_finish/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label" name="var_0">Internal Code: {{row.1}} </label>
+                                                        <div>
+                                                            <input hidden type="text" class="form-control" id="var_0" name="var_0" value="{{row.1}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label" name="var_01">Requester: {{row.36}} </label>
+                                                        <div>
+                                                            <input hidden type="text" class="form-control" id="var_01" name="var_01" value="{{row.36}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Option 1</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_1" name="var_1" value="{{row.29}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transit Time</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_2" name="var_2" value="{{row.30}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Price</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_3" name="var_3" value="{{row.31}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Option 2</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_4" name="var_4" value="{{row.32}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transit Time</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_5" name="var_5" value="{{row.33}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Price</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_6" name="var_6" value="{{row.34}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-info ">Submit</button>
+                                            </div>
+                                            <p style="font-size:11px">Notice: this will reset all information about supervisors.</p>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: grey;color: white;" data-dismiss="modal">Close modal</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                    <!-- Modal Adicionar opção -->
+                    {% for row in transports_request_data %}
+                    <div class="modal fade" id="adicionar" role="dialog">
+                        <div class="modal-dialog modal-md">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Add Option</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="" method="POST">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Code</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="{{row.0}}" Disabled />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Date</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="{{row.1}}" Disabled />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Name</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="{{row.2}}" Disabled />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Total weight</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="{{row.11}} Kgs" Disabled />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Volume</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="{{row.12}} m³" Disabled />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Option 1</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="option_1_name" name="option_1_name" placeholder="Opção 1" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Value €</label>
+                                                    <div>
+                                                        <input type="number" class="form-control" id="option_1_price" name="option_1_price" placeholder="Preço" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Date</label>
+                                                    <div>
+                                                        <input type="date" class="form-control" id="option_1_price" name="option_1_date" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Option 1</label>
+                                                    <div>
+                                                        <input type="text" class="form-control" id="option_1_name" name="option_2_name" placeholder="Opção 1" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Value €</label>
+                                                    <div>
+                                                        <input type="number" class="form-control" id="option_1_price" name="option_2_price" placeholder="Preço" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="control-label">Date</label>
+                                                    <div>
+                                                        <input type="date" class="form-control" id="option_1_price" name="option_1_date" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-primary ">Add</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+</body>
+
+</html>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+<script src="static/scripts/js/datatables-simple-demo.js"></script>
+{% endblock %}

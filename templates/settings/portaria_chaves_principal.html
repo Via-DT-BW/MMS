@@ -1,0 +1,205 @@
+{% extends 'portaria/homepage_portaria_new.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container.fluid" id="coisas">
+        <div class="card mb-4 mt-2">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-3">
+                        <h1 class="mt-4">Chaveiro Principal</h1>
+                    </div>
+                    <div class="col-3">
+                        <button type="button" class="btn btn-success mt-4 btn-block" data-toggle="modal" data-target="#adicionar_chave">Registar nova chave</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                    	<h3 class="mt-4">Chaveiro Principal</h3>
+                        <table class="table table-bordered table-responsive" id="dataTable-prepare" width="100%" cellspacing="0" style="font-size: 15px;">
+                            <thead id="box" class="bg-light">
+                                <tr>
+                                    <th data-field="1" data-sortable="true">Posição</th>
+                                    <th data-field="2" data-sortable="true">Designacao</th>
+                                    <th data-field="3" data-sortable="true">Quantidade</th>
+                                    <th data-field="4" data-sortable="true">CodigoChave</th>
+                                    <th data-field="5" data-sortable="true">Observacoes</th>
+                                    <th data-field="6" data-sortable="true">Editar</th>
+                                    <th data-field="7" data-sortable="true">Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableInfos">
+                                {% for row in chaves_principal %}
+                                <tr>
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.3}}</td>
+                                    <td>{{row.4}}</td>
+                                    <td>{{row.5}}</td>
+                                    <td><a class="btn btn-primary" data-toggle="modal" data-target="#editar_registo{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser" aria-hidden="true"></i></a></td>
+                                    <td><a href="delete_chaveiro_principal/{{row.0}}" class="btn btn-primary" onclick="return confirm('Tens a certeza que queres apagar esta chave?')" style="background-color: #c41230;border-color:#c41230;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-3">                    	
+                    </div>
+                </div>
+                {% for row in chaves_principal %}
+                <div class="modal fade" id="editar_registo{{row.0}}" role="dialog">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Editar Registo </h4>
+                            </div>
+                            <div class="modal-body">
+                                <form action="edit_chaveiro_principal/{{row.0}}" method="POST">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Posição *</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_1" name="var_1" value="{{row.1}}" maxlength="50" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Designação *</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_2" name="var_2" value="{{row.2}}" maxlength="100" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Quantidade *</label>
+                                                <div>
+                                                    <input type="number" class="form-control" id="var_3" name="var_3" step="1" value="{{row.3}}" min="1" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Código chave *</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_4" name="var_4" value="{{row.4}}" maxlength="50" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="control-label">Observações </label>
+                                                <div>
+                                                    <textarea class="form-control" id="var_5" name="var_5"   maxlength="150">{{row.5}}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary">Editar registo</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="modal fade" id="adicionar_chave" role="dialog">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Registar nova chave</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/add_chaveiro_principal" method="POST">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Posição *</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_1" name="var_1" placeholder="Posição" maxlength="50" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Designação *</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_2" name="var_2" placeholder="Desginação da chave" maxlength="100" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Quantidade *</label>
+                                                <div>
+                                                    <input type="number" class="form-control" id="var_3" name="var_3" step="1" placeholder="0" min="1" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Código chave *</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_4" name="var_4" placeholder="Ex: 8ZUNF015" maxlength="50" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="control-label">Observações </label>
+                                                <div>
+                                                    <textarea class="form-control" id="var_5" name="var_5" placeholder="Observações relativas ao pedido, limitado a 150 caracteres." maxlength="150"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary ">Adicionar</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn" style="background-color: grey;color: white;" data-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<!-- Inicialize as tabelas DataTables -->
+<script>
+$(document).ready(function() {
+    $('#dataTable-prepare').DataTable();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,896 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
+    <style>
+        .full-height {
+            height: 100%;
+        }
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-grow {
+            flex-grow: 1;
+        }
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .flex-container a {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px 0; 
+            text-align: center;
+            min-height: 2vh; 
+        }
+
+        .badge {
+            width: 100%;
+        }
+
+        .pdf-container {
+            width: 100%;
+            height: 100vh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pdf-container object {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container.fluid">
+        <div class="row">
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card shadow mb-2">
+                    <form action="expedition_request_warehouse_filters" method="POST">
+                        <div class="card-header ">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <p style="text-align: center"><b>Filtros</b></p>
+                                </div>
+                                <div class="col-md-4">
+                                    {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                                    {% if messages %}
+                                    {% for category,message in messages %}
+                                    {% if category == 'warning' %}
+                                    <div class="alert alert-warning mt-2" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% elif category == 'info' %}
+                                    <div class="alert alert-info mt-2" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% elif category == 'success' %}
+                                    <div class="alert alert-success mt-2" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% elif category == 'error' %}
+                                    <div class="alert alert-danger mt-2" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-primary" type="submit">Aplicar Filtros</button>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="/expedition_request_warehouse_remove_filters" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove the filters ?')">Limpar filtros</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <p style="text-align:center;">Data:</p>
+                                        {% if session.filter_warehouse_date is none %}
+                                        <input type="date" class="form-control" name="filter_warehouse_date">
+                                        {% elif session.filter_reference_mrp %}
+                                        <input type="date" class="form-control" name="filter_warehouse_date" value="{{session.filter_warehouse_date}}">
+                                        {% else %}
+                                        <input type="date" class="form-control" name="filter_warehouse_date" value="{{session.filter_warehouse_date}}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <p style="text-align:center;">Referência:</p>
+                                        {% if session.filter_warehouse_part_number is none %}
+                                        <input type="text" class="form-control" name="filter_warehouse_part_number">
+                                        {% elif session.filter_reference_mrp %}
+                                        <input type="text" class="form-control" name="filter_warehouse_part_number" value="{{session.filter_warehouse_part_number}}">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="filter_warehouse_part_number" value="{{session.filter_warehouse_part_number}}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <p style="text-align:center;">Estado:</p>
+                                        <select class="form-control" name="filter_warehouse_status" id="filter_warehouse_status" type="text">
+                                            {% if session.filter_warehouse_status is none %}
+                                            <option value="None">Select route</option>
+                                            {% elif session.filter_warehouse_status %}
+                                            <option value="{{session.filter_warehouse_status}}">{{session.filter_warehouse_status}}</option>
+                                            {% else %}
+                                            <option value="{{session.filter_warehouse_status}}">{{session.filter_warehouse_status}}</option>
+                                            {% endif %}
+                                            <option value="S/Abrir">S/Abrir</option>
+                                            <option value="Completo">Completo</option>
+                                            <option value="Incompleto">Incompleto</option>
+                                            
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <p style="text-align:center;">ShipTo:</p>
+                                        {% if session.filter_warehouse_shipto is none %}
+                                        <input type="text" class="form-control" name="filter_warehouse_shipto">
+                                        {% elif session.filter_reference_mrp %}
+                                        <input type="text" class="form-control" name="filter_warehouse_shipto" value="{{session.filter_warehouse_shipto}}">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="filter_warehouse_shipto" value="{{session.filter_warehouse_shipto}}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <p style="text-align:center;">Fábrica:</p>
+                                        {% if session.filter_warehouse_costumer is none %}
+                                        <input type="text" class="form-control" name="filter_warehouse_costumer">
+                                        {% elif session.filter_shipto %}
+                                        <input type="text" class="form-control" name="filter_warehouse_costumer" value="{{session.filter_warehouse_costumer}}">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="filter_warehouse_costumer" value="{{session.filter_warehouse_costumer}}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <p style="text-align:center;">Guia:</p>
+                                        {% if session.filter_warehouse_order is none %}
+                                        <input type="text" class="form-control" name="filter_warehouse_order">
+                                        {% elif session.filter_customer %}
+                                        <input type="text" class="form-control" name="filter_warehouse_order" value="{{session.filter_warehouse_order}}">
+                                        {% else %}
+                                        <input type="text" class="form-control" name="filter_warehouse_order" value="{{session.filter_warehouse_order}}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="row full-height">
+                    <div class="col flex-column">
+                        <div class="card shadow flex-grow mb-3">
+                            <div class="card-header text-center">
+                                <h3>Pedidos de Expedição</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable-prepare" width="100%" cellspacing="0" style="font-size: 12px;">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Referência</th>
+                                                <th>Cliente</th>
+                                                <th>Fábrica</th>
+                                                <th>Qtd.</th>
+                                                <th>Data</th>
+                                                <th>Rota</th>
+                                                <th>Despacho</th>
+                                                <th>Comentários</th>
+                                                <th>SO/SA</th>
+                                                <th>MRP</th>
+                                                <th style="background-color:#d2f8d2 ;">ID Transport</th>
+                                                <th style="background-color:#d2f8d2 ;">Hora</th>
+                                                <th style="background-color:#d2f8d2 ;">Urgente</th>
+                                                <th style="background-color:#002369;color:white">Guia</th>
+                                                <th style="background-color:#002369;color:white">MyPack</th>
+                                                <th style="background-color:#002369;color:white">Estado</th>
+                                                <th style="background-color:#002369;color:white">Picking</th>
+                                                <th style="background-color:#002369;color:white">Expedido</th>
+                                                <th>Editar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="color: black;">
+                                            {% for row in GetIdTransport %}
+                                            <tr>
+
+                                                {% if row.22 == '8' %}
+                                                    <td style="white-space: nowrap;background-color: lightblue">{{row.2}}</td>
+                                                    <td style="background-color: lightblue">{{row.4}}</td>
+                                                    <td style="background-color: lightblue">{{row.5}}</td>
+                                                    <td style="background-color: lightblue">{{row.6}}</td>
+                                                    <td style="background-color: lightblue">{{row.8}}</td>
+                                                    <td style="white-space: nowrap;background-color: lightblue">{{row.11}}</td>
+                                                    <td style="background-color: lightblue">{{row.12}}</td>
+                                                    <td style="background-color: lightblue">{{row.13}}</td>
+                                                    <td style="background-color: lightblue">{{row.14}}</td>
+                                                    {% if row.46 == '1' %}
+                                                    <td style="white-space: nowrap;background-color: lightblue"><button id="copyButtonText{{row.0}}" onclick="copyText({{row.0}}, '{{row.15}}')" type="button" class="btn btn-warning"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: lightblue"><button id="copyButton{{row.0}}" type="button" class="btn btn-primary btn-block" onclick="copyTextAndChangeStatus({{row.0}}, '{{row.15}}')" data-clipboard-text="{{row.15}}"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% endif %}
+                                                    <td style="background-color: lightblue">{{row.16}}</td>
+                                                    <td style="background-color: lightblue">{{row.27}}</td>
+                                                    <td style="white-space: nowrap;background-color: lightblue">{{row.29}}-{{row.30}}</td>
+                                                    {% if row.47 == '0' %}
+                                                    <td style="white-space: nowrap;background-color: lightblue">No</td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: lightblue">Yes</td>
+                                                    {% endif %}
+                                                        {% if row.19 == 'S/Abrir' %}
+                                                        <td style="background-color: lightblue">{{row.18}} </td>
+                                                        <td style="background-color: lightblue">{{row.32}} </td>
+                                                        <td style="background-color: lightblue">{{row.19}} </td>
+                                                        {% elif row.19 =='Completo' %}
+                                                        <td style="background-color: lightblue">{{row.18}}</td>
+                                                        <td style="background-color: lightblue">{{row.32}} </td>
+                                                        <td style="background-color: lightblue">{{row.19}}</td>
+                                                        {% elif row.19 =='Incompleto' %}
+                                                        <td style="background-color: lightblue">{{row.18}}</td>
+                                                        <td style="background-color: lightblue">{{row.32}} k</td>
+                                                        <td style="background-color: lightblue">{{row.19}}</td>
+                                                        {% else %}
+                                                        <td style="background-color: lightblue">{{row.18}}</td>
+                                                        <td style="background-color: lightblue">{{row.32}}</td>
+                                                        <td style="background-color: lightblue">{{row.19}}</td>
+                                                        {% endif %}
+                                                    {% if row.31 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: lightblue"><a id="BtnChangeStatePickingWarehouseNo{{row.0}}" onclick="ChangeStatePickingWarehouseNo({{row.0}})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: lightblue"><a id="BtnChangeStatePickingWarehouseYes{{row.0}}" onclick="ChangeStatePickingWarehouseYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    {% if row.21 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: lightblue"><a id="BtnChangeStateWarehouseStateNo{{row.0}}" onclick="ChangeStateWarehouseStateNo({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: lightblue"><a id="BtnChangeStateWarehouseStateYes{{row.0}}" onclick="ChangeStateWarehouseStateYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    <td style="background-color: lightblue"><a class="btn btn-warning" data-toggle="modal" data-target="#edit_transport{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+
+                                                {% elif row.22 == '9' %}
+
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff">{{row.2}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.4}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.5}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.6}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.8}}</td>
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff">{{row.11}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.12}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.13}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.14}}</td>
+                                                    {% if row.46 == '1' %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff"><button id="copyButtonText{{row.0}}" onclick="copyText({{row.0}}, '{{row.15}}')" type="button" class="btn btn-warning"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff"><button id="copyButton{{row.0}}" type="button" class="btn btn-primary btn-block" onclick="copyTextAndChangeStatus({{row.0}}, '{{row.15}}')" data-clipboard-text="{{row.15}}"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% endif %}
+                                                    <td style="background-color: #f7d8ff">{{row.16}}</td>
+                                                    <td style="background-color: #f7d8ff">{{row.27}}</td>
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff">{{row.29}}-{{row.30}}</td>
+                                                    {% if row.47 == '0' %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff">No</td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff">Yes</td>
+                                                    {% endif %}
+                                                        {% if row.19 == 'S/Abrir' %}
+                                                        <td style="background-color: #f7d8ff">{{row.18}} </td>
+                                                        <td style="background-color: #f7d8ff">{{row.32}} </td>
+                                                        <td style="background-color: #f7d8ff">{{row.19}} </td>
+                                                        {% elif row.19 =='Completo' %}
+                                                        <td style="background-color: #f7d8ff">{{row.18}}</td>
+                                                        <td style="background-color: #f7d8ff">{{row.32}} </td>
+                                                        <td style="background-color: #f7d8ff">{{row.19}}</td>
+                                                        {% elif row.19 =='Incompleto' %}
+                                                        <td style="background-color: #f7d8ff">{{row.18}}</td>
+                                                        <td style="background-color: #f7d8ff">{{row.32}} k</td>
+                                                        <td style="background-color: #f7d8ff">{{row.19}}</td>
+                                                        {% else %}
+                                                        <td style="background-color: #f7d8ff">{{row.18}}</td>
+                                                        <td style="background-color: #f7d8ff">{{row.32}}</td>
+                                                        <td style="background-color: #f7d8ff">{{row.19}}</td>
+                                                        {% endif %}
+                                                    {% if row.31 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff"><a id="BtnChangeStatePickingWarehouseNo{{row.0}}" onclick="ChangeStatePickingWarehouseNo({{row.0}})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff"><a id="BtnChangeStatePickingWarehouseYes{{row.0}}" onclick="ChangeStatePickingWarehouseYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    {% if row.21 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff"><a id="BtnChangeStateWarehouseStateNo{{row.0}}" onclick="ChangeStateWarehouseStateNo({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #f7d8ff"><a id="BtnChangeStateWarehouseStateYes{{row.0}}" onclick="ChangeStateWarehouseStateYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    <td style="background-color: #f7d8ff"><a class="btn btn-warning" data-toggle="modal" data-target="#edit_transport{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+
+                                                {% elif row.22 == '10' %}
+
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2">{{row.2}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.4}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.5}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.6}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.8}}</td>
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2">{{row.11}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.12}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.13}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.14}}</td>
+                                                    {% if row.46 == '1' %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2"><button id="copyButtonText{{row.0}}" onclick="copyText({{row.0}}, '{{row.15}}')" type="button" class="btn btn-warning"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2"><button id="copyButton{{row.0}}" type="button" class="btn btn-primary btn-block" onclick="copyTextAndChangeStatus({{row.0}}, '{{row.15}}')" data-clipboard-text="{{row.15}}"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% endif %}
+                                                    <td style="background-color: #d2f8d2">{{row.16}}</td>
+                                                    <td style="background-color: #d2f8d2">{{row.27}}</td>
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2">{{row.29}}-{{row.30}}</td>
+                                                    {% if row.47 == '0' %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2">No</td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2">Yes</td>
+                                                    {% endif %}
+                                                        {% if row.19 == 'S/Abrir' %}
+                                                        <td style="background-color: #d2f8d2">{{row.18}} </td>
+                                                        <td style="background-color: #d2f8d2">{{row.32}} </td>
+                                                        <td style="background-color: #d2f8d2">{{row.19}} </td>
+                                                        {% elif row.19 =='Completo' %}
+                                                        <td style="background-color: #d2f8d2">{{row.18}}</td>
+                                                        <td style="background-color: #d2f8d2">{{row.32}} </td>
+                                                        <td style="background-color: #d2f8d2">{{row.19}}</td>
+                                                        {% elif row.19 =='Incompleto' %}
+                                                        <td style="background-color: #d2f8d2">{{row.18}}</td>
+                                                        <td style="background-color: #d2f8d2">{{row.32}} k</td>
+                                                        <td style="background-color: #d2f8d2">{{row.19}}</td>
+                                                        {% else %}
+                                                        <td style="background-color: #d2f8d2">{{row.18}}</td>
+                                                        <td style="background-color: #d2f8d2">{{row.32}}</td>
+                                                        <td style="background-color: #d2f8d2">{{row.19}}</td>
+                                                        {% endif %}
+                                                    {% if row.31 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2"><a id="BtnChangeStatePickingWarehouseNo{{row.0}}" onclick="ChangeStatePickingWarehouseNo({{row.0}})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2"><a id="BtnChangeStatePickingWarehouseYes{{row.0}}" onclick="ChangeStatePickingWarehouseYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    {% if row.21 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2"><a id="BtnChangeStateWarehouseStateNo{{row.0}}" onclick="ChangeStateWarehouseStateNo({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #d2f8d2"><a id="BtnChangeStateWarehouseStateYes{{row.0}}" onclick="ChangeStateWarehouseStateYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    <td style="background-color: #d2f8d2"><a class="btn btn-warning" data-toggle="modal" data-target="#edit_transport{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+
+                                                {% elif row.22 == '11' %}
+
+                                                    <td style="white-space: nowrap;background-color: #18DD75">{{row.2}}</td>
+                                                    <td style="background-color: #18DD75">{{row.4}}</td>
+                                                    <td style="background-color: #18DD75">{{row.5}}</td>
+                                                    <td style="background-color: #18DD75">{{row.6}}</td>
+                                                    <td style="background-color: #18DD75">{{row.8}}</td>
+                                                    <td style="white-space: nowrap;background-color: #18DD75">{{row.11}}</td>
+                                                    <td style="background-color: #18DD75">{{row.12}}</td>
+                                                    <td style="background-color: #18DD75">{{row.13}}</td>
+                                                    <td style="background-color: #18DD75">{{row.14}}</td>
+                                                    {% if row.46 == '1' %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75"><button id="copyButtonText{{row.0}}" onclick="copyText({{row.0}}, '{{row.15}}')" type="button" class="btn btn-warning"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75"><button id="copyButton{{row.0}}" type="button" class="btn btn-primary btn-block" onclick="copyTextAndChangeStatus({{row.0}}, '{{row.15}}')" data-clipboard-text="{{row.15}}"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% endif %}
+                                                    <td style="background-color: #18DD75">{{row.16}}</td>
+                                                    <td style="background-color: #18DD75">{{row.27}}</td>
+                                                    <td style="white-space: nowrap;background-color: #18DD75">{{row.29}}-{{row.30}}</td>
+                                                    {% if row.47 == '0' %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75">No</td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75">Yes</td>
+                                                    {% endif %}
+                                                        {% if row.19 == 'S/Abrir' %}
+                                                        <td style="background-color: #18DD75">{{row.18}} </td>
+                                                        <td style="background-color: #18DD75">{{row.32}} </td>
+                                                        <td style="background-color: #18DD75">{{row.19}} </td>
+                                                        {% elif row.19 =='Completo' %}
+                                                        <td style="background-color: #18DD75">{{row.18}}</td>
+                                                        <td style="background-color: #18DD75">{{row.32}} </td>
+                                                        <td style="background-color: #18DD75">{{row.19}}</td>
+                                                        {% elif row.19 =='Incompleto' %}
+                                                        <td style="background-color: #18DD75">{{row.18}}</td>
+                                                        <td style="background-color: #18DD75">{{row.32}} k</td>
+                                                        <td style="background-color: #18DD75">{{row.19}}</td>
+                                                        {% else %}
+                                                        <td style="background-color: #18DD75">{{row.18}}</td>
+                                                        <td style="background-color: #18DD75">{{row.32}}</td>
+                                                        <td style="background-color: #18DD75">{{row.19}}</td>
+                                                        {% endif %}
+                                                    {% if row.31 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75"><a id="BtnChangeStatePickingWarehouseNo{{row.0}}" onclick="ChangeStatePickingWarehouseNo({{row.0}})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75"><a id="BtnChangeStatePickingWarehouseYes{{row.0}}" onclick="ChangeStatePickingWarehouseYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    {% if row.21 == 'Sim' %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75"><a id="BtnChangeStateWarehouseStateNo{{row.0}}" onclick="ChangeStateWarehouseStateNo({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;background-color: #18DD75"><a id="BtnChangeStateWarehouseStateYes{{row.0}}" onclick="ChangeStateWarehouseStateYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    <td style="background-color: #18DD75"><a class="btn btn-warning" data-toggle="modal" data-target="#edit_transport{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+
+
+                                                {% else %}
+
+                                                    <td style="white-space: nowrap;">{{row.2}}</td>
+                                                    <td>{{row.4}}</td>
+                                                    <td>{{row.5}}</td>
+                                                    <td>{{row.6}}</td>
+                                                    <td>{{row.8}}</td>
+                                                    <td style="white-space: nowrap;">{{row.11}}</td>
+                                                    <td>{{row.12}}</td>
+                                                    <td>{{row.13}}</td>
+                                                    <td>{{row.14}}</td>
+                                                    {% if row.46 == '1' %}
+                                                    <td style="white-space: nowrap;"><button id="copyButtonText{{row.0}}" onclick="copyText({{row.0}}, '{{row.15}}')" type="button" class="btn btn-warning"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;"><button id="copyButton{{row.0}}" type="button" class="btn btn-primary btn-block" onclick="copyTextAndChangeStatus({{row.0}}, '{{row.15}}')" data-clipboard-text="{{row.15}}"><i class="fa fa-copy" aria-hidden="true"></i> {{row.15}}</button></td>
+                                                    {% endif %}
+                                                    <td>{{row.16}}</td>
+                                                    <td>{{row.27}}</td>
+                                                    <td style="white-space: nowrap;">{{row.29}}-{{row.30}}</td>
+                                                    {% if row.47 == '0' %}
+                                                    <td style="white-space: nowrap;">No</td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;">Yes</td>
+                                                    {% endif %}
+                                                        {% if row.19 == 'S/Abrir' %}
+                                                        <td style="background-color: #f8d2d2">{{row.18}} </td>
+                                                        <td >{{row.32}} </td>
+                                                        <td style="background-color: #f8d2d2">{{row.19}} </td>
+                                                        {% elif row.19 =='Completo' %}
+                                                        <td style="background-color: lightblue">{{row.18}}</td>
+                                                        <td>{{row.32}} </td>
+                                                        <td style="background-color: lightblue">{{row.19}}</td>
+                                                        {% elif row.19 =='Incompleto' %}
+                                                        <td style="background-color: #f8f8d2">{{row.18}}</td>
+                                                        <td>{{row.32}} k</td>
+                                                        <td style="background-color: #f8f8d2">{{row.19}}</td>
+                                                        {% else %}
+                                                        <td>{{row.18}}</td>
+                                                        <td>{{row.32}}</td>
+                                                        <td >{{row.19}}</td>
+                                                        {% endif %}
+                                                    {% if row.31 == 'Sim' %}
+                                                    <td style="white-space: nowrap;"><a id="BtnChangeStatePickingWarehouseNo{{row.0}}" onclick="ChangeStatePickingWarehouseNo({{row.0}})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;"><a id="BtnChangeStatePickingWarehouseYes{{row.0}}" onclick="ChangeStatePickingWarehouseYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    {% if row.21 == 'Sim' %}
+                                                    <td style="white-space: nowrap;"><a id="BtnChangeStateWarehouseStateNo{{row.0}}" onclick="ChangeStateWarehouseStateNo({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-check"></i> </a></td>
+                                                    {% else %}
+                                                    <td style="white-space: nowrap;"><a id="BtnChangeStateWarehouseStateYes{{row.0}}" onclick="ChangeStateWarehouseStateYes({{ row.0 }})" class="btn btn-secondary btn-block" style="background-color:#F5F0EB;color: black;"><i class="fa fa-square-o"></i> </a></td>
+                                                    {% endif %}
+                                                    <td><a class="btn btn-warning" data-toggle="modal" data-target="#edit_transport{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                                {% endif %}
+                                            </tr>
+                                            {% endfor %}
+                                            {% for row in GetIdTransport %}
+                                            <div class="modal fade" id="edit_transport{{row.0}}" role="dialog">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Editar Pedido de Expedição</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form action="/expedition_request_warehouse_edit/{{row.0}}" method="POST">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Quantidade</label>
+                                                                            <div>
+                                                                                <input type="number" id="qtd" name="qtd" class="form-control" value="{{row.8}}" maxlength="40">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Rota</label>
+                                                                            <div>
+                                                                                <input type="text" id="rota" name="rota" class="form-control" value="{{row.12}}" maxlength="40">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Guia</label>
+                                                                            <div>
+                                                                                <input type="text" id="guia" name="guia" class="form-control" value="{{row.18}}" maxlength="40">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label"> Estado Armazém </label>
+                                                                            <select class="form-control" name="estadoarmazem" id="estadoarmazem" type="text">
+                                                                                <option value="{{row.19}}">{{row.19}}</option>
+                                                                                <option value="Sem abrir">Sem abrir</option>
+                                                                                <option value="Incompleto">Incompleto</option>
+                                                                                <option value="Completo">Completo</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">My Pack</label>
+                                                                            <div>
+                                                                                <input type="text" id="mypack" name="mypack" class="form-control" value="{{row.32}}" maxlength="40">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Picking</label>
+                                                                            <select class="form-control" name="picking" id="picking" type="text">
+                                                                                <option value="{{row.31}}">{{row.31}}</option>
+                                                                                <option value="Sim">Sim</option>
+                                                                                <option value="Nao">Nao</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Expedido</label>
+                                                                            <select class="form-control" name="expedido" id="expedido" type="text">
+                                                                                <option value="{{row.21}}">{{row.21}}</option>
+                                                                                <option value="Sim">Sim</option>
+                                                                                <option value="Nao">Nao</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Comentários</label>
+                                                                            <div>
+                                                                                <textarea id="comments" class="form-control" name="comments" rows="4" cols="50" maxlength="100">{{row.14}}</textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <button type="submit" class="btn btn-primary btn-block ">Editar Dados</button>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <button type="button" class="btn btn-info btn-block" data-dismiss="modal" onclick="">Cancelar</button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mt-2">
+                                                                    <div class="col-md-12">
+                                                                        <button type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#refuse{{row.0}}" onclick="hideFirstModal({{row.0}})">Cancelar Pedido</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal fade" id="refuse{{row.0}}" role="dialog">
+                                                <div class="modal-dialog modal-md ">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Anular Pedido de Expedição</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form action="/cancel_request_transport_warehouse/{{row.0}}" method="POST">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Motivos </label>
+                                                                            <select class="form-control" name="motive" id="motive" type="text" required>
+                                                                                <option value="">Selecionar Motivo</option>
+                                                                                {% for row in MRPGetMotives %}
+                                                                                <option value="{{row.1}}">{{row.1}}</option>
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Comentários</label>
+                                                                            <div>
+                                                                                <textarea id="comments_refuse" class="form-control" name="comments_refuse" rows="4" cols="50" maxlength="200"></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mt-2">
+                                                                    <div class="col-md-12">
+                                                                        <button type="submit" class="btn btn-warning btn-block">Confirm</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-info" data-dismiss="modal" onclick="showFirstModal({{row.0}})">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Inicializa o ClipboardJS
+    new ClipboardJS('#copyButton');
+
+    function copyTextAndChangeStatus(rowId, cellText) {
+        // Copiar o texto usando ClipboardJS
+        var clipboard = new ClipboardJS('#copyButton' + rowId, {
+            text: function() {
+                return cellText;
+            }
+        });
+
+        clipboard.on('success', function(e) {
+            // Enviar requisição AJAX para atualizar o estado no backend
+            $.ajax({
+                url: '/update_sosa_status',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ 'row_id': rowId }),
+                success: function(response) {
+                    const button = document.getElementById('copyButton' + rowId);
+                    console.log(button)
+                    button.classList.add('btn-warning');
+                    console.log('Status atualizado com sucesso.');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao atualizar o status: ' + error);
+                }
+            });
+
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function(e) {
+            console.error('Erro ao copiar texto: ', e);
+        });
+    }
+    </script>
+    <script>
+    // Inicializa o ClipboardJS
+    new ClipboardJS('#copyButtonText');
+
+    function copyText(rowId, cellText) {
+        // Copiar o texto usando ClipboardJS
+        var clipboard = new ClipboardJS('#copyButtonText' + rowId, {
+            text: function() {
+                return cellText;
+            }
+        });
+
+        clipboard.on('error', function(e) {
+            console.error('Erro ao copiar texto: ', e);
+        });
+    }
+    </script>
+    <script>
+    function ChangeStatePickingWarehouseNo(rowId) {
+        // URL do backend para alterar o estado
+        const url = `/change_state_picking_warehouse_no/${rowId}`;
+        console.log('entrei Não')
+        // Faz uma requisição AJAX para o backend
+        fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ rowId: rowId }) // Inclui o ID da linha na requisição
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Seleciona o botão pelo ID
+                    const button = document.getElementById('BtnChangeStatePickingWarehouseNo' + rowId);
+
+                    // Altera o ícone
+                    button.innerHTML = '<i class="fa fa-square-o"></i>';
+
+                    // Altera o ID do botão
+                    button.id = 'BtnChangeStatePickingWarehouseYes' + rowId;
+
+                    // Altera o onclick para chamar a função inversa
+                    button.setAttribute('onclick', 'ChangeStatePickingWarehouseYes(' + rowId + ')');
+
+                    console.log('Changed to No:', rowId);
+                } else {
+                    console.error('Failed to change state on the backend');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function ChangeStatePickingWarehouseYes(rowId) {
+        // URL do backend para alterar o estado
+        const url = `/change_state_picking_warehouse_yes/${rowId}`;
+        console.log('entrei SIM')
+        // Faz uma requisição AJAX para o backend
+        fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ rowId: rowId }) // Inclui o ID da linha na requisição
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Seleciona o botão pelo ID
+                    const button = document.getElementById('BtnChangeStatePickingWarehouseYes' + rowId);
+                    button.innerHTML = ''
+                    // Altera o ícone
+                    button.innerHTML = '<i class="fa fa-check"></i>';
+                    
+
+                    // Altera o ID do botão
+                    button.id = 'BtnChangeStatePickingWarehouseNo' + rowId;
+
+                    // Altera o onclick para chamar a função inversa
+                    button.setAttribute('onclick', 'ChangeStatePickingWarehouseNo(' + rowId + ')');
+
+                    console.log('Changed to Yes:', rowId);
+                } else {
+                    console.error('Failed to change state on the backend');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+    </script>
+    <script>
+    function ChangeStateWarehouseStateNo(rowId) {
+        // URL do backend para alterar o estado
+        const url = `/change_state_warehousestate_no/${rowId}`;
+
+        // Faz uma requisição AJAX para o backend
+        fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ rowId: rowId }) // Inclui o ID da linha na requisição
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Seleciona o botão pelo ID
+                    const button = document.getElementById('BtnChangeStateWarehouseStateNo' + rowId);
+
+                    // Altera o ícone
+                    button.innerHTML = '<i class="fa fa-square-o"></i>';
+
+                    // Altera o ID do botão
+                    button.id = 'BtnChangeStateWarehouseStateYes' + rowId;
+
+                    // Altera o onclick para chamar a função inversa
+                    button.setAttribute('onclick', 'ChangeStateWarehouseStateYes(' + rowId + ')');
+
+                    console.log('Changed to No:', rowId);
+                } else {
+                    console.error('Failed to change state on the backend');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function ChangeStateWarehouseStateYes(rowId) {
+        // URL do backend para alterar o estado
+        const url = `/change_state_warehousestate_yes/${rowId}`;
+
+        // Faz uma requisição AJAX para o backend
+        fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ rowId: rowId }) // Inclui o ID da linha na requisição
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Seleciona o botão pelo ID
+                    const button = document.getElementById('BtnChangeStateWarehouseStateYes' + rowId);
+
+                    // Altera o ícone
+                    
+                    button.innerHTML = '<i class="fa fa-check"></i>';
+
+                    // Altera o ID do botão
+                    button.id = 'BtnChangeStateWarehouseStateNo' + rowId;
+
+                    // Altera o onclick para chamar a função inversa
+                    button.setAttribute('onclick', 'ChangeStateWarehouseStateNo(' + rowId + ')');
+
+                    console.log('Changed to yes:', rowId);
+                } else {
+                    console.error('Failed to change state on the backend');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+    </script>
+    <script>
+    // Função para esconder o primeiro modal
+    function hideFirstModal(id) {
+        $('#edit_transport' + id).modal('hide');
+    }
+
+    function showFirstModal(id) {
+        $('#edit_transport' + id).modal('show');
+    }
+    </script>
+    <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="static/plat_static/js/demo/datatables-demo.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#dataTable-prepare').DataTable({ "order": [], "pageLength": 20 });
+        });
+        </script>
+</body>
+{% endblock %}

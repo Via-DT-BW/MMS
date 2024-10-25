@@ -1,0 +1,332 @@
+{% extends 'home.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container.fluid" id="coisas">
+        <div class="card mb-4 mt-2">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="mt-4">Status My Requisitions</h3>
+                    </div>
+                    <div class="col-md-6">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="table" class="table table-striped table-responsive table-bordered">
+                    <thead id="box" class="bg-light">
+                        <tr>
+                            <th data-field="1" data-sortable="true">Code</th>
+                            <th data-field="2" data-sortable="true">Creation Date</th>
+                            <th data-field="3" data-sortable="false">Status</th>
+                            <th data-field="4" data-sortable="false">Options</th>
+                            <th data-field="5" data-sortable="true">PickUp address</th>
+                            <th data-field="6" data-sortable="false">PickUp Company</th>
+                            <th data-field="7" data-sortable="true">PickUp Country</th>
+                            <th data-field="8" data-sortable="true">PickUp Date</th>
+                            <th data-field="9" data-sortable="true">Delivery address</th>
+                            <th data-field="10" data-sortable="true">Delivery Company</th>
+                            <th data-field="11" data-sortable="false">Delivery Country</th>
+                            <th data-field="12" data-sortable="false">Delivery Date</th>
+                            <th data-field="13" data-sortable="false">Qty. Pallets</th>
+                            <th data-field="14" data-sortable="false">Lenght</th>
+                            <th data-field="15" data-sortable="false">Width</th>
+                            <th data-field="16" data-sortable="false">Height</th>
+                            <th data-field="17" data-sortable="false">Weight</th>
+                            <th data-field="18" data-sortable="false">Volume</th>
+                            <th data-field="19" data-sortable="false">Stackable</th>
+                            <th data-field="20" data-sortable="false">Edit</th>
+                            <th data-field="21" data-sortable="false">Reference 1</th>
+                            <th data-field="22" data-sortable="false">Reference 2</th>
+                            <th data-field="23" data-sortable="false">Reference 3</th>
+                            <th data-field="24" data-sortable="false">Imputable</th>
+                            <th data-field="25" data-sortable="false">Suppplier/Client</th>
+                            <th data-field="26" data-sortable="false">Line</th>
+                            <th data-field="27" data-sortable="false">Cost Center</th>
+                            <th data-field="28" data-sortable="false">Urgent</th>
+                            <th data-field="29" data-sortable="false">Justification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableInfos">
+                        <tr>{% for row in transports_request_data %}
+                            <td>{{row.1}}</td>
+                            <td>{{row.2}}</td>
+                            {% if row.39 == 'Closed' %}
+                            <td>{{row.39}}</td>
+                            {% else %}
+                            <td style="background-color:#F8E5D2">Open</td>
+                            {% endif %}
+                            {% if row.35 == 1 %}
+                            <td style="background-color:#D2D2F8;">Waiting for Options</td>
+                            {% elif row.35 == 2 %}
+                            {% if row.39 == 'Closed' %}
+                            <td></td>
+                            {% else %}
+                            <td><button type="button" class="btn btn-success" data-toggle="modal" data-target="#escolher_opcao{{row.0}}">Select Option</button></td>
+                            {% endif %}
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                            <td style="background-color:#16d579;color: white;">{{row.3}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.4}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.5}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.9}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.6}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.7}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.8}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.10}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.11}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.12}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.13}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.14}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.15}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.16}}</td>
+                            <td style="background-color:#73e1b1;color: white;">{{row.61}}</td>
+                            {% if row.39 == 'Closed' %}
+                            <td></td>
+                            {% else %}
+                            <td><a href="" class="btn btn-primary" style="background-color: #f8971d;border-color:#f8971d;" data-toggle="modal" data-target="#edit_req_ut{{row.0}}"><i class="bi bi-pencil-square" aria-hidden="true"></i></a></td>
+                            {% endif %}
+                            <td>{{row.17}}</td>
+                            <td>{{row.18}}</td>
+                            <td>{{row.19}}</td>
+                            <td>{{row.22}}</td>
+                            <td>{{row.23}}</td>
+                            <td>{{row.24}}</td>
+                            <td>{{row.25}}</td>
+                            <td>{{row.26}}</td>
+                            <td>{{row.27}}</td>
+                        </tr>
+                        <div class="modal fade" id="escolher_opcao{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Select Option</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="option_selection/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <input type="hidden" name="internal_code" value="{{row.1}}">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Internal Code</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="name" name="name" placeholder="{{row.1}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transport Owner</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="owner_option" name="owner_option" placeholder="{{row.37}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Option 1</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="option_1_name" name="option_1_name" placeholder="{{row.29}}" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transit Time</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="option_1_date" name="option_1_date" placeholder="{{row.30}}" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Cost €</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="option_1_price" name="option_1_price" placeholder="{{row.31}}" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Option 2</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="option_2_name" name="option_2_name" placeholder="{{row.32}}" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Transit Time</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="option_2_date" name="option_2_date" placeholder="{{row.33}}" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Cost €</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="option_2_price" name="option_2_price" placeholder="{{row.34}}" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-2">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Option Select</label>
+                                                        <select class="form-control" type="text" name="option_var" id="option_var" required>
+                                                            <option value=""></option>
+                                                            {% if row.33 != '' %}
+                                                            <option value="1">1</option>
+                                                            <option value="2">2</option>
+                                                            {% else %}
+                                                            <option value="1">1</option>
+                                                            {% endif %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Submit</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="edit_req_ut{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-md">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Edit Request</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="requisition_edit/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label" name="var_0">Internal Code: {{row.1}} </label>
+                                                        <div>
+                                                            <input hidden type="text" class="form-control" id="var_0" name="var_0" value="{{row.1}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Qtd. Pallets</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_1" name="var_1" value="{{row.11}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Lenght</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_2" name="var_2" value="{{row.12}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Width</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_3" name="var_3" value="{{row.13}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Height</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_4" name="var_4" value="{{row.14}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Weight</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" id="var_5" name="var_5" value="{{row.15}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Volume</label>
+                                                        <div>
+                                                            <input type="number" class="form-control" disabled id="var_6" name="var_6" value="{{row.16}}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Stackble</label>
+                                                        <div>
+                                                            <select class="form-control" type="text" name="var_7" id="var_7">
+                                                                <option value="{{row.61}}">{{row.61}}</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-info ">Submit</button>
+                                            </div>
+                                            <p style="font-size:11px">Notice: this will delete all options from Transports Department.</p>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: grey;color: white;" data-dismiss="modal">Close modal</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#table').DataTable();
+});
+</script>
+{% endblock %}

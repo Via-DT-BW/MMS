@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="icon" type="image/ico" href="static/content/icon.PNG">
+    <meta name="author" content="">
+    <title>Vigilante</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="static/plat_static/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="static/plat_static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link rel="icon" type="image/ico" href="img/icon.webp">
+    <style>
+        .nav-item.active.route {
+        background-color: #051729;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-item.active.route:hover {
+        background-color: #2980b9;
+    }
+
+    a {
+        text-decoration: none !important;
+    }
+
+    
+    </style>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <ul class="navbar-nav  sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color:#051729 ;">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+                <div class="sidebar-brand-icon ">
+                    <img src="static/content/icon.PNG" style="height:45px;border-radius: 8px;box-shadow: 1px 1px 1px 1px rgba(44, 237, 212,0.5);" alt="LogoBogwarner">
+                </div>
+                <div class="sidebar-brand-text mx-3" style="color:#2cedd4">LMS </div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="portaria_dashboard">
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <hr class="sidebar-divider my-0">
+            <div class="sidebar-heading mt-2" style="color: #2cedd4;">
+                Chaveiro
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="status_chaves">
+                    <span>Registos</span>
+                </a>
+            </li>
+            <hr class="sidebar-divider my-0">
+            <div class="sidebar-heading mt-2" style="color: #2cedd4;">
+                Controlo de Acesso
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="status_portaria">
+                    <span>Externos</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="status_portaria_temporarios">
+                    <span>Internos</span>
+                </a>
+            </li>
+            <hr class="sidebar-divider my-0">
+            <div class="sidebar-heading mt-2" style="color: #2cedd4;">
+                Armazém
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="status_cargas_descargas">
+                    <span>Cargas & Descargas</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider my-0">
+            <div class="sidebar-heading mt-2" style="color: #2cedd4;">
+                Histórico
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+                    <span>Chaveiro</span>
+                </a>
+                <div id="collapse4" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Tipo:</h6>
+                        <a class="collapse-item" href="history_by_date_portaria_chaveiro">Personalizada</a>
+                        <a class="collapse-item" href="history_last_7_days_chaveiro">Últimos 7 Dias</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
+                    <span>Controlo Acessos</span>
+                </a>
+                <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Tipo:</h6>
+                        <a class="collapse-item" href="history_by_date_portaria_req_visitas">Personalizada</a>
+                        <a class="collapse-item" href="history_last_7_days_portaria_visitas">Últimos 7 Dias</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
+                    <span>Cargas & Descargas</span>
+                </a>
+                <div id="collapse2" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Tipo:</h6>
+                        <a class="collapse-item" href="history_by_date_portaria">Personalizada</a>
+                        <a class="collapse-item" href="last_7_days_portaria">Últimos 7 Dias</a>
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="sidebar-heading mt-2 mb-2" style="color: #2cedd4;">
+                Configs
+            </div>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="estado_estacionamento_servicos">
+                    <span>Estacionamento Serviços</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="estado_cartoes">
+                    <span>Estado Cartões</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="status_empresas">
+                    <span>Lista Empresas</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse22" aria-expanded="true" aria-controls="collapse22">
+                    <span>Chaveiro</span>
+                </a>
+                <div id="collapse22" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Tipo:</h6>
+                        <a class="collapse-item" href="portaria_chaves_principal">Principal</a>
+                        <a class="collapse-item" href="portaria_chaves_copias">Cópias</a>
+                    </div>
+                </div>
+            </li>
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light  topbar mb-2 static-top shadow" style="background-color:#051729 ;">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars" style="color:#2EFAD9"></i>
+                    </button>
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline  small" style="color:white">{{ session['username'] }}</span>
+                                <img class="img-profile rounded-circle" src="static/plat_static/img/undraw_profile.svg">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <!--div class="dropdown-divider"></div-->
+                                <a class="dropdown-item" href="{{url_for('logout')}}">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container-fluid">
+                    <div class="card shadow mb-2 ml-1">
+                        <div class="card-header py-3">
+                            <p style="text-align: center;font-size: 26px;"><b>Cargas e Descargas</b></p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <h1 class="h3 mb-2 text-gray-800" style="text-align: center;">Visão Geral Portaria BORGWARNER</h1>
+                                    <table class="table table-sm table-bordered table-responsive" style="height: 450px;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Empresa</th>
+                                                <th scope="col">Matricula</th>
+                                                <th scope="col">Motorista</th>
+                                                <th scope="col">Contacto</th>
+                                                <th scope="col">Tipo</th>
+                                                <th scope="col" style="white-space: nowrap;">Tempo Espera Real</th>
+                                                <th scope="col">Entrada Prevista</th>
+                                                <th scope="col">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="font-size: 12px; ">
+                                            {% for row in pendentes_armazem %}
+                                            <tr>
+                                                <td style="white-space: nowrap;">{{row.0}}</td>
+                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                <td style="white-space: nowrap;">{{row.2}}</td>
+                                                <td style="white-space: nowrap;">{{row.3}}</td>
+                                                <td style="white-space: nowrap;">{{row.4}}</td>
+                                                <td style="white-space: nowrap;">{{row.5}} min</td>
+                                                {% if row.6 == None %}
+                                                <td></td>
+                                                {% else %}
+                                                <td style="white-space: nowrap;">{{row.6}} h </td>
+                                                {% endif %}
+                                                <td style="white-space: nowrap;"> Aguarda Seleção</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-5 col-sm-12">
+                                    <h1 class="h3 mb-2 text-gray-800" style="text-align: center;">Visão Geral Cais BORGWARNER</h1>
+                                    <table class="table table-md table-bordered table-responsive" style="height: 450px;">
+                                        <thead>
+                                            <tr style=" text-align: center;">
+                                                <th scope="col">Nome cais</th>
+                                                <th scope="col">Empresa</th>
+                                                <th scope="col">Matrícula</th>
+                                                <th scope="col">Estado</th>
+                                                <th scope="col">Em Trabalho (min)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="font-size: 14px;">
+                                            <tr>
+                                                <td style="white-space: nowrap;">Cais 1</td>
+                                                <td style="white-space: nowrap;">{{dashboard_armazem_estado_cais[0][0]}}</td>
+                                                <td style="white-space: nowrap;">{{dashboard_armazem_estado_cais[0][1]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][2] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][2] == '1' %}
+                                                <td style="white-space: nowrap;">Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][2] == '2' %}
+                                                <td style="white-space: nowrap;">Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][2] == '3' %}
+                                                <td style="white-space: nowrap;">Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td style="white-space: nowrap;">Nada registado</td>
+                                                {% endif %}
+                                                <td style="white-space: nowrap;">{{dashboard_armazem_estado_cais[0][3]}} </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cais 2</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][4]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][5]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][6] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][6] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][6] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][6] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][7]}} </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cais 3</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][8]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][9]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][10] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][10] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][10] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][10] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][11]}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cais 4</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][12]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][13]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][14] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][14] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][14] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][14] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][15]}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cais 5</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][16]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][17]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][18] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][18] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][18] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][18] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][19]}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cais Lateral</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][20]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][21]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][22] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][22] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][22] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][22] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][23]}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Área Exterior</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][24]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][25]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][26] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][26] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][26] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][26] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][27]}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Área Tubos 6 metros</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][28]}}</td>
+                                                <td>{{dashboard_armazem_estado_cais[0][29]}}</td>
+                                                {% if dashboard_armazem_estado_cais[0][30] == '' %}
+                                                <td></td>
+                                                {% elif dashboard_armazem_estado_cais[0][30] == '1' %}
+                                                <td>Aguarda Registo</td>
+                                                {% elif dashboard_armazem_estado_cais[0][30] == '2' %}
+                                                <td>Em trabalho</td>
+                                                {% elif dashboard_armazem_estado_cais[0][30] == '3' %}
+                                                <td>Aguarda validação Portaria</td>
+                                                {% else %}
+                                                <td>Nada registado</td>
+                                                {% endif %}
+                                                <td>{{dashboard_armazem_estado_cais[0][31]}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <p style="text-align: center;font-size: 18px;"><b>Cargas e Descargas</b>
+                                <p>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-2 ml-1">
+                        <div class="card-header py-3">
+                            <p style="text-align: center;font-size: 26px;"><b>Controlo de Acessos</b></p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col ">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Geral</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][0]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/global.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Coberta</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][1]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/exhaust-fan.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Produção</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][2]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/worker.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Recursos Humanos</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][3]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/human-resources.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Refeitório</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][4]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/canteen.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Armazém</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][5]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/warehouse.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Posto Médico</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][7]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/healthcare.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Zona Técnica</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][8]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/customer-support.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Edificio Administrativo</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{contagem_dashboard[0][6]}}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/location.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-warning shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                                Colaboradores nas Instalações</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ contagem_acessos[0][0] }}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/group.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-warning shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                                Total Dia</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ contagem_acessos[0][1] }}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/human.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-success shadow h-100 py-2">
+                                                <a data-toggle="modal" data-target="#listaservicos">
+                                                    <div class="card-body">
+                                                        <div class="row no-gutters align-items-center">
+                                                            <div class="col">
+                                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                                    Cartões Serviços</div>
+                                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ contagem_cartoes[0][0] }}</div>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/technical-support.PNG">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" id="listaservicos" role="dialog">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Cartões em utilização: <b>Serviços</b></h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="" method="POST">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <table class="table table-bordered table-responsive" id="dataTable-follow-up" width="100%" cellspacing="0" style="font-size: 15px; height: 425px;">
+                                                                        <thead id="box" class="bg-light">
+                                                                            <tr>
+                                                                                <th scope="col">Cartão</th>
+                                                                                <th scope="col">Nome</th>
+                                                                                <th scope="col">Empresa</th>
+                                                                                <th scope="col">Contacto</th>
+                                                                                
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody style="font-size: 16px; ">
+                                                                            {% for row in dashboard_lista_cartoes_servicos %}
+                                                                            <tr>
+                                                                                <td style="white-space: nowrap;">{{row.0}}</td>
+                                                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                                                <td>{{row.2}}</td>
+                                                                                <td>{{row.3}}</td>
+                                                                                
+                                                                            </tr>
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <a data-toggle="modal" data-target="#listavisitas">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Cartões Visitas</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ contagem_cartoes[0][1] }}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/visiting-card.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="modal fade" id="listavisitas" role="dialog">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Cartões em utilização: <b>Visitas</b></h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="" method="POST">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <table class="table table-bordered table-responsive" id="dataTable-follow-up" width="100%" cellspacing="0" style="font-size: 15px; height: 425px;">
+                                                                        <thead id="box" class="bg-light">
+                                                                            <tr>
+                                                                                <th scope="col">Cartão</th>
+                                                                                <th scope="col">Nome</th>
+                                                                                <th scope="col">Empresa</th>
+                                                                                <th scope="col">Contacto</th>
+                                                                                
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody style="font-size: 16px; ">
+                                                                            {% for row in dashboard_lista_cartoes_visitas %}
+                                                                            <tr>
+                                                                                <td style="white-space: nowrap;">{{row.0}}</td>
+                                                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                                                <td>{{row.2}}</td>
+                                                                                <td>{{row.3}}</td>
+                                                                                
+                                                                            </tr>
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-danger shadow h-100 py-2">
+                                                <a data-toggle="modal" data-target="#listatemporarios">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                                Cartões Temporários</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ contagem_cartoes[0][2] }}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/part-time.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" id="listatemporarios" role="dialog">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Cartões em utilização: <b>Temporários</b></h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="" method="POST">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <table class="table table-bordered table-responsive" id="dataTable-follow-up" width="100%" cellspacing="0" style="font-size: 15px; height: 425px;">
+                                                                        <thead id="box" class="bg-light">
+                                                                            <tr>
+                                                                                <th scope="col">Cartão</th>
+                                                                                <th scope="col">Nome</th>
+                                                                                <th scope="col">Empresa</th>
+                                                                                <th scope="col">Contacto</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody style="font-size: 16px; ">
+                                                                            {% for row in dashboard_lista_cartoes_temporario %}
+                                                                            <tr>
+                                                                                <td style="white-space: nowrap;">{{row.0}}</td>
+                                                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                                                <td>{{row.2}}</td>
+                                                                                <td>{{row.3}}</td>
+                                                                                
+                                                                            </tr>
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Pessoas Cais</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ contagem_cais[1][0] }}</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <img class="img-profile" style=" height: 50px; width: 100%;" src="static/content/Icons/truck.PNG">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <p style="text-align: center;font-size: 18px;"><b>Controlo de acessos</b>
+                                <p>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-2 ml-1">
+                        <div class="card-header py-3">
+                            <p style="text-align: center;font-size: 26px;"><b>Parque Externo</b></p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <h1 class="h3 mb-2 text-gray-800">Parque Externo</h1>
+                                    <p class="mb-4">Informação do estacionamento dos lugares externos</p>
+                                    <div class="row">
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 1</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][0]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][1]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 2</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][2]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][3]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 3</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][4]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][5]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 4</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][6]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][7]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 5</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][8]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][9]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 6</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][10]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][11]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 7</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][12]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][13]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 8</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][14]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][15]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 9</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][16]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][17]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 10</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][18]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][19]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 11</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][20]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][21]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 12</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][22]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][23]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 13</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][24]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][25]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 14</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][26]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][27]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-2 col-md-6 mb-4">
+                                            <div class="card border-left-primary shadow h-100 py-2">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">
+                                                                Lugar 15</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Empresa:</b> {{contagem_lugares_servicos[0][28]}}</div>
+                                                            <div class="text-xs mb-0 font-weight-bold text-gray-800"><b>Matricula:</b> {{contagem_lugares_servicos[0][29]}}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <p style="text-align: center;font-size: 18px;"><b>Parque Externo</b>
+                                <p>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-2 ml-1">
+                        <div class="card-header py-3">
+                            <p style="text-align: center;font-size: 26px;"><b>Chaveiro</b></p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 mb-4">
+                                    <h1 class="h3 mb-2 text-gray-800" style="text-align: center;">Chaveiro Principal</h1>
+                                    <table class="table table-sm table-bordered table-responsive" style="height: 500px;">
+                                        <thead>
+                                            <tr style="text-align:center;">
+                                                <th scope="col">Data registo</th>
+                                                <th scope="col">Chave</th>
+                                                <th scope="col">Requisitante</th>
+                                                <th scope="col">Autorização</th>
+                                                <th scope="col">Permanente</th>
+                                                <th scope="col">Data prevista de entrega</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in chaves_chaveiro_principal %}
+                                            <tr>
+                                                <td style="white-space: nowrap;">{{row.0}}</td>
+                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                <td style="white-space: nowrap;">{{row.2}}</td>
+                                                <td style="white-space: nowrap;">{{row.3}}</td>
+                                                <td style="white-space: nowrap;">{{row.4}}</td>
+                                                <td style="white-space: nowrap;">{{row.5}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-6 mb-4">
+                                    <h1 class="h3 mb-2 text-gray-800" style="text-align: center;">Chaveiro Cópias</h1>
+                                    <table class="table table-sm table-bordered table-responsive" style="height: 500px;">
+                                        <thead>
+                                            <tr style="text-align:center;">
+                                                <th scope="col">Data registo</th>
+                                                <th scope="col">Chave</th>
+                                                <th scope="col">Requisitante</th>
+                                                <th scope="col">Autorização</th>
+                                                <th scope="col">Permanente</th>
+                                                <th scope="col">Data prevista de entrega</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in chaves_chaveiro_copias %}
+                                            <tr>
+                                                <td style="white-space: nowrap;">{{row.0}}</td>
+                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                <td style="white-space: nowrap;">{{row.2}}</td>
+                                                <td style="white-space: nowrap;">{{row.3}}</td>
+                                                <td style="white-space: nowrap;">{{row.4}}</td>
+                                                <td style="white-space: nowrap;">{{row.5}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <p style="text-align: center;font-size: 18px;"><b>Chaveiro</b>
+                                <p>
+                        </div>
+                    </div>
+                    <footer class="sticky-footer bg-white">
+                        <div class="container my-auto">
+                            <div class="copyright text-center my-auto">
+                                <span>Copyright &copy; Digital Transformation Viana {{ano}}</span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
+            <script src="static/scripts/js/scripts.js"></script>
+            <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+            <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+            <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+            <script src="static/plat_static/js/sb-admin-2.min.js"></script>
+            <script src="static/plat_static/vendor/chart.js/Chart.min.js"></script>
+            <!--script type="text/javascript">
+            var ctx = document.getElementById("totalentradas");
+            var myPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ["Dentro Instalações", "Saidas"],
+                    datasets: [{
+                        data: [{ { contagem_acessos[0][0] } }, { { contagem_acessos[0][2] } }],
+                        backgroundColor: ['#4e73df', '#1cc88a'],
+                        hoverBackgroundColor: ['#2e59d9', '#17a673'],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)",
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyFontColor: "#858796",
+                        borderColor: '#dddfeb',
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10,
+                    },
+                    legend: {
+                        display: true
+                    },
+                    cutoutPercentage: 80,
+                },
+            });
+            </script-->
+</body>
+
+</html>

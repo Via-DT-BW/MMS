@@ -1,0 +1,625 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+<body>
+    <div class="container.fluid" id="coisas">
+        <div class="row">
+            <div class="col">
+                <h2 class="mt-4">Transporte em espera </h2>
+            </div>
+        </div>
+        <br>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+                Registo Cargas e Descargas
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered" id="dataTable-primary" width="100%" cellspacing="0" style="font-size: 12px;">
+                    <thead id="box" class="bg-light">
+                        <tr>
+                            <th data-field="1" data-sortable="true">Hora Chegada</th>
+                            <th data-field="2" data-sortable="true">Motorista</th>
+                            <th data-field="3" data-sortable="true">Empresa</th>
+                            <th data-field="4" data-sortable="true">Veiculo</th>
+                            <th data-field="5" data-sortable="true">Matricula</th>
+                            <th data-field="6" data-sortable="true">Reboque</th>
+                            <th data-field="7" data-sortable="true">Destino</th>
+                            <th data-field="8" data-sortable="true">Cliente</th>
+                            <th data-field="9" data-sortable="true">Nº Carga</th>
+                            <th data-field="10" data-sortable="true">Tipo</th>
+                            <th data-field="11" data-sortable="true">Notas</th>
+                            <th data-field="12" data-sortable="true">Cais</th>
+                            <th data-field="13" data-sortable="true">Hora Prevista</th>
+                            <th data-field="14" data-sortable="true">Anular Registo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableInfos">
+                        <tr>{% for row in all_cargas_descargas_data %}
+                            {% if row.22 == 'Carga' %}
+                            <td style="background-color:#16d579;color: white;">{{row.1}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.3}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.6}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.36}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.7}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.37}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.25}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.26}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.27}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.22}}</td>
+                            <td style="background-color:#16d579;color: white;">{{row.81}}</td>
+                            {% if row.13 == 1 %}
+                            <td style="background-color:#16d579;color: white;"><button type="button" class="btn btn-success" style="background-color: #ddedec;color:black;" data-toggle="modal" data-target="#dar_entrada{{row.0}}">Dar Entrada</button></td>
+                            {% elif row.13 == 2 %}
+                            <td style="background-color:#16d579;color: white;">Cais 1</td>
+                            {% elif row.13 == 3 %}
+                            <td style="background-color:#16d579;color: white;">Cais 2</td>
+                            {% elif row.13 == 4 %}
+                            <td style="background-color:#16d579;color: white;">Cais 3</td>
+                            {% elif row.13 == 5 %}
+                            <td style="background-color:#16d579;color: white;">Cais 4</td>
+                            {% elif row.13 == 6 %}
+                            <td style="background-color:#16d579;color: white;">Cais 5</td>
+                            {% elif row.13 == 7 %}
+                            <td style="background-color:#16d579;color: white;">Cais Lateral</td>
+                            {% elif row.13 == 8 %}
+                            <td style="background-color:#16d579;color: white;">Área Exterior</td>
+                            {% elif row.13 == 9 %}
+                            <td style="background-color:#16d579;color: white;">Área Tubos 6 metros</td>
+                            {% else %}
+                            <td style="background-color:#16d579;color: white;">{{row.13}}</td>
+                            {% endif %}
+                            {% if row.78 == None %}
+                            <td><button type="button" class="btn btn-info" style="background-color:#007dc3;color: white" data-toggle="modal" data-target="#registar_tempo_espera{{row.0}}"><i class="fa fa-hourglass"></i></button></td>
+                            {% else %}
+                            <td>{{row.78}}</td>
+                            {% endif %}
+                            <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#anular_regito_armazem{{row.0}}"><i class="fa fa-times"></i></button></td>
+                            {% elif row.22 == 'Descarga' %}
+                            <td style="background-color:#0e8587;color: white;">{{row.1}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.3}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.6}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.36}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.7}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.37}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.25}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.26}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.27}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.22}}</td>
+                            <td style="background-color:#0e8587;color: white;">{{row.81}}</td>
+                            {% if row.13 == 1 %}
+                            <td style="background-color:#0e8587;color: white;"><button type="button" class="btn btn-success" style="background-color: #ddedec;color:black" data-toggle="modal" data-target="#dar_entrada{{row.0}}">Dar Entrada</button></td>
+                            {% elif row.13 == 2 %}
+                            <td style="background-color:#0e8587;color: white;">Cais 1</td>
+                            {% elif row.13 == 3 %}
+                            <td style="background-color:#0e8587;color: white;">Cais 2</td>
+                            {% elif row.13 == 4 %}
+                            <td style="background-color:#0e8587;color: white;">Cais 3</td>
+                            {% elif row.13 == 5 %}
+                            <td style="background-color:#0e8587;color: white;">Cais 4</td>
+                            {% elif row.13 == 6 %}
+                            <td style="background-color:#0e8587;color: white;">Cais 5</td>
+                            {% else %}
+                            <td style="background-color:#0e8587;color: white;">{{row.13}}</td>
+                            {% endif %}
+                            {% if row.78 == None %}
+                            <td><button type="button" class="btn btn-info" style="background-color:#007dc3;color: white" data-toggle="modal" data-target="#registar_tempo_espera{{row.0}}"><i class="fa fa-hourglass"></i></button></td>
+                            {% else %}
+                            <td>{{row.78}}</td>
+                            {% endif %}
+                            <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#anular_regito_armazem{{row.0}}"><i class="fa fa-times"></i></button></td>
+                            {% else %}
+                            <td>{{row.1}}</td>
+                            <td>{{row.3}}</td>
+                            <td>{{row.6}}</td>
+                            <td>{{row.36}}</td>
+                            <td>{{row.7}}</td>
+                            <td>{{row.37}}</td>
+                            <td>{{row.25}}</td>
+                            <td>{{row.26}}</td>
+                            <td>{{row.27}}</td>
+                            <td>{{row.22}}</td>
+                            <td>{{row.81}}</td>
+                            {% if row.13 == 1 %}
+                            <td><button type="button" class="btn btn-success" data-toggle="modal" style="background-color: #ddedec;color:black" data-target="#dar_entrada{{row.0}}">Dar Entrada</button></td>
+                            {% elif row.13 == 2 %}
+                            <td>Cais 1</td>
+                            {% elif row.13 == 3 %}
+                            <td>Cais 2</td>
+                            {% elif row.13 == 4 %}
+                            <td>Cais 3</td>
+                            {% elif row.13 == 5 %}
+                            <td>Cais 4</td>
+                            {% elif row.13 == 6 %}
+                            <td>Cais 5</td>
+                            {% else %}
+                            <td>{{row.13}}</td>
+                            {% endif %}
+                            {% if row.78 == None %}
+                            <td><button type="button" class="btn btn-info" style="background-color:#007dc3;color: white" data-toggle="modal" data-target="#registar_tempo_espera{{row.0}}"><i class="fa fa-hourglass"></i></button></td>
+                            {% else %}
+                            <td>{{row.78}}</td>
+                            {% endif %}
+                            <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#anular_regito_armazem{{row.0}}"><i class="fa fa-times"></i></button></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        {% for row in all_cargas_descargas_data %}
+                        <!-- Modal escolher opção -->
+                        <div class="modal fade" id="dar_entrada{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Alterar Estado</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="registar_estado_armazem/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Nome</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_1" name="var_1" placeholder="{{row.3}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Empresa</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_2" name="var_2" placeholder="{{row.6}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Contacto</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_3" name="var_3" placeholder="{{row.5}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Hora Chegada</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_4" name="var_4" placeholder="{{row.1}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Tipo Carga</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_5" name="var_5" placeholder="{{row.22}}" Disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Cais Livres</label>
+                                                        <select class="form-control" type="text" name="var_5" id="var_5" required>
+                                                            {% for row in estado_cais_data %}
+                                                            <option value="{{row.0}}">{{row.0}}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <!--div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Observações</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_3" name="var_3" maxlength="50" placeholder="Obs"  />
+                                                        </div>
+                                                    </div>
+                                                </div-->
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Alterar Estado</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="anular_regito_armazem{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Anular Registo</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="anular_regito_armazem/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Motivo</label>
+                                                        <select class="form-control" type="text" name="var_1" id="var_1" required>
+                                                            <option></option>
+                                                            <option value="Motorista Recusou Esperar">Motorista Recusou Esperar</option>
+                                                            <option value="Falta de Material">Falta de Material</option>
+                                                            <option value="Não é para ETTS">Não é para ETTS</option>
+                                                            <option value="Não há carga preparada">Não há carga preparada</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-danger ">Anular Registo</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="registar_tempo_espera{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Registar Tempo Espera</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/registo_tempo_espera_armazem/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Hora Prevista</label>
+                                                        <input type="time" class="form-control" id="var_1" name="var_1" required>
+                                                        <small id="emailHelp" class="form-text text-muted">Escolha a hora prevista</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-info " style="background-color:#007dc3;color: white">Registar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="modal fade" id="adicionar_registo" role="dialog">
+                    <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Registo Carga / Descarga</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form action="add_carga_descarga" method="POST">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label class="control-label">Nome Motorista</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_1" name="var_1" maxlength="50" placeholder="Carlos Filipe" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label class="control-label">Identificação</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_2" name="var_2" maxlength="50" placeholder="CC / Passaport" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Empresa</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_3" name="var_3" maxlength="50" placeholder="XPTO company" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Contacto</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_4" name="var_4" maxlength="50" placeholder="253 453 123" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Tem EPI ?</label>
+                                                <select class="form-control" type="text" name="var_5" id="var_5" required>
+                                                    <option value="Sim">Sim</option>
+                                                    <option value="Não">Não</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Matricula</label>
+                                                <div>
+                                                    <input type="text" class="form-control" id="var_6" name="var_6" maxlength="50" placeholder="Ex: 11-AA-AA" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                    </div>
+                                    <br>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary ">Adicionar</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn" style="background-color: silver" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+                Registo de Transports Standard
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered" id="dataTable-prepare" width="100%" cellspacing="0" style="font-size: 12px;">
+                    <thead id="box" class="bg-light">
+                        <tr>
+                            <th data-field="0" data-sortable="true">InternalCode</th>
+                            <th data-field="1" data-sortable="false">PDF</th>
+                            <th data-field="2" data-sortable="true">Data</th>
+                            <th data-field="3" data-sortable="false">Requisitante</th>
+                            <th data-field="4" data-sortable="false">Observações</th>
+                            <th data-field="5" data-sortable="false">Referências</th>
+                            <th data-field="6" data-sortable="false">Em sistema ?</th>
+                            <th data-field="7" data-sortable="false">Número SFE</th>
+                            <th data-field="8" data-sortable="false">SO / SA</th>
+                            <th data-field="9" data-sortable="true">Estado</th>
+                            <th data-field="10" data-sortable="false"></th>
+                            <th data-field="11" data-sortable="false">Transportadora</th>
+                            <th data-field="12" data-sortable="false">Guia</th>
+                            <th data-field="13" data-sortable="false">Data</th>
+                            <th data-field="14" data-sortable="false">Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableInfos">
+                        <tr>{% for row in standard_transports_request_data %}
+                            <td>{{row.1}}</td>
+                            <td><a href="/download_pdf_req_standard/{{row.0}}" class="btn btn-success" style="background-color:#16d579; color: white;"><i class="fas fa-download"></i></a></td>
+                            <td style="white-space: nowrap;">{{row.2}}</td>
+                            <td>{{row.3}}</td>
+                            <td>{{row.26}}</td>
+                            <td><button type="button" class="btn btn-primary" onclick="abrirModal({{row.0}})"><i class="fa fa-info-circle" aria-hidden="true"></i></button></td>
+                            <td>{{row.22}}</td>
+                            <td>{{row.23}}</td>
+                            <td>{{row.24}}</td>
+                            {% if row.29 == 'Sem Abrir' %}
+                            <td style="background-color:#f8d2d2"> Sem Abrir</td>
+                            {% elif row.29 == '' %}
+                            <td> </td>
+                            {% elif row.29 == 'Incompleto' %}
+                            <td style="background-color:#FFD3A4"> Incompleto</td>
+                            {% elif row.29 == 'Completo' %}
+                            <td style="background-color:#d2f8d2"> Completo</td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                            <td><button type="button" class="btn btn-warning" style="color:white;background-color: orange;" data-toggle="modal" data-target="#editar_estado{{row.0}}">Alterar Estado</button></td>
+                            <td>{{row.27}}</td>
+                            <td>{{row.28}}</td>
+                            <td style="white-space: nowrap;">{{row.30}}</td>
+                            <td>{{row.31}}</td>
+                        </tr>
+                        {% endfor %}
+                        {% for row in standard_transports_request_data %}
+                        <div class="modal fade" id="editar_estado{{row.0}}" role="dialog">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Requisição Nº - {{row.1}}</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="edit_warehouse_standard_reqs/{{row.0}}" method="POST">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label" style="font-size:16px"><strong>Transportador</strong></label>
+                                                        <label class="control-label" style="font-size:16px;color: red;font-weight: 800;">*</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_1" name="var_1" placeholder="Transportadora" value="{{row.43}}" required />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label class="control-label" style="font-size:16px"><strong>Guia</strong></label>
+                                                        <label class="control-label" style="font-size:16px;color: red;font-weight: 800;">*</label>
+                                                        <div>
+                                                            <input type="text" class="form-control" id="var_2" name="var_2" placeholder="Guia transporte" value="{{row.44}}" required />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <div class="form-group">
+                                                        <label class="control-label" style="font-size:16px"><strong>Estado</strong></label>
+                                                        <label class="control-label" style="font-size:16px;color: red;font-weight: 800;">*</label>
+                                                        <select class="form-control" type="text" name="var_3" id="var_3" required value="{{row.45}}">
+                                                            <option value="{{row.45}}">{{row.45}}</option>
+                                                            <option value="Sem Abrir">Sem Abrir</option>
+                                                            <option value="Incompleto">Incompleto</option>
+                                                            <option value="Completo">Completo</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <label class="control-label" style="font-size:16px"><strong>Expedição</strong></label>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label" style="font-size:14px"><strong>Data</strong></label>
+                                                        <label class="control-label" style="font-size:16px;color: red;font-weight: 800;">*</label>
+                                                        <input type="date" class="form-control" id="var_4" name="var_4" required value="{{row.46}}" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label" style="font-size:14px"><strong>Hora</strong></label>
+                                                        <label class="control-label" style="font-size:16px;color: red;font-weight: 800;">*</label>
+                                                        <input type="time" class="form-control" id="var_5" name="var_5" required value="{{row.47}}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary ">Guardar Dados</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn" style="background-color: silver; color: white;" data-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% for row in standard_transports_request_data %}
+    <div id="get_info{{row.0}}" class="modal fade">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Request {{row.1}}</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <table id="table" class="table table-striped table-responsive" data-toggle="table">
+                            <thead id="box" class="bg-light">
+                                <tr>
+                                    <th data-field="1" data-sortable="true">Referência/Lote</th>
+                                    <th data-field="2" data-sortable="true">Qtd. Palets</th>
+                                    <th data-field="3" data-sortable="true">Comp.</th>
+                                    <th data-field="4" data-sortable="true">Larg.</th>
+                                    <th data-field="5" data-sortable="true">Alt.</th>
+                                    <th data-field="6" data-sortable="true">Peso</th>
+                                    <th data-field="7" data-sortable="true">Volume</th>
+                                    <th data-field="8" data-sortable="true">Empilhável</th>
+                                    <th data-field="9" data-sortable="true">Imputável</th>
+                                    <th data-field="10" data-sortable="true">Fornecedor/Cliente</th>
+                                    <th data-field="11" data-sortable="true">Linha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableInfos2{{row.0}}">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <script type="text/javascript">
+    function abrirModal(index) {
+        var modal = document.getElementById('get_info' + index);
+        var bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+
+        // Uncomment the fetch code if you want to fetch data from the server
+
+
+        const tableInfos = document.getElementById('tableInfos2' + index);
+
+        fetch('/get_info?id=' + index + '&format=json', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            // Limpa a tabela antes de adicionar novos dados
+            tableInfos.innerHTML = '';
+
+            // Itera sobre os dados e adiciona linhas à tabela
+            data.forEach(item => {
+                var row = "<tr>";
+                row += "<td>" + item['Reference'] + "</td>";
+                row += "<td>" + item['PalletQty'] + "</td>";
+                row += "<td>" + item['PalletLenght'] + "</td>";
+                row += "<td>" + item['PalletWidth'] + "</td>";
+                row += "<td>" + item['PalletHeight'] + "</td>";
+                row += "<td>" + item['TotalWeight'] + "</td>";
+                row += "<td>" + item['TotalVolume'] + "</td>";
+                row += "<td>" + item['Stackable'] + "</td>";
+                row += "<td>" + item['Imputable'] + "</td>";
+                row += "<td>" + item['SupplierClient'] + "</td>";
+                row += "<td>" + item['ProdLine'] + "</td>";
+                /*for (var key in item) {
+                    row +="<td>" + item['Reference'] + "</td>";
+                     "<td>" + item['PalletType'] + "</td>";
+                    console.log(item[key])
+                } */
+                row += "</tr>";
+                tableInfos.innerHTML += row;
+            });
+        }).catch(error => {
+            console.error('Erro ao obter dados:', error);
+        });
+
+    }
+    </script>
+</body>
+
+</html>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<!-- Inicialize as tabelas DataTables -->
+<script>
+$(document).ready(function() {
+    $('#dataTable-prepare').DataTable({"order":[],"pageLength": 20});
+    $('#dataTable-primary').DataTable();
+    $('#dataTable-finnish').DataTable();
+});
+</script>
+
+
+{% endblock %}

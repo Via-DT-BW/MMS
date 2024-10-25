@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="icon" type="image/ico" href="static/content/icon.PNG">
+    <meta name="author" content="">
+    <title>MRP</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="static/plat_static/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="static/plat_static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link rel="icon" type="image/ico" href="img/icon.webp">
+    <style>
+        .nav-item.active.route {
+        background-color: #051729;
+        transition: background-color 0.3s ease;
+    }
+
+    .nav-item.active.route:hover {
+        background-color: #2980b9;
+    }
+
+    a {
+        text-decoration: none !important;
+    }
+
+    
+    </style>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <ul class="navbar-nav  sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color:#051729 ;">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+                <div class="sidebar-brand-icon ">
+                    <img src="static/content/icon.PNG" style="height:45px;border-radius: 8px;box-shadow: 1px 1px 1px 1px rgba(44, 237, 212,0.5);" alt="LogoBogwarner">
+                </div>
+                <div class="sidebar-brand-text mx-3" style="color:#2cedd4">LMS <br> MRP</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <!-- Nav Item - Dashboard -->
+            <!--li class="nav-item active route">
+                <a class="nav-link" href="">
+                    <span>Home</span></a>
+            </li>
+            <li class="nav-item active route">
+                <a class="nav-link" href="">
+                    <span>Dashboard</span></a>
+            </li-->
+            <li class="nav-item active route">
+                <a class="nav-link" href="/notifications_feed_mrp">
+                    <span>Notifications Feed</span></a>
+            </li>
+            <li class="nav-item active route">
+                <a class="nav-link" href="/status_mrp">
+                    <span>Shipment Requests</span></a>
+            </li>
+            
+            <hr class="sidebar-divider my-0">
+            <div class="sidebar-heading mt-2" style="color: #2cedd4;">
+                History
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+                    <span>Requests</span>
+                </a>
+                <div id="collapse4" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Filter:</h6>
+                        <a class="collapse-item" href="/history_by_date_mrp">Custom</a>
+                        <a class="collapse-item" href="/history_last_7_days_mrp">Last 7 Days</a>
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider d-none d-md-block">
+            <!--div class="sidebar-heading mt-2 mb-2" style="color: #2cedd4;">
+                Settings
+            </div-->
+
+            <!--li class="nav-item">
+                <a class="nav-link collapsed" href="">
+                    <span>Fields</span>
+                </a>
+            </li-->
+
+            <!--li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse22" aria-expanded="true" aria-controls="collapse22">
+                    <span>SAP</span>
+                </a>
+                <div id="collapse22" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Type:</h6>
+                        <a class="collapse-item" href="">Primary</a>
+                    </div>
+                </div>
+            </li-->
+            
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light  topbar mb-2 static-top shadow" style="background-color:#051729 ;">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars" style="color:#2EFAD9"></i>
+                    </button>
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline  small" style="color:white">{{ session['username'] }}</span>
+                                <img class="img-profile rounded-circle" src="static/plat_static/img/undraw_profile.svg">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <!--div class="dropdown-divider"></div-->
+                                <a class="dropdown-item" href="{{url_for('logout')}}">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container-fluid">
+                {% block content %}
+                {% endblock %}
+
+
+                    <footer class="sticky-footer bg-white">
+                        <div class="container my-auto">
+                            <div class="copyright text-center my-auto">
+                                <span>Copyright &copy; Digital Transformation Viana {{ano}}</span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
+            <script src="static/scripts/js/scripts.js"></script>
+            <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+            <script src="static/plat_static/js/sb-admin-2.min.js"></script>
+
+</body>
+
+</html>

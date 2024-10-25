@@ -1,0 +1,341 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .full-height {
+            height: 100%;
+        }
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-grow {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container.fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                {% if messages %}
+                {% for category,message in messages %}
+                {% if category == 'warning' %}
+                <div class="alert alert-warning mt-2" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% elif category == 'info' %}
+                <div class="alert alert-info mt-2" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% elif category == 'success' %}
+                <div class="alert alert-success mt-2" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% elif category == 'error' %}
+                <div class="alert alert-danger mt-2" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="row full-height">
+                    <div class="col flex-column">
+                        <!--div class="card shadow flex-grow mb-3">
+                            <div class="card-header text-center">
+                                <h3>Envios Preparados em Pré-Carga</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable-prepareload" width="100%" cellspacing="0" style="font-size: 12px;">
+                                        <thead>
+                                            <tr>
+                                                <th>ID de Transporte</th>
+                                                <th>Guia</th>
+                                                <th>Referência</th>
+                                                <th>Cliente</th>
+                                                <th>Fábrica</th>
+                                                <th>Qtd.</th>
+                                                <th>Num. Paletes</th>
+                                                <th>Data</th>
+                                                <th><i class="fa fa-clock" aria-hidden="true"></i></th>
+                                                <th>Filas</th>
+                                                <th>Editar</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div-->
+                        <div class="card shadow flex-grow">
+                            <div class="card-header text-center">
+                                <h3>Envios Preparados em FGW</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered " id="dataTable-fgw" width="100%" cellspacing="0" style="font-size: 12px;">
+                                        <thead>
+                                            <tr>
+                                                <th>ID de Pedido</th>
+                                                <th>ID de Transporte</th>
+                                                <th>Guia</th>
+                                                <th>Referência</th>
+                                                <th>Cliente</th>
+                                                <th>Fábrica</th>
+                                                <th>Qtd.</th>
+                                                <th>Data</th>
+                                                <th>Nº Pallets Total</th>
+                                                <th>Nº Pallets Transferidas</th>
+                                                <th>Em falta</th>
+                                                <th>Urgente</th>
+                                                <th>Info</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in GetIdTransportFinish %}
+                                            <tr>
+                                                <td style="white-space: nowrap;"><!--a href="" class="btn btn-primary"> </a-->{{row.2}}</td>
+                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                <td style="white-space: nowrap;">{{row.3}}</td>
+                                                <td>{{row.4}}</td>
+                                                <td>{{row.5}}</td>
+                                                <td>{{row.6}}</td>
+                                                <td style="white-space: nowrap;">{{row.7}}</td>
+                                                <td style="white-space: nowrap;">{{row.8}}</td>
+                                                
+                                                <td style="white-space: nowrap;">{{row.10}}</td>
+                                                <td style="white-space: nowrap;">{{row.11}}</td>
+                                                <td style="white-space: nowrap;">{{row.12}}</td>
+                                                {% if row.47 == '0' %}
+                                                <td style="white-space: nowrap;">Não</td>
+                                                {% else %}
+                                                <td style="white-space: nowrap;">Sim</td>
+                                                {% endif %}
+                                                <td style="white-space: nowrap;"> <button type="button" class="btn btn-primary" onclick="abrirModal({{row.0}})"><i class="fa fa-info-circle" aria-hidden="true"></i></button></td>
+                                                <td style="white-space: nowrap;"><a href="" class="btn btn-primary" data-toggle="modal" data-target="#transfer_to_pre_carga{{row.0}}"><i style="color: white;" class="fa fa-chevron-up"></i> Transferir para Pré Carga</a></td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% for row in GetIdTransportFinish %}
+                                            <div class="modal fade" id="transfer_to_pre_carga{{row.0}}" role="dialog">
+                                                <div class="modal-dialog modal-xl">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Transferir para Pré Carga</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form action="/transfer_to_pre_load/{{row.0}}" method="POST">
+                                                                <br>
+                                                                <div class="row">
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Referência</label>
+                                                                            <div>
+                                                                                <input type="text" class="form-control" value="{{row.4}}" disabled />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Cliente</label>
+                                                                            <div>
+                                                                                <input type="text" class="form-control" value="{{row.5}}" disabled />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Número Pallets</label>
+                                                                            <div>
+                                                                                <input type="number" class="form-control" id="palletquantity" name="palletquantity" required placeholder="0" step="1" min="1" max="{{row.12}}" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">Fila </label>
+                                                                            <select class="form-control" name="fila" id="fila" type="text" required>
+                                                                                <option value="">Selecionar Fila</option>
+                                                                                {% for row in GetQueues %}
+                                                                                <option value="{{row.1}}">{{row.1}}</option>
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+                                                                <div class="form-group">
+                                                                    <button type="submit" class="btn btn-primary ">Registar Filas</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <!-- Atenção colocar o Footer senao 2a modal nao funciona -->
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% for row in GetIdTransportFinish %}
+    <div id="get_info{{row.0}}" class="modal fade">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Pedido {{row.2}}</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                        <table id="table" class="table table-striped table-responsive table-bordered" data-toggle="table" >
+                            <thead id="box" class="bg-light">
+                                <tr>
+                                    
+                                    <th data-field="2" data-sortable="true">Referência</th>
+                                    <th data-field="3" data-sortable="true">Cliente</th>
+                                    <th data-field="4" data-sortable="true">Fábrica</th>
+                                    <th data-field="5" data-sortable="true">Reserva</th>
+                                    <th data-field="6" data-sortable="true">Guia</th>
+                                    <th data-field="7" data-sortable="true">Total Pallets </th>
+                                    <th data-field="8" data-sortable="true">Quantidade Pallets </th>
+                                    <th data-field="9" data-sortable="true">Fila</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableInfos2{{row.0}}">
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <script type="text/javascript">
+        function abrirModal(index) {
+            var modal = document.getElementById('get_info' + index);
+            var bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+
+            // Uncomment the fetch code if you want to fetch data from the server
+
+
+            const tableInfos = document.getElementById('tableInfos2' + index);
+
+            fetch('/get_info_transfer_to_pre_load?id=' + index + '&format=json', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then(data => {
+                // Limpa a tabela antes de adicionar novos dados
+                tableInfos.innerHTML = '';
+
+                // Itera sobre os dados e adiciona linhas à tabela
+                data.forEach(item => {
+                    var row = "<tr>";
+                    
+                    row += "<td>" + item['Reference'] + "</td>";
+                    row += "<td>" + item['Client'] + "</td>";
+                    row += "<td>" + item['Factory'] + "</td>";
+                    row += "<td>" + item['Reservation'] + "</td>";
+                    row += "<td>" + item['Invoice'] + "</td>";
+                    row += "<td>" + item['TotalPalletsQuantitySum'] + "</td>";
+                    row += "<td>" + item['PalletsQuantitySum'] + "</td>";
+                    row += "<td>" + item['Queue'] + "</td>";
+                    row += "</tr>";
+                    tableInfos.innerHTML += row;
+                });
+            }).catch(error => {
+                console.error('Erro ao obter dados:', error);
+            });
+
+        }
+    </script>
+
+    <script>
+        function copyTextAndChangeStatus(rowId, cellText) {
+            // Copiar o texto para o clipboard
+            navigator.clipboard.writeText(cellText).then(function() {
+                console.log('Texto copiado para o clipboard: ' + cellText);
+                console.log('ID: ' + rowId);
+                // Enviar requisição AJAX para atualizar o estado no backend
+                $.ajax({
+                    url: '/update_sosa_status',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 'row_id': rowId }),
+                    success: function(response) {
+                        console.log('Status atualizado com sucesso');
+                        // Aqui você pode adicionar qualquer lógica adicional,
+                        // como mudar o estilo do botão para indicar que foi clicado
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erro ao atualizar o status: ' + error);
+                    }
+                });
+            }, function(err) {
+                console.error('Erro ao copiar texto: ', err);
+            });
+        }
+    </script>
+    <!-- Inclua o JavaScript do jQuery primeiro -->
+    <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Page level plugins -->
+    <script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <!-- Page level custom scripts -->
+    <script src="static/plat_static/js/demo/datatables-demo.js"></script>
+    <!-- Inicialize as tabelas DataTables -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTable-prepareload').DataTable();
+        $('#dataTable-fgw').DataTable();
+    });
+    </script>
+</body>
+{% endblock %}

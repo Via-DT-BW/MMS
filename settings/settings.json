@@ -1,0 +1,5 @@
+[
+    {
+        "connection_string_db_lms": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=10.30.64.44;DATABASE=LMS;UID=lms_user_sql;PWD=lms_user_sql123!"
+    }
+]

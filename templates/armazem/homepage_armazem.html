@@ -1,0 +1,592 @@
+{% extends 'home_armazem.html' %}
+{% block content %}
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <meta http-equiv="refresh" content="60">
+<style type="text/css">
+  #coisas_do_card{
+    margin: 5px;
+        border-radius: 2px;
+        background: ghostwhite;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, .08), 0 0 6px rgba(0, 0, 0, .05);
+        transition: .3s transform cubic-bezier(.155, 1.105, .295, 1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155, 1.105, .295, 1.12);
+  }
+</style>
+<style>
+      toastr.options = {
+      "closeButton": true,
+      "debug": true,
+      "newestOnTop": false,
+      "progressBar": false,
+      "positionClass": "toast-bottom-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "3000",
+      "hideDuration": "1000",
+      
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+</style>
+
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
+</head>
+<body>
+<wbr>
+  <div class="container.fluid">     
+      <div class="row" >
+          <div class="col-12 col-md-6">
+            <div class="card" id="coisas_do_card">
+              <div class="card-header">
+              <h4><strong>Transportes na Portaria</strong></h4>
+              </div>
+              <div class="card-body">
+                <table class="table table-sm ">
+                <thead>
+                  <tr>
+                    <th scope="col">Empresa</th>
+                    <th scope="col">Matrícula</th>
+                    <!--th scope="col">Motorista</th-->
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Entrada</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Tempo espera</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>{% for row in dashboard_armazem_aguarda_portaria_data %}
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      <td>{{row.4}}</td>
+                      {% if row.5 > 90 %}
+                      <td>{{row.6}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.5}} min</td>
+                      
+                      {% elif row.5 > 60  %}
+                      <td>{{row.6}}</td>
+                      <td style="background-color:#f8f8d2; color:black">{{row.5}} min</td>
+                      
+                      {% else %}
+                      <td>{{row.6}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.5}} min</td>
+                      
+                      {% endif %}
+
+                  </tr>{% endfor %}
+                </tbody>
+                </table>   
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="card" id="coisas_do_card">
+              <div class="card-header">
+              <h4><strong>Transportes Gabinete Armazém</strong></h4>
+              </div>
+              <div class="card-body">
+               
+                <table class="table table-sm ">
+                  <thead>
+                    <tr>
+                      <th scope="col">Local</th>
+                      <th scope="col">Empresa</th>
+                      <th scope="col">Matrícula</th>
+                      <!--th scope="col">Motorista</th-->
+                      <th scope="col">Tipo</th>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">Tempo espera</th>                
+                    </tr>
+                  </thead>
+                <tbody>
+
+                    <tr>{% for row in dashboard_armazem_aguarda_registo_armazem %}
+                      {% if row.4 == 2 %}
+                      <td>Cais 1</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 3 %}
+                      <td>Cais 2</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 4 %}
+                      <td>Cais 3</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 5 %}
+                      <td>Cais 4</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 6 %}
+                      <td>Cais 5</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 7 %}
+                      <td>Cais Lateral</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 8 %}
+                      <td>Área Exterior</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      {% if row.4 == 9 %}
+                      <td>Área Tubos 6 metros</td>
+                      <td>{{row.0}}</td>
+                      <td>{{row.1}}</td>
+                      <!--td>{{row.2}}</td-->
+                      <td>{{row.3}}</td>
+                      {% if row.4 > 20 %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#f8d2d2; color:black">{{row.4}} min</td>
+                      {% else %}
+                      <td>{{row.7}}</td>
+                      <td style="background-color:#d2f8d2; ">{{row.4}} min</td>
+                      {% endif %}
+                      {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>   
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="row">
+            <div class="col-12 col-md-6">
+                    <div class="card" id="coisas_do_card">
+                        <div class="card-header">
+                            <h4><strong>Estado dos Cais</strong></h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-md ">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Local</th>
+                                        <th scope="col">Empresa</th>
+                                        <th scope="col">Matrícula</th>
+                                        <th scope="col">Cliente</th>
+                                        <th scope="col">Estado</th>
+                                        <th scope="col" style="font-size:11px;">Tempo em Trabalho (min)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Cais 1</td>
+                                        <td>{{dashboard_nivel_6[0][0]}}</td>
+                                        <td>{{dashboard_nivel_6[0][1]}}</td>
+                                        <td>{{dashboard_nivel_6[0][2]}}</td>
+                                        {% if dashboard_nivel_6[0][3] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][3] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][3] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][3] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][4] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][4]}} min </td>
+                                        {% elif dashboard_nivel_6[0][4] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][4]}} min </td>
+                                        {% elif dashboard_nivel_6[0][4] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][4] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][4]}} min </td>
+                                        {% else %}
+                                        <td></td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Cais 2</td>
+                                        <td>{{dashboard_nivel_6[0][5]}}</td>
+                                        <td>{{dashboard_nivel_6[0][6]}}</td>
+                                        <td>{{dashboard_nivel_6[0][7]}}</td>
+                                        {% if dashboard_nivel_6[0][8] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][8] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][8] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][8] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][9] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][9]}} min </td>
+                                        {% elif dashboard_nivel_6[0][9] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][9]}} min </td>
+                                        {% elif dashboard_nivel_6[0][9] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][9] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][9]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Cais 3</td>
+                                        <td>{{dashboard_nivel_6[0][10]}}</td>
+                                        <td>{{dashboard_nivel_6[0][11]}}</td>
+                                        <td>{{dashboard_nivel_6[0][12]}}</td>
+                                        {% if dashboard_nivel_6[0][13] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][13] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][13] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][13] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][14] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][14]}} min </td>
+                                        {% elif dashboard_nivel_6[0][14] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][14]}} min </td>
+                                        {% elif dashboard_nivel_6[0][14] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][14] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][14]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Cais 4</td>
+                                        <td>{{dashboard_nivel_6[0][15]}}</td>
+                                        <td>{{dashboard_nivel_6[0][16]}}</td>
+                                        <td>{{dashboard_nivel_6[0][17]}}</td>
+                                        {% if dashboard_nivel_6[0][18] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][18] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][18] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][18] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][19] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][19]}} min </td>
+                                        {% elif dashboard_nivel_6[0][19] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][19]}} min </td>
+                                        {% elif dashboard_nivel_6[0][19] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][19] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][19]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Cais 5</td>
+                                        <td>{{dashboard_nivel_6[0][20]}}</td>
+                                        <td>{{dashboard_nivel_6[0][21]}}</td>
+                                        <td>{{dashboard_nivel_6[0][22]}}</td>
+                                        {% if dashboard_nivel_6[0][23] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][23] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][23] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][23] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][24] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][24]}} min </td>
+                                        {% elif dashboard_nivel_6[0][24] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][24]}} min </td>
+                                        {% elif dashboard_nivel_6[0][24] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][24] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][24]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Cais Lateral</td>
+                                        <td>{{dashboard_nivel_6[0][25]}}</td>
+                                        <td>{{dashboard_nivel_6[0][26]}}</td>
+                                        <td>{{dashboard_nivel_6[0][27]}}</td>
+                                        {% if dashboard_nivel_6[0][28] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][28] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][28] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][28] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][29] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][29]}} min </td>
+                                        {% elif dashboard_armazem_estado_cais[0][23] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][29]}} min </td>
+                                        {% elif dashboard_nivel_6[0][29] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][29] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][29]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Área Exterior</td>
+                                        <td>{{dashboard_nivel_6[0][30]}}</td>
+                                        <td>{{dashboard_nivel_6[0][31]}}</td>
+                                        <td>{{dashboard_nivel_6[0][32]}}</td>
+                                        {% if dashboard_nivel_6[0][33] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][33] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][33] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][33] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][34] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][34]}} min </td>
+                                        {% elif dashboard_nivel_6[0][34] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][34]}} min </td>
+                                        {% elif dashboard_nivel_6[0][34] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][34] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][34]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Área Tubos 6 metros</td>
+                                        <td>{{dashboard_nivel_6[0][35]}}</td>
+                                        <td>{{dashboard_nivel_6[0][36]}}</td>
+                                        <td>{{dashboard_nivel_6[0][37]}}</td>
+                                        {% if dashboard_nivel_6[0][38] == '' %}
+                                        <td></td>
+                                        {% elif dashboard_nivel_6[0][38] == '1' %}
+                                        <td>Aguarda Registo</td>
+                                        {% elif dashboard_nivel_6[0][38] == '2' %}
+                                        <td>Em trabalho</td>
+                                        {% elif dashboard_nivel_6[0][38] == '3' %}
+                                        <td>Aguarda validação Portaria</td>
+                                        {% else %}
+                                        <td>Nada registado</td>
+                                        {% endif %}
+                                        {% if dashboard_nivel_6[0][39] > 90 %}
+                                        <td style="background-color:#f8d2d2; color:black">{{dashboard_nivel_6[0][39]}} min </td>
+                                        {% elif dashboard_nivel_6[0][39] > 75 %}
+                                        <td style="background-color:#f8f8d2; color:black">{{dashboard_nivel_6[0][39]}} min </td>
+                                        {% elif dashboard_nivel_6[0][39] == 0 %}
+                                        <td> </td>
+                                        {% elif dashboard_nivel_6[0][39] < 75 %} <td style="background-color:#d2f8d2; color:black">{{dashboard_nivel_6[0][39]}} min </td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <div class="col-12 col-md-4">
+                <div class="card" id="coisas_do_card" >
+                  <div class="card-header">
+                  <h4><strong>Visão Geral do Dia</strong></h4>
+                  </div>
+                  <div class="card-body">
+                    
+                    <table class="table table-md ">
+                      <thead>
+                                    <tr>
+                                        <h4><strong>Transportes Recusados</strong></h4>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col" style="background-color: #f8d2d2">Empresa</th>
+                                        <th scope="col" style="background-color: #f8d2d2">Motivo</th>
+                                        <th scope="col" style="background-color: #f8d2d2">Tipo</th>
+                                        <th scope="col" style="background-color: #f8d2d2">Cliente</th>
+                                        
+                                        <th scope="col" style="background-color: #f8d2d2">Data</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>{% for row in dashboard_armazem_recusas %}
+                                        <td style="background-color: #f8d2d2">{{row.0}}</td>
+                                        
+                                        
+
+                                        
+                                        {% if row.1 == '' %}
+                                        <td style="background-color: #f8d2d2">{{row.2}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.4}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.5}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.3}}</td>
+                                        
+                                        
+                                        {% elif row.2 == '' %}
+                                        <td style="background-color: #f8d2d2"> {{row.1}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.4}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.5}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.3}}</td>
+                                        
+                                        
+                                        {% else %}
+                                        <td>Sem motivo</td>
+                                        <td style="background-color: #f8d2d2">{{row.4}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.5}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.3}}</td>
+                                        
+                                        {% endif %}
+
+
+                                    </tr>{% endfor %}
+                                </tbody>
+                    </table> 
+                    <table class="table table-md ">
+                    <thead>
+                      <tr ><h4><strong>Transportes Realizados</strong></h4></tr>
+                      <tr >
+                        <th scope="col" style="background-color: #d2e5f8;font-size: 22px; text-align: center;">Carga</th>
+                        <th scope="col" style="background-color: #d2e5f8;font-size: 22px; text-align: center;">Descarga</th>
+                        <th scope="col" style="background-color: #d2e5f8;font-size: 22px; text-align: center;">Descarga + Carga</th>
+
+                      </tr>
+                    </thead>
+
+                    <tbody >
+                      <tr>{% for row in dashboard_armazem_contagem %}
+                          <td style="font-size: 30px;text-align:center;background-color: #d2e5f8">{{row.0}} </td>
+                          <td style="font-size: 30px;text-align:center;background-color: #d2e5f8">{{row.1}} </td>
+                          <td style="font-size: 30px;text-align:center;background-color: #d2e5f8">{{row.2}} </td>
+                      </tr>{% endfor %}
+                    </tbody>
+                    </table>  
+                  </div>
+                </div>
+              </div>
+      </div>
+      <div class="row">
+            <div class="col-12 col-md-6">
+            </div>
+      </div>
+          {{ toastr.include_toastr_js() }}
+  </div>
+</body>
+
+<script type="text/javascript">
+  var span = document.getElementById('span');
+
+  function time() {
+    var d = new Date();
+    var s = d.getSeconds();
+    var m = d.getMinutes();
+    var h = d.getHours();
+    span.textContent = 
+      ("0" + h).substr(-2) + ":" + ("0" + m).substr(-2) + ":" + ("0" + s).substr(-2);
+  }
+
+  setInterval(time, 1000);
+</script>
+
+
+   
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+<script src="static/scripts/js/datatables-simple-demo.js"></script>
+
+{% endblock %}

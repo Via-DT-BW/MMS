@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="icon" type="image/ico" href="static/content/icon.PNG">
+    <meta name="author" content="">
+    <title>LMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
+    <link href="static/content/css/styles.css" rel="stylesheet" />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+    <link href="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <link href="static/plat_static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="static/plat_static/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        .nav-item.active.route {
+            background-color: #051729;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-item.active.route:hover {
+            background-color: #2980b9;
+        }
+        
+    </style>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav  sidebar sidebar-dark accordion toggled" id="accordionSidebar" style="background-color:#051729 ;">
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+                <div class="sidebar-brand-icon ">
+                    <img src="static/content/icon.PNG" style="height:45px;border-radius: 8px;box-shadow: 1px 1px 1px 1px rgba(44, 237, 212,0.5);" alt="LogoBogwarner">
+                </div>
+                <div class="sidebar-brand-text mx-3" style="color:#2cedd4">Logística Interna </div>
+            </a>
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active route">
+                <a class="nav-link" href="rota" style="">
+                    <span>Homepage</span></a>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading" style="color:#2cedd4">
+                Armazém
+            </div>
+            <li class="nav-item active route">
+                <a class="nav-link" href="">
+                    <span>Transportes em espera</span></a>
+            </li>
+            <li class="nav-item active route">
+                <a class="nav-link" href="">
+                    <span>Registo Entrada</span></a>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading" style="color:#2cedd4">
+                Histórico
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Ver dados</span>
+                </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Selecione:</h6>
+                        <a class="collapse-item" href="/last_7_days_armazem">Ultimos 7 Dias</a>
+                        <a class="collapse-item" href="/history_by_date_armazem">Data Personalisada</a>
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading" style="color:#2cedd4">
+                Configuração
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>Configurações</span>
+                </a>
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Estado do cais:</h6>
+                        <a class="collapse-item" href="estado_cais">Alterar</a>
+                        <h6 class="collapse-header">Parametros:</h6>
+                        <a class="collapse-item" href="">Alterar</a>
+                    </div>
+                </div>
+            </li>
+            <!--div class="sidebar-heading" style="color:#2cedd4">
+                Histórico
+            </div>
+            <li class="nav-item active route">
+                <a class="nav-link" href="">
+                    <span>Ultimos 7 Dias</span></a>
+            </li>
+            <li class="nav-item active route">
+                <a class="nav-link" href="">
+                    <span>Data Personalisada</span></a>
+            </li-->
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light  topbar mb-2 static-top shadow" style="background-color:#051729 ;">
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline  small" style="color:white">{{session.username}}</span>
+                                <img class="img-profile rounded-circle" src="static/plat_static/img/undraw_profile.svg">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{url_for('logout')}}">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container.fluid">
+                    <div class="card shadow mb-1 ml-1 ">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                                    {% if messages %}
+                                    {% for category,message in messages %}
+                                    {% if category == 'warning' %}
+                                    <div class="alert alert-warning" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% elif category == 'info' %}
+                                    <div class="alert alert-info" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% elif category == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% elif category == 'error' %}
+                                    <div class="alert alert-danger" role="alert">
+                                        <span>{{ message }}</span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-4 ml-2">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Registo de Carga e Descargas</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="table" class="table table" data-search="true" data-toggle="table" data-page-size="40" data-pagination="true" data-page-list="[10, All]" data-resizable="true">
+                                    <thead id="datatable">
+                                        <tr>
+                                            <th data-field="1" data-sortable="true">Hora Chegada</th>
+                                            <th data-field="2" data-sortable="true">Motorista</th>
+                                            <th data-field="3" data-sortable="true">Empresa</th>
+                                            <th data-field="4" data-sortable="true">Veiculo</th>
+                                            <th data-field="5" data-sortable="true">Matricula</th>
+                                            <th data-field="6" data-sortable="true">Reboque</th>
+                                            <th data-field="7" data-sortable="true">Destino</th>
+                                            <th data-field="8" data-sortable="true">Cliente</th>
+                                            <th data-field="9" data-sortable="true">Nº Carga</th>
+                                            <th data-field="10" data-sortable="true">Tipo</th>
+                                            <th data-field="11" data-sortable="true">Notas</th>
+                                            <th data-field="12" data-sortable="true">Cais</th>
+                                            <th data-field="13" data-sortable="true">Hora Prevista</th>
+                                            <th data-field="14" data-sortable="true">Anular Registo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in data1 %}
+                                        <tr>
+                                            <td>{{ row.1 }}</td>
+                                            <td>{{ row.2 }}</td>
+                                            <td>{{ row.3 }}</td>
+                                            <td>{{ row.4 }}</td>
+                                            <td>{{ row.5 }}</td>
+                                            {% if row.12 == 0 %}
+                                            <td> </td>
+                                            {% elif row.12 == 1 %}
+                                            <td><a href="resupply_material_request/{{row.0}}" class="btn btn-primary btn-block"> Pedir Reposição Palete </a></td>
+                                            {% elif row.12 == 2 %}
+                                            <td> <a href="change_state_resupply_request/{{row.0}}" class="btn btn-warning btn-block"> Aguarda Material</a></td>
+                                            {% elif row.12 == 3 %}
+                                            <td> <a class="btn btn-danger btn-block "> Sem Stock</a></td>
+                                            {% elif row.12 == 4 %}
+                                            <td> <a class="btn btn-success btn-block "> Já Reposto</a></td>
+                                            {% elif row.12 == 5 %}
+                                            <td> <a class="btn btn-warning btn-block "> Material em Taw / Inc</a></td>
+                                            {% elif row.12 == 6 %}
+                                            <td> <a class="btn btn-warning btn-block" style="background-color: #f8971d;border-color:#f8971d;"> Viser / ISA</a></td>
+                                            {% endif %}
+                                            {% if row.6 == 1 %}
+                                            <td><a href="change_priority_train_to_train/{{row.0}}" class="btn btn-primary btn-block" style="background-color: forestgreen;border-color:forestgreen;color:white;"> Material Zona Picking </a></td>
+                                            {% elif row.6 == 0 %}
+                                            <td><a href="/change_priority_high_train/{{row.0}}" class="btn btn-primary btn-block" style="background-color: lightgrey;border-color:lightgrey;color:black;"> Necessidade </a></td>
+                                            {% elif row.6 == 2 %}
+                                            <td style="background-color: indianred;height:10px; color: white;">Sem Stock</td>
+                                            {% elif row.6 == 3 %}
+                                            <td><a href="change_priority_to_taw/{{row.0}}" class="btn btn-primary btn-block" style="background-color: orangered;border-color:orangered;"> Necessidade Urgente</a></td>
+                                            {% elif row.6 == 4 %}
+                                            <td><a href="" class="btn btn-primary btn-block" style="background-color: orangered;border-color:orangered;"> Material Zona Picking Urgente</a></td>
+                                            {% elif row.6 == 5 %}
+                                            <td><a href="/change_priority_picking_to_need/{{row.0}}" class="btn btn-primary btn-block" style="background-color: #0E8187;border-color:#0E8187;color:white;"> Material em Comboio</a></td>
+                                            {% elif row.6 == 6 %}
+                                            <td><a href="/change_priority_train_material_picking/{{row.0}}" class="btn btn-warning btn-block">Material em TAW / Inc</a></td>
+                                            {% elif row.6 == 7 %}
+                                            <td><a href="/change_priority_train_material_picking/{{row.0}}" class="btn btn-primary btn-block" style="background-color: #f8971d;border-color:#f8971d;color:white;">Material em Viser / ISA</a></td>
+                                            {% endif %}
+                                            <td><a href="/delete_picking_armazem/{{row.0}} " class="btn btn-danger btn-circle" onclick="return confirm('Tens a certeza que queres eliminar da lista?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Digital Transformation Viana 2024</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    <!-- Bootstrap core JavaScript-->
+    <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="static/plat_static/js/sb-admin-2.min.js"></script>
+</body>
+<script type="text/javascript">
+var span = document.getElementById('span');
+
+function time() {
+    var d = new Date();
+    var s = d.getSeconds();
+    var m = d.getMinutes();
+    var h = d.getHours();
+    span.textContent =
+        ("0" + h).substr(-2) + ":" + ("0" + m).substr(-2) + ":" + ("0" + s).substr(-2);
+}
+
+setInterval(time, 1000);
+</script>
+
+</html>

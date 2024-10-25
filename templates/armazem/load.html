@@ -1,0 +1,198 @@
+{% extends 'armazem/homepage_armazem_new.html' %}
+{% block content %}
+
+<head>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+    .full-height {
+        height: 100%;
+    }
+
+    .flex-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .flex-grow {
+        flex-grow: 1;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container.fluid">
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="row full-height">
+                    <div class="col flex-column">
+                        <div class="card shadow flex-grow mb-3">
+                            <div class="card-header text-center">
+                                <h3>Preparado em Pré-Carga</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable-prepare" width="100%" cellspacing="0" style="font-size: 12px;">
+                                        <thead>
+                                            <tr>
+                                                <th>ID de Transporte</th>
+                                                <th>Cliente</th>
+                                                <th>Shipto</th>
+                                                <th>Fábrica</th>
+                                                <th>Data</th>
+                                                <th><i class="fa fa-clock" aria-hidden="true"></i></th>
+                                                <th>Urgente</th>
+                                                <th>Guias + Filas</th>
+                                                <th>Cais</th>
+                                                <th>Carga</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in GetAllLoadFGW %}
+                                            <tr>
+                                                <td style="white-space: nowrap;">{{row.1}}</td>
+                                                <td style="white-space: nowrap;">{{row.5}}</td>
+                                                <td style="white-space: nowrap;">{{row.6}}</td>
+                                                <td>{{row.7}}</td>
+                                                <td>{{row.9}}</td>
+                                                <td style="white-space: nowrap;">{{row.15}}-{{row.16}}</td>
+                                                {% if row.11 == '0' %}
+                                                <td style="white-space: nowrap;">Não</td>
+                                                {% else %}
+                                                <td style="white-space: nowrap;">Sim</td>
+                                                {% endif %}
+                                                {% if row.1 == '' %}
+                                                <td style="white-space: nowrap;"><button type="button" class="btn btn-secondary disabled"><i class="fa fa-info-circle" aria-hidden="true"></i></button></td>
+                                                {% else %}
+                                                <td style="white-space: nowrap;"><button type="button" class="btn btn-primary" onclick="abrirModal('{{row.1}}')"><i class="fa fa-info-circle" aria-hidden="true"></i></button></td>
+                                                {% endif %}
+                                                <td></td>
+                                                {% if row.19 =='Sim' %}
+                                                <td>Finalizado</td>
+                                                {% else %}
+                                                    {% if row.17 is none %}
+                                                    <td><a href="begin_load/{{row.2}}" class="btn btn-success">Iniciar Carga</a></td>
+                                                    {% elif row.17 and row.18 is none %}
+                                                    <td><a href="end_load/{{row.2}}" class="btn btn-danger">Finalizar Carga</a></td>
+                                                    {% else %}
+                                                    <td>Finalizado</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% for row in GetAllLoadFGW %}
+    <div id="get_info{{row.1}}" class="modal fade">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Transporte {{row.1}}</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                        <table id="table" class="table table-striped table-responsive table-bordered" data-toggle="table" >
+                            <thead id="box" class="bg-light">
+                                <tr>
+                                    
+                                    <th data-field="2" data-sortable="true">Referência</th>
+                                    <th data-field="3" data-sortable="true">Cliente</th>
+                                    <th data-field="4" data-sortable="true">Fábrica</th>
+                                    <th data-field="5" data-sortable="true">Reserva</th>
+                                    <th data-field="6" data-sortable="true">Guia</th>
+                                    <th data-field="7" data-sortable="true">Total Pallets </th>
+                                    <th data-field="8" data-sortable="true">Quantidade Pallets </th>
+                                    <th data-field="9" data-sortable="true">Fila</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableInfos2{{row.1}}">
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <!-- Inclua o JavaScript do jQuery primeiro -->
+    <script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Page level plugins -->
+    <script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <!-- Page level custom scripts -->
+    <script src="static/plat_static/js/demo/datatables-demo.js"></script>
+    <!-- Inicialize as tabelas DataTables -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTable-prepare').DataTable();
+    });
+    </script>
+
+
+    <script type="text/javascript">
+        function abrirModal(index) {
+            var modal = document.getElementById('get_info' + index);
+            var bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+
+            // Uncomment the fetch code if you want to fetch data from the server
+
+
+            const tableInfos = document.getElementById('tableInfos2' + index);
+            
+            fetch('/get_info_to_guias_filas?id=' + index + '&format=json', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then(data => {
+                // Limpa a tabela antes de adicionar novos dados
+                tableInfos.innerHTML = '';
+
+                // Itera sobre os dados e adiciona linhas à tabela
+                data.forEach(item => {
+                    console.log(item)
+                    var row = "<tr>";
+                    
+                    row += "<td>" + item['Reference'] + "</td>";
+                    row += "<td>" + item['Client'] + "</td>";
+                    row += "<td>" + item['Factory'] + "</td>";
+                    row += "<td>" + item['Reservation'] + "</td>";
+                    row += "<td>" + item['Invoice'] + "</td>";
+                    row += "<td>" + item['TotalPalletsQuantitySum'] + "</td>";
+                    row += "<td>" + item['PalletsQuantitySum'] + "</td>";
+                    row += "<td>" + item['Queue'] + "</td>";
+                    row += "</tr>";
+                    tableInfos.innerHTML += row;
+                });
+            }).catch(error => {
+                console.error('Erro ao obter dados:', error);
+            });
+
+        }
+    </script>
+
+
+</body>
+{% endblock %}

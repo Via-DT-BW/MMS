@@ -1,0 +1,1020 @@
+{% extends 'mrp/homepage_mrp.html' %}
+{% block content %}
+
+<head>
+    <style type="text/css">
+    .ball {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+        margin: 10px;
+    }
+    </style>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-2 ml-1">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card shadow mb-2 ml-1">
+                            <div class="card-header ">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p style="text-align: center"><b>Insert Data</b></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <a href="" class="btn btn-success btn-block mt-1" data-toggle="modal" data-target="#insertindividualreference">Insert PartNumber</a>
+                                </div>
+                                <div class="row">
+                                    <a href="/status_mrp_multiple" class="btn btn-success btn-block mt-1">Insert PartNumber Massively</a>
+                                </div>
+                                {% if session.filter_date_mrp or session.filter_reference_mrp or session.filter_mrp_mrp or session.filter_status_mrp or session.filter_shipto or session.filter_customer %}
+                                <div class="row">
+                                    <a href="" class="btn btn-warning btn-block mt-1" data-toggle="modal" data-target="#editmassivereference">Multiple Edit</a>
+                                </div>
+                                {% else %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card shadow mb-2 ml-1">
+                            <form action="status_mrp_temp_filters" method="POST">
+                                <div class="card-header ">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p style="text-align: center"><b>Filters</b></p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-primary" type="submit">Apply Filters</button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="/status_mrp_multiple_remove_filters" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove the filters ?')">Clean filters</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By Date:</p>
+                                                {% if session.filter_date_mrp is none %}
+                                                <input type="date" class="form-control" name="filter_date">
+                                                {% elif session.filter_reference_mrp %}
+                                                <input type="date" class="form-control" name="filter_date" value="{{session.filter_date_mrp}}">
+                                                {% else %}
+                                                <input type="date" class="form-control" name="filter_date" value="{{session.filter_date_mrp}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By PartNumber:</p>
+                                                {% if session.filter_reference_mrp is none %}
+                                                <input type="text" class="form-control" name="filter_reference">
+                                                {% elif session.filter_reference_mrp %}
+                                                <input type="text" class="form-control" name="filter_reference" value="{{session.filter_reference_mrp}}">
+                                                {% else %}
+                                                <input type="text" class="form-control" name="filter_reference" value="{{session.filter_reference_mrp}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By MRP:</p>
+                                                <select class="form-control" name="filter_mrp" id="filter_mrp" type="text">
+                                                    {% if session.filter_mrp_mrp is none %}
+                                                    <option value="None">Select route</option>
+                                                    {% elif session.filter_mrp_mrp %}
+                                                    <option value="{{session.filter_mrp_mrp}}">{{session.filter_mrp_mrp}}</option>
+                                                    {% else %}
+                                                    <option value="{{session.filter_mrp_mrp}}">{{session.filter_mrp_mrp}}</option>
+                                                    {% endif %}
+                                                    {% for row in MRPGetMRPFilter %}
+                                                    <option value="{{row.0}}">{{row.0}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By Status:</p>
+                                                <select class="form-control" name="filter_status" id="filter_status" type="text">
+                                                    {% if session.filter_status_mrp is none %}
+                                                    <option value="None">Select route</option>
+                                                    {% elif session.filter_mrp_mrp %}
+                                                    <option value="{{session.filter_status_mrp}}">{{session.filter_status_mrp}}</option>
+                                                    {% else %}
+                                                    <option value="{{session.filter_status_mrp}}">{{session.filter_status_mrp}}</option>
+                                                    {% endif %}
+                                                    {% for row in MRPGetStatusFilter %}
+                                                    <option value="{{row.0}}">{{row.0}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By ShipTo:</p>
+                                                {% if session.filter_shipto is none %}
+                                                <input type="text" class="form-control" name="filter_shipto">
+                                                {% elif session.filter_shipto %}
+                                                <input type="text" class="form-control" name="filter_shipto" value="{{session.filter_shipto}}">
+                                                {% else %}
+                                                <input type="text" class="form-control" name="filter_shipto" value="{{session.filter_shipto}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <p style="text-align:center;">By Customer:</p>
+                                                {% if session.filter_customer is none %}
+                                                <input type="text" class="form-control" name="filter_customer">
+                                                {% elif session.filter_customer %}
+                                                <input type="text" class="form-control" name="filter_customer" value="{{session.filter_customer}}">
+                                                {% else %}
+                                                <input type="text" class="form-control" name="filter_customer" value="{{session.filter_customer}}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!--div class="col-md-3">
+                    <div class="card shadow mb-2 ml-1">
+                        <div class="card-header ">
+                            <p style="text-align: center"><b>Legend</b></p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="ball" style="background-color: lightblue;"></div>
+                                <p style="margin: 10px; font-size: 18px;font-weight: 600;">Shipment ready</p>
+                            </div>
+                            <div class="row">
+                                <div class="ball" style="background-color: green"></div>
+                                <p style="margin: 10px;font-size: 18px; font-weight: 600;">Shipment dispatched</p>
+                            </div>
+                        </div>
+                    </div>
+                </div-->
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editmassivereference" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Massive Edit</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="/edit_multiple_shipment_requests" method="POST">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label"><b>Filters</b></label>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <p>Date</p>
+                                            <input type="text" class="form-control" placeholder="{{session.filter_date_mrp}}" required maxlength="40" disabled>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p>PartNumber</p>
+                                            <input type="text" class="form-control" placeholder="{{session.filter_reference_mrp}}" required maxlength="40" disabled>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p>Status</p>
+                                            <input type="text" class="form-control" placeholder="{{session.filter_mrp_mrp}}" required maxlength="40" disabled>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p>MRP</p>
+                                            <input type="text" class="form-control" placeholder="{{session.filter_status_mrp}}" required maxlength="40" disabled>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p>Ship To</p>
+                                            <input type="text" class="form-control" placeholder="{{session.filter_shipto}}" required maxlength="40" disabled>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p>Customer</p>
+                                            <input type="text" class="form-control" placeholder="{{session.filter_customer}}" required maxlength="40" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label class="control-label">ShipTo</label>
+                                    <div>
+                                        <input type="text" id="ShipTo" name="ShipTo" class="form-control" placeholder="Shipto"  maxlength="40">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label class="control-label">Exp. Date</label>
+                                    <div>
+                                        <input type="date" id="dateexp" name="dateexp" class="form-control" min="{{today}}" max="2030-12-31">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary btn-block " onclick="return confirm('You are about to edit Multiple Rows')">Validate Massive Edit</button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="insertindividualreference" role="dialog">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Shipment Order Creation Form</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="/add_shipment_requests" method="POST">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">PartNumber</label>
+                                    <div>
+                                        <input type="text" id="reference" name="reference[]" class="form-control" placeholder="Insert Reference" required maxlength="40">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">Quantity</label>
+                                    <div>
+                                        <input type="number" id="quantity" name="quantity[]" class="form-control" min="0" placeholder="0" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">Customer</label>
+                                    <div>
+                                        <input type="text" id="client" name="client[]" class="form-control" placeholder="Insert Customer name" required maxlength="40">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label"> Date </label>
+                                    <div>
+                                        <input type="date" id="datereg" name="datereg[]" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">Ship-to Name</label>
+                                    <div>
+                                        <input type="text" id="factory" name="factory[]" class="form-control" placeholder="Insert Ship-to Name" required maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">Route</label>
+                                    <div>
+                                        <input type="text" id="route" name="route[]" class="form-control" placeholder="Insert Route" required maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">Ship To</label>
+                                    <div>
+                                        <input type="text" id="shipto" name="shipto[]" class="form-control" placeholder="Ship To" required maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">SO/SA</label>
+                                    <div>
+                                        <input type="text" id="SOSA" name="SOSA[]" class="form-control" placeholder="SO/SA" required maxlength="15">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">Dispatch</label>
+                                    <select class="form-control" name="dispatch[]" id="dispatch" type="text" required>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="control-label">MRP </label>
+                                    <select class="form-control" name="mrp[]" id="mrp" type="text" required>
+                                        <option value="">Select MRP</option>
+                                        {% for row in supervisors %}
+                                        <option value="{{row.0}}">{{row.0}}</option>
+                                        {% endfor %}
+                                        <option value="Cafilipe">Cafilipe</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Comments</label>
+                                    <div>
+                                        <textarea id="comments" class="form-control" name="comments[]" rows="4" cols="50" maxlength="100"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div id="extraFields"></div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary btn-block ">Insert Data</button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-primary btn-block" onclick="addFields()">Add new PartNumber</button>
+                                <!--button type="button" class="btn btn-success ">Insert new Reference</button-->
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-2 ml-1">
+            <div class="card-header ">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p style="text-align: center;font-size: 18px;"><b>Expedition Requests</b></p>
+                    </div>
+                    <div class="col-md-8">
+                        {% with messages = get_flashed_messages(with_categories=true,category_filter=["error","info","success","warning"]) %}
+                        {% if messages %}
+                        {% for category,message in messages %}
+                        {% if category == 'warning' %}
+                        <div class="alert alert-warning " role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'info' %}
+                        <div class="alert alert-info mt-2" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'success' %}
+                        <div class="alert alert-success mt-2" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif category == 'error' %}
+                        <div class="alert alert-danger mt-2" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button btn-block" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="table" class="table  table-responsive table-bordered">
+                            <thead style="font-size:16px">
+                                <tr>
+                                    <th scope="col">Internalcode</th>
+                                    <th scope="col">PartNumber</th>
+                                    <th scope="col">Customer</th>
+                                    <th scope="col">Ship-to Name</th>
+                                    <th scope="col">ShipTo</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Route</th>
+                                    <th scope="col">Dispatch</th>
+                                    <th scope="col">Comments</th>
+                                    <th scope="col">SO/SA</th>
+                                    <th scope="col">MRP</th>
+                                    <th scope="col" style="background-color:#d2f8d2">Reservation</th>
+                                    <th scope="col" style="background-color:#002369;color:white">Order</th>
+                                    <th scope="col" style="background-color:#002369;color:white">Status</th>
+                                    <th scope="col" style="background-color:#002369;color:white">Ready</th>
+                                    <th scope="col" style="background-color:#002369;color:white">Dispatched</th>
+                                    
+                                    <th scope="col">Edit</th>
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 16px; ">
+                                {% for row in MRPGetRequests %}
+                                <tr>
+                                    {% if row.22 == '8' %}
+                                    <td style="font-size:12px; background-color: lightblue;">{{row.2}}</td>
+                                    <td style="background-color: lightblue">{{row.4}}</td>
+                                    <td style="white-space: nowrap;background-color: lightblue">{{row.5}}</td>
+                                    <td style="background-color: lightblue">{{row.6}}</td>
+                                    <td style="background-color: lightblue">{{row.7}}</td>
+                                    <td style="background-color: lightblue">{{row.8}}</td>
+                                    <td style="white-space: nowrap;background-color: lightblue">{{row.11}}</td>
+                                    <td style="background-color: lightblue">{{row.12}}</td>
+                                    <td style="background-color: lightblue" >{{row.13}}</td>
+                                    <td style="font-size:12px;background-color: lightblue">{{row.14}}</td>
+                                    <td style="background-color: lightblue">{{row.15}}</td>
+                                    <td style="background-color: lightblue">{{row.16}}</td>
+                                    <td style="background-color: lightblue">{{row.17}}</td>
+                                    
+                                        {% if row.19 == 'S/Abrir' %}
+                                        <td style="background-color: #f8d2d2">{{row.18}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.19}}</td>
+                                        <td style="background-color: lightblue">{{row.20}}</td>
+                                        <td style="background-color: lightblue">{{row.21}}</td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Completo' %}
+                                        <td style="background-color: lightblue">{{row.18}}</td>
+                                        <td style="background-color: lightblue">{{row.19}}</td>
+                                        <td style="background-color: lightblue">{{row.20}}</td>
+                                        <td style="background-color: lightblue">{{row.21}}</td>
+                                        <td style="background-color: lightblue"><a class="btn btn-secondary disabled" data-toggle="modal" data-target="#edit_mrp{{row.0}}" ><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Incompleto' %}
+                                        <td style="background-color: #f8f8d2">{{row.18}}</td>
+                                        <td style="background-color: #f8f8d2">{{row.19}}</td>
+                                        <td style="background-color: lightblue">{{row.20}}</td>
+                                        <td style="background-color: lightblue"> {{row.21}}</td>
+                                        <td style="background-color: lightblue"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% else %}
+                                        <td style="background-color: lightblue;"></td>
+                                        <td style="background-color: lightblue"></td>
+                                        <td style="background-color: lightblue">{{row.20}}</td>
+                                        <td style="background-color: lightblue">{{row.21}}</td>
+                                        <td style="background-color: lightblue"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% endif %}
+
+                                    {% elif row.22 == '9' %}
+                                    <td style="font-size:12px; background-color: #f7d8ff;">{{row.2}}</td>
+                                    <td style="background-color: #f7d8ff; ">{{row.4}}</td>
+                                    <td style="white-space: nowrap;background-color: #f7d8ff">{{row.5}}</td>
+                                    <td style="background-color: #f7d8ff; ">{{row.6}}</td>
+                                    <td style="background-color: #f7d8ff; ">{{row.7}}</td>
+                                    <td style="background-color: #f7d8ff; ">{{row.8}}</td>
+                                    <td style="white-space: nowrap;background-color: #f7d8ff">{{row.11}}</td>
+                                    <td style="background-color: #f7d8ff">{{row.12}}</td>
+                                    <td style="background-color: #f7d8ff" >{{row.13}}</td>
+                                    <td style="font-size:12px;background-color: #f7d8ff">{{row.14}}</td>
+                                    <td style="background-color: #f7d8ff">{{row.15}}</td>
+                                    <td style="background-color: #f7d8ff">{{row.16}}</td>
+                                    <td style="background-color: #f7d8ff">{{row.17}}</td>
+                                    
+                                        {% if row.19 == 'S/Abrir' %}
+                                        <td style="background-color: #f8d2d2">{{row.18}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.19}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.20}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.21}}</td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Completo' %}
+                                        <td style="background-color: #f7d8ff">{{row.18}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.19}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.20}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.21}}</td>
+                                        <td style="background-color: #f7d8ff"><a class="btn btn-secondary disabled" data-toggle="modal" data-target="#edit_mrp{{row.0}}" ><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Incompleto' %}
+                                        <td style="background-color: #f8f8d2">{{row.18}}</td>
+                                        <td style="background-color: #f8f8d2">{{row.19}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.20}}</td>
+                                        <td style="background-color: #f7d8ff"> {{row.21}}</td>
+                                        <td style="background-color: #f7d8ff"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% else %}
+                                        <td style="background-color: #f7d8ff;"></td>
+                                        <td style="background-color: #f7d8ff"></td>
+                                        <td style="background-color: #f7d8ff">{{row.20}}</td>
+                                        <td style="background-color: #f7d8ff">{{row.21}}</td>
+                                        <td style="background-color: #f7d8ff"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% endif %}
+
+                                    {% elif row.22 == '10' %}
+                                    <td style="font-size:12px; background-color: #d2f8d2;">{{row.2}}</td>
+                                    <td style="background-color: #d2f8d2; ">{{row.4}}</td>
+                                    <td style="white-space: nowrap;background-color: #d2f8d2">{{row.5}}</td>
+                                    <td style="background-color: #d2f8d2; ">{{row.6}}</td>
+                                    <td style="background-color: #d2f8d2; ">{{row.7}}</td>
+                                    <td style="background-color: #d2f8d2; ">{{row.8}}</td>
+                                    <td style="white-space: nowrap;background-color: #d2f8d2">{{row.11}}</td>
+                                    <td style="background-color: #d2f8d2">{{row.12}}</td>
+                                    <td style="background-color: #d2f8d2" >{{row.13}}</td>
+                                    <td style="font-size:12px;background-color: #d2f8d2">{{row.14}}</td>
+                                    <td style="background-color: #d2f8d2">{{row.15}}</td>
+                                    <td style="background-color: #d2f8d2">{{row.16}}</td>
+                                    <td style="background-color: #d2f8d2">{{row.17}}</td>
+                                    
+                                        {% if row.19 == 'S/Abrir' %}
+                                        <td style="background-color: #d2f8d2">{{row.18}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.19}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.20}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.21}}</td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Completo' %}
+                                        <td style="background-color: #d2f8d2">{{row.18}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.19}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.20}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.21}}</td>
+                                        <td style="background-color: #d2f8d2"><a class="btn btn-secondary disabled" data-toggle="modal" data-target="#edit_mrp{{row.0}}" ><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Incompleto' %}
+                                        <td style="background-color: #d2f8d2">{{row.18}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.19}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.20}}</td>
+                                        <td style="background-color: #d2f8d2"> {{row.21}}</td>
+                                        <td style="background-color: #d2f8d2"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% else %}
+                                        <td style="background-color: #d2f8d2;"></td>
+                                        <td style="background-color: #d2f8d2"></td>
+                                        <td style="background-color: #d2f8d2">{{row.20}}</td>
+                                        <td style="background-color: #d2f8d2">{{row.21}}</td>
+                                        <td style="background-color: #d2f8d2"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% endif %}
+
+                                    {% elif row.22 == '11' %}
+                                    <td style="font-size:12px; background-color: #18DD75;">{{row.2}}</td>
+                                    <td style="background-color: #18DD75; ">{{row.4}}</td>
+                                    <td style="white-space: nowrap;background-color: #18DD75">{{row.5}}</td>
+                                    <td style="background-color: #18DD75; ">{{row.6}}</td>
+                                    <td style="background-color: #18DD75; ">{{row.7}}</td>
+                                    <td style="background-color: #18DD75; ">{{row.8}}</td>
+                                    <td style="white-space: nowrap;background-color: #18DD75">{{row.11}}</td>
+                                    <td style="background-color: #18DD75">{{row.12}}</td>
+                                    <td style="background-color: #18DD75" >{{row.13}}</td>
+                                    <td style="font-size:12px;background-color: #18DD75">{{row.14}}</td>
+                                    <td style="background-color: #18DD75">{{row.15}}</td>
+                                    <td style="background-color: #18DD75">{{row.16}}</td>
+                                    <td style="background-color: #18DD75">{{row.17}}</td>
+                                    
+                                        {% if row.19 == 'S/Abrir' %}
+                                        <td style="background-color: #18DD75">{{row.18}}</td>
+                                        <td style="background-color: #18DD75">{{row.19}}</td>
+                                        <td style="background-color: #18DD75">{{row.20}}</td>
+                                        <td style="background-color: #18DD75">{{row.21}}</td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Completo' %}
+                                        <td style="background-color: #18DD75">{{row.18}}</td>
+                                        <td style="background-color: #18DD75">{{row.19}}</td>
+                                        <td style="background-color: #18DD75">{{row.20}}</td>
+                                        <td style="background-color: #18DD75">{{row.21}}</td>
+                                        <td style="background-color: #18DD75"><a class="btn btn-secondary disabled" data-toggle="modal" data-target="#edit_mrp{{row.0}}" ><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Incompleto' %}
+                                        <td style="background-color: #18DD75">{{row.18}}</td>
+                                        <td style="background-color: #18DD75">{{row.19}}</td>
+                                        <td style="background-color: #18DD75">{{row.20}}</td>
+                                        <td style="background-color: #18DD75"> {{row.21}}</td>
+                                        <td style="background-color: #18DD75"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% else %}
+                                        <td style="background-color: #18DD75;"></td>
+                                        <td style="background-color: #18DD75"></td>
+                                        <td style="background-color: #18DD75"></td>
+                                        <td style="background-color: #18DD75"></td>
+                                        <td style="background-color: #18DD75"><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% endif %}
+
+                                    {% else %}
+
+                                    <td style="font-size:12px; ">{{row.2}}</td>
+                                    <td>{{row.4}}</td>
+                                    <td style="white-space: nowrap;">{{row.5}}</td>
+                                    <td>{{row.6}}</td>
+                                    <td>{{row.7}}</td>
+                                    <td>{{row.8}}</td>
+                                    <td style="white-space: nowrap;">{{row.11}}</td>
+                                    <td>{{row.12}}</td>
+                                    <td>{{row.13}}</td>
+                                    <td style="font-size:12px;">{{row.14}}</td>
+                                    <td>{{row.15}}</td>
+                                    <td>{{row.16}}</td>
+                                    <td>{{row.17}}</td>
+                                    
+                                        {% if row.19 == 'S/Abrir' %}
+                                        <td style="background-color: #f8d2d2">{{row.18}}</td>
+                                        <td style="background-color: #f8d2d2">{{row.19}}</td>
+                                        <td >{{row.20}}</td>
+                                        <td>{{row.21}}</td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Completo' %}
+                                        <td style="background-color: lightblue">{{row.18}}</td>
+                                        <td style="background-color: lightblue">{{row.19}}</td>
+                                        <td >{{row.20}}</td>
+                                        <td>{{row.21}}</td>
+                                        <td><a class="btn btn-secondary disabled" data-toggle="modal" data-target="#edit_mrp{{row.0}}" ><i class="fas fa-eraser"></i></a></td>
+                                        {% elif row.19 =='Incompleto' %}
+                                        <td style="background-color: #f8f8d2">{{row.18}}</td>
+                                        <td style="background-color: #f8f8d2">{{row.19}}</td>
+                                        <td >{{row.20}}</td>
+                                        <td>{{row.21}}</td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% else %}
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td><a class="btn btn-primary" data-toggle="modal" data-target="#edit_mrp{{row.0}}" style="background-color: orange;border-color:orange; color: white;"><i class="fas fa-eraser"></i></a></td>
+                                        {% endif %}
+
+                                    {% endif %}
+
+
+                                    
+                                    
+                                </tr>
+                                {% endfor %}
+                                {% for row in MRPGetRequests %}
+                                <div class="modal fade" id="edit_mrp{{row.0}}" role="dialog">
+                                    <div class="modal-dialog modal-md">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Shipment Order Edit Form</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="edit_status_mrp_requests/{{row.0}}" method="POST">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">PartNumber</label>
+                                                                <div>
+                                                                    <input type="text" id="reference" name="reference" class="form-control" value="{{row.4}}" maxlength="40">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Quantity</label>
+                                                                <div>
+                                                                    <input type="number" id="quantity" name="quantity" class="form-control" value="{{row.8}}" step="1" min="1" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Customer</label>
+                                                                <div>
+                                                                    <input type="text" id="client" name="client" class="form-control" value="{{row.5}}" maxlength="40">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label"> Date </label>
+                                                                <div>
+                                                                    <input type="date" id="datereg" name="datereg" value="{{row.11}}" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Ship-to Name</label>
+                                                                <div>
+                                                                    <input type="text" id="factory" name="factory" class="form-control" value="{{row.6}}" maxlength="50">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Route</label>
+                                                                <div>
+                                                                    <input type="text" id="route" name="route" class="form-control" value="{{row.12}}" maxlength="50">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Ship To</label>
+                                                                <div>
+                                                                    <input type="text" id="shipto" name="shipto" class="form-control" value="{{row.7}}" maxlength="50">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">SO/SA</label>
+                                                                <div>
+                                                                    <input type="text" id="SOSA" name="SOSA" class="form-control" value="{{row.15}}" maxlength="15">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Dispatch</label>
+                                                                <select class="form-control" name="dispatch" id="dispatch" type="text">
+                                                                    <option value="{{row.13}}">{{row.13}}</option>
+                                                                    {% if row.13 == 'Yes'%}
+                                                                    <option value="No">No</option>
+                                                                    {% else %}
+                                                                    <option value="Yes">Yes</option>
+                                                                    {% endif %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">MRP </label>
+                                                                <select class="form-control" name="mrp" id="mrp" type="text">
+                                                                    <option value="{{row.16}}">{{row.16}}</option>
+                                                                    {% for row in supervisors %}
+                                                                    <option value="{{row.0}}">{{row.0}}</option>
+                                                                    {% endfor %}
+                                                                    <option value="Cafilipe">Cafilipe</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Comments</label>
+                                                                <div>
+                                                                    <textarea id="comments" class="form-control" name="comments" rows="4" cols="50" maxlength="100">{{row.14}}</textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <button type="submit" class="btn btn-primary btn-block ">Edit Data</button>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <button type="button" class="btn btn-info btn-block" data-dismiss="modal" onclick="">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-2">
+                                                        <div class="col-md-12">
+                                                            <button type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#refuse{{row.0}}" onclick="hideFirstModal({{row.0}})">Cancel Request</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="refuse{{row.0}}" role="dialog">
+                                    <div class="modal-dialog modal-md ">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Dispatch Order Cancellation Form</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="cancel_request_mrp/{{row.0}}" method="POST">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Cancel Motives </label>
+                                                                <select class="form-control" name="motive" id="motive" type="text" required>
+                                                                    <option value="">Select Motive</option>
+                                                                    {% for row in MRPGetMotives %}
+                                                                    <option value="{{row.1}}">{{row.1}}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Comments</label>
+                                                                <div>
+                                                                    <textarea id="comments_refuse" class="form-control" name="comments_refuse" rows="4" cols="50" maxlength="200"></textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-2">
+                                                        <div class="col-md-12">
+                                                            <button type="submit" class="btn btn-warning btn-block">Confirm</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-info" data-dismiss="modal" onclick="showFirstModal({{row.0}})">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <p style="text-align: center;font-size: 18px;"><b>Expedition Requests</b>
+                    <p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Função para esconder o primeiro modal
+function hideFirstModal(id) {
+    $('#edit_mrp' + id).modal('hide');
+}
+
+function showFirstModal(id) {
+    $('#edit_mrp' + id).modal('show');
+}
+</script>
+<script>
+function addFields() {
+    var extraFields = document.getElementById('extraFields');
+
+    var newFields = document.createElement('div');
+    newFields.innerHTML = `
+            <div class="teste mt-2 mb-2">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+
+                            <label class="control-label">PartNumber</label>
+                            <div>
+                                <input type="text" id="reference" name="reference[]" class="form-control" placeholder="Insert PartNumber" required maxlength="40">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">Quantity</label>
+                            <div>
+                                <input type="number" id="quantity" name="quantity[]" class="form-control" min="0"  placeholder="0" required >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">Customer</label>
+                            <div>
+                                <input type="text" id="client" name="client[]" class="form-control" placeholder="Insert Customer name" required maxlength="40">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label"> Date </label>
+                            <div>
+                                <input type="date" id="datereg" name="datereg[]" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">Ship-to Name</label>
+                            <div>
+                                <input type="text" id="factory" name="factory[]" class="form-control" placeholder="Insert Factory" required maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">Route</label>
+                            <div>
+                                <input type="text" id="route" name="route[]" class="form-control" placeholder="Insert Route" required maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">Ship To</label>
+                            <div>
+                                <input type="text" id="shipto" name="shipto[]" class="form-control" placeholder="Ship To" required maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">SO/SA</label>
+                            <div>
+                                <input type="text" id="SOSA" name="SOSA[]" class="form-control" placeholder="SO/SA" required maxlength="15">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">Dispatch</label>
+                            <select class="form-control" name="dispatch[]" id="dispatch" type="text" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="control-label">MRP </label>
+                            <select class="form-control" name="mrp[]" id="mrp" type="text" required>
+                                <option value="">Select MRP</option>
+                                {% for row in supervisors %}
+                                <option value="{{row.0}}">{{row.0}}</option>
+                                {% endfor %}
+                                <option value="Cafilipe">Cafilipe</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-danger btn-block" onclick="removeFields()">Remove </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="control-label">Comments</label>
+                            <div>
+                                <textarea id="comments" class="form-control" name="comments[]" rows="4" cols="50" maxlength="100"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            
+            `;
+
+    extraFields.appendChild(newFields);
+}
+
+function removeFields() {
+    var extraFields = document.getElementById('extraFields');
+    var fields = extraFields.getElementsByClassName('teste');
+    console.log(fields)
+    if (fields.length > 0) {
+        var lastField = fields[fields.length - 1];
+        var parentRow = lastField.closest('.teste');
+
+        if (parentRow) {
+            console.log('Removing parent row:', parentRow);
+            parentRow.remove();
+        } else {
+            console.log('Parent row not found');
+        }
+    } else {
+        console.log('No rows to remove');
+    }
+}
+</script>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#table').DataTable({ "order": [], "pageLength": 20 });
+});
+</script>
+{% endblock %}

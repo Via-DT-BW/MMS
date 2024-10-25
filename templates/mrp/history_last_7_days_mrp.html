@@ -1,0 +1,110 @@
+{% extends 'mrp/homepage_mrp.html' %}
+{% block content %}
+
+<head>
+    <style type="text/css">
+    #coisas {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    </style>
+    <link href="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div>
+    </div>
+    <div class="container.fluid" id="coisas">
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-4">History Last 7 Days</h1>
+            </div>
+        </div>
+        <br>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+                History
+            </div>
+            <div class="card-body">
+                <table id="table" class="table table-striped table-responsive table-bordered">
+                    <thead id="box" class="bg-light">
+                        <tr>
+                            <th data-field="1" data-sortable="true">CreationDate</th>
+                            <th data-field="2" data-sortable="true">InternalCode</th>
+                            <th data-field="3" data-sortable="false">Owner</th>
+                            <th data-field="4" data-sortable="false">Reference</th>
+                            <th data-field="5" data-sortable="false">Client</th>
+                            <th data-field="6" data-sortable="false">Factory</th>
+                            <th data-field="7" data-sortable="false">Shipto</th>
+                            <th data-field="8" data-sortable="false">Quantity</th>
+                            <!--th data-field="9" data-sortable="false">NumberPallets</th>
+                            <th data-field="10" data-sortable="false">Weight</th-->
+                            <th data-field="11" data-sortable="false">RegDate</th>
+                            <th data-field="12" data-sortable="false">Route</th>
+                            <th data-field="13" data-sortable="false">Dispatch</th>
+                            <th data-field="14" data-sortable="false">Comments</th>
+                            <th data-field="15" data-sortable="false">Sosa</th>
+                            <th data-field="16" data-sortable="false">MRP</th>
+                            <th data-field="17" data-sortable="false">Reservation</th>
+                            <th data-field="18" data-sortable="false">Invoice</th>
+                            <th data-field="19" data-sortable="false">WarehouseStatus</th>
+                            <th data-field="20" data-sortable="false">ReadyStatus</th>
+                            <th data-field="21" data-sortable="false">Dispatched</th>
+                            <th data-field="22" data-sortable="false">Status</th>
+                            <th data-field="23" data-sortable="false">CancelMotive</th>
+                            <th data-field="24" data-sortable="false">CancelComments</th>
+                            <th data-field="25" data-sortable="false">CancelDate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datatable">
+                        <tr>{% for row in history_last_7days %}
+                            <td>{{row.1}}</td>
+                            <td>{{row.2}}</td>
+                            <td>{{row.3}}</td>
+                            <td>{{row.4}}</td>
+                            <td>{{row.5}}</td>
+                            <td>{{row.6}}</td>
+                            <td>{{row.7}}</td>
+                            <td>{{row.8}}</td>
+                            <!--td>{{row.9}}</td>
+                            <td>{{row.10}}</td-->
+                            <td>{{row.11}}</td>
+                            <td>{{row.12}}</td>
+                            <td>{{row.13}}</td>
+                            <td>{{row.14}}</td>
+                            <td>{{row.15}}</td>
+                            <td>{{row.16}}</td>
+                            <td>{{row.17}}</td>
+                            <td>{{row.18}}</td>
+                            <td>{{row.19}}</td>
+                            <td>{{row.20}}</td>
+                            <td>{{row.21}}</td>
+                            <td>{{row.22}}</td>
+                            <td>{{row.23}}</td>
+                            <td>{{row.24}}</td>
+                            <td>{{row.25}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="static/plat_static/vendor/jquery/jquery.min.js"></script>
+<script src="static/plat_static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript-->
+<script src="static/plat_static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<!-- Page level plugins -->
+<script src="static/plat_static/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="static/plat_static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<!-- Page level custom scripts -->
+<script src="static/plat_static/js/demo/datatables-demo.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#table').DataTable();
+});
+</script>
+</html>
+{% endblock %}
