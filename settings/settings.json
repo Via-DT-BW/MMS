@@ -1,5 +1,8 @@
 [
-    {
-        "connection_string_db_lms": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=10.30.64.44;DATABASE=LMS;UID=lms_user_sql;PWD=lms_user_sql123!"
-    }
+  {
+    "connection_string_capture": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=10.30.64.44;DATABASE=Capture;UID=capture_user;PWD=capture_user123!"
+  },
+  {
+    "connection_string_mms": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=10.30.64.44;DATABASE=MMS;UID=mms_user;PWD=mms_user123!"
+  }
 ]
