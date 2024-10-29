@@ -1,0 +1,106 @@
+{% extends 'corrective/corrective.html' %} {% block content %}
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="card mt-4 mb-4">
+  <div class="card-header">
+    <h5 class="m-0">Corrective Maintenance Notifications</h5>
+
+    <div class="d-flex justify-content-end mb-3">
+      <form method="GET" action="/corrective" class="form-inline">
+        <div class="form-group mr-2">
+          <input
+            type="text"
+            name="filter"
+            class="form-control"
+            placeholder="Filtrar descrição"
+            value="{{ request.args.get('filter', '') }}" />
+        </div>
+        <div class="form-group mr-2">
+          <input
+            type="number"
+            name="page_size"
+            class="form-control"
+            value="{{ request.args.get('page_size', 10) }}"
+            min="1"
+            max="100"
+            placeholder="Itens por página" />
+        </div>
+        <button type="submit" class="btn btn-primary mr-2">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <a href="/corrective" class="btn btn-danger">Limpar Filtros </a>
+      </form>
+    </div>
+  </div>
+  <div class="card-body">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Linha de Produção</th>
+          <th>Número do Operador</th>
+          <th>Descrição</th>
+          <th>Data de Criação</th>
+          <th>Equipamento</th>
+          <th>Parou Produção?</th>
+          <th>Estado SAP</th>
+          <th>Data SAP</th>
+          <th>SMS</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for notification in notifications %}
+        <tr>
+          <td>{{ notification.id }}</td>
+          <td>{{ notification.prod_line }}</td>
+          <td>{{ notification.operator_number }}</td>
+          <td>{{ notification.description }}</td>
+          <td class="data">{{ notification.creation_date }}</td>
+          <td>{{ notification.equipament }}</td>
+          <td>{{ notification.stopped_production }}</td>
+          <td>
+            {% if notification.SAPState == 2 %} Criado {% else %} Por Criar {%
+            endif %}
+          </td>
+          <td class="{% if notification.SAPDate %}data{% endif %}">
+            {% if notification.SAPDate %} {{ notification.SAPDate }} {% else %}
+            <span class="text-muted">Espera criação</span>
+            {% endif %}
+          </td>
+
+          <td>
+            {% if notification.SMSState == 1 %} Enviado {% else %} Por Enviar {%
+            endif %}
+          </td>
+          <td>
+            <button
+              class="btn btn-info btn-sm"
+              data-toggle="modal"
+              data-target="#detailsModal"
+              data-id="{{ notification.id }}"
+              data-description="{{ notification.description }}"
+              data-equipament="{{ notification.equipament }}"
+              data-functional-location="{{ notification.functional_location }}"
+              data-sap-state="{{ notification.SAPState }}"
+              data-sms-state="{{ notification.SMSState }}"
+              data-sms-date="{{ notification.SMSDate }}"
+              data-main-workcenter="{{ notification.main_workcenter }}">
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% include "components/pagination.html" %}
+  </div>
+</div>
+
+{% include "corrective/components/detailsModal.html" %}
+
+<script>
+  {% include "corrective/js/openModal.js" %}
+</script>
+
+{% endblock %}
