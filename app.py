@@ -43,6 +43,7 @@ def index():
 
   return render_template('index.html', year=year)
 
+#Corrective
 @app.route('/corrective', methods=['GET'])
 def corrective():
     try:
@@ -51,22 +52,34 @@ def corrective():
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
-        filter_description = request.args.get('filter', '', type=str)
-
-        cursor.execute("EXEC GetFioriNotifications @PageNumber = ?, @PageSize = ?, @FilterDescription = ?", 
-                       page, page_size, filter_description)
-        notifications = cursor.fetchall()
-
+        filter_equipment = request.args.get('filter', '', type=str)
+        start_date = request.args.get('start_date', type=str)
+        end_date = request.args.get('end_date', type=str)
+        filter_prod_line = request.args.get('filter_prod_line', '', type=str)
         cursor.execute("""
+            EXEC GetFioriNotifications 
+                @PageNumber = ?, 
+                @PageSize = ?, 
+                @FilterEquipment = ?, 
+                @StartDate = ?, 
+                @EndDate = ?, 
+                @FilterProdLine = ?
+            """,
+            page, page_size, filter_equipment, start_date, end_date, filter_prod_line
+        )
+        notifications = cursor.fetchall()
+        count_query = """
             SELECT COUNT(*) 
             FROM [Capture].[dbo].[FioriNotification] 
-            WHERE [description] LIKE '%' + ? + '%'
-        """, (filter_description,))
-        
+            WHERE 
+                (ISNULL(?, '') = '' OR [equipament] LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR [prod_line] LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR [creation_date] >= ?) AND
+                (ISNULL(?, '') = '' OR [creation_date] <= ?)
+        """
+        cursor.execute(count_query, filter_equipment, filter_equipment, filter_prod_line, filter_prod_line, start_date, start_date, end_date, end_date)
         total_records = cursor.fetchone()[0]
-
         total_pages = (total_records + page_size - 1) // page_size
-        
         start_page = max(1, page - 3)
         end_page = min(total_pages, page + 3)
 
@@ -125,6 +138,89 @@ def corrective_notification():
             conn.close()
 
         return redirect(url_for('corrective'))
+
+#Autonomous
+@app.route('/autonomous', methods=['GET'])
+def autonomous():
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        return render_template('autonomous/notifications.html', 
+                               maintenance="Autonomous Maintenance", 
+                               year=year)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('autonomous'))
+
+#Preventive
+@app.route('/preventive', methods=['GET'])
+def preventive():
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        return render_template('preventive/notifications.html', 
+                               maintenance="Preventive Maintenance", 
+                               year=year)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('preventive'))
+  
+
+#Daily
+@app.route('/daily', methods=['GET'])
+def daily():
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        return render_template('daily/notifications.html', 
+                               maintenance="Daily Maintenance", 
+                               year=year)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('daily'))
+
+#Monotoring
+@app.route('/monotoring', methods=['GET'])
+def monotoring():
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        return render_template('monotoring/notifications.html', 
+                               maintenance="Monotoring Maintenance", 
+                               year=year)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('monotoring'))
+
+
 
 @app.route('/api/corrective', methods=['GET'])
 def corrective_maintenance():

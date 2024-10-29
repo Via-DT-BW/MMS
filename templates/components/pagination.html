@@ -4,7 +4,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page={{ page - 1 }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}"
+        href="?page={{ page - 1 }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
         >Anterior</a
       >
     </li>
@@ -12,7 +12,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page=1&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}"
+        href="?page=1&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
         >1</a
       >
     </li>
@@ -24,7 +24,7 @@
     <li class="page-item {% if p == page %}active{% endif %}">
       <a
         class="page-link"
-        href="?page={{ p }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}"
+        href="?page={{ p }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
         >{{ p }}</a
       >
     </li>
@@ -37,7 +37,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page={{ total_pages }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}"
+        href="?page={{ total_pages }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
         >{{ total_pages }}</a
       >
     </li>
@@ -45,7 +45,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page={{ page + 1 }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}"
+        href="?page={{ page + 1 }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
         >Próxima</a
       >
     </li>
