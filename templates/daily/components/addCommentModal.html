@@ -1,0 +1,103 @@
+<div
+  class="modal fade"
+  id="addDailyModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="addDailyModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addDailyModalLabel">
+          Adicionar Comentário
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addDailyForm">
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label for="turno">Turno</label>
+              <input
+                type="text"
+                class="form-control"
+                id="turno"
+                name="turno"
+                value="{{ user_turno }}"
+                disabled />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="id_tl">Team Leader</label>
+              <input
+                type="text"
+                class="form-control"
+                id="tl_username"
+                name="tl_username"
+                value="{{ session.username }}"
+                disabled />
+              <input
+                type="hidden"
+                id="id_tl"
+                name="id_tl"
+                value="{{ session.id_tl }}" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label for="safety_comment">Comentário de Segurança</label>
+              <textarea
+                class="form-control"
+                id="safety_comment"
+                name="safety_comment"
+                rows="5"></textarea>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="quality_comment">Comentário de Qualidade</label>
+              <textarea
+                class="form-control"
+                id="quality_comment"
+                name="quality_comment"
+                rows="5"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label for="volume_comment">Comentário de Volume</label>
+              <textarea
+                class="form-control"
+                id="volume_comment"
+                name="volume_comment"
+                rows="5"></textarea>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="people_comment">Comentário de Pessoas</label>
+              <textarea
+                class="form-control"
+                id="people_comment"
+                name="people_comment"
+                rows="5"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer d-flex justify-content-center">
+        <button
+          type="button"
+          class="btn"
+          style="background-color: #051729; color: white"
+          id="saveDailyRecord">
+          Registar Comentários
+        </button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

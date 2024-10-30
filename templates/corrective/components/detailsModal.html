@@ -8,7 +8,9 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="detailsModalLabel">Maintenance Details</h5>
+        <h5 class="modal-title" id="detailsModalLabel">
+          Detalhes do Pedido de Manutenção
+        </h5>
         <button
           type="button"
           class="close"
@@ -18,23 +20,125 @@
         </button>
       </div>
       <div class="modal-body">
-        <p><strong>ID:</strong> <span id="modal-id"></span></p>
-        <p><strong>Descrição:</strong> <span id="modal-description"></span></p>
-        <p><strong>Equipamento:</strong> <span id="modal-equipament"></span></p>
-        <p>
-          <strong>Local Funcional:</strong>
-          <span id="modal-functional-location"></span>
-        </p>
-        <p><strong>Estado SAP:</strong> <span id="modal-sap-state"></span></p>
-        <p><strong>Estado SMS:</strong> <span id="modal-sms-state"></span></p>
-        <p><strong>Data SMS:</strong> <span id="modal-sms-date"></span></p>
-        <p>
-          <strong>Centro de Trabalho:</strong>
-          <span id="modal-main-workcenter"></span>
-        </p>
+        <div class="container-fluid">
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <label for="modal-description"><strong>Descrição:</strong></label>
+              <input
+                type="text"
+                id="modal-description"
+                class="form-control"
+                disabled />
+            </div>
+            <div class="col-lg-6">
+              <label for="modal-equipament"
+                ><strong>Equipamento:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-equipament"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-12">
+              <label for="modal-functional-location"
+                ><strong>Local Funcional:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-functional-location"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <label for="modal-main-workcenter"
+                ><strong>Centro de Trabalho:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-main-workcenter"
+                class="form-control"
+                disabled />
+            </div>
+            <div class="col-lg-6">
+              <label for="modal-sap-state"><strong>Estado SAP:</strong></label>
+              <input
+                type="text"
+                id="modal-sap-state"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <label for="modal-sms-state"><strong>Estado SMS:</strong></label>
+              <input
+                type="text"
+                id="modal-sms-state"
+                class="form-control"
+                disabled />
+            </div>
+            <div class="col-lg-6">
+              <label for="modal-sms-date"><strong>Data SMS:</strong></label>
+              <input
+                type="text"
+                id="modal-sms-date"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3 d-none" id="inicio-man-row">
+            <div class="col-lg-6">
+              <label for="modal-inicio-man"
+                ><strong>Início da Manutenção:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-inicio-man"
+                class="form-control"
+                disabled />
+            </div>
+            <div class="col-lg-6">
+              <label for="modal-fim-man"
+                ><strong>Fim da Manutenção:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-fim-man"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3 d-none" id="tempo-row">
+            <div class="col-lg-12">
+              <label for="modal-tempo-man"
+                ><strong>Tempo de Manutenção (minutos):</strong></label
+              >
+              <input
+                type="text"
+                id="modal-tempo-man"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3 d-none" id="comment-row">
+            <div class="col-lg-12">
+              <label for="modal-comment"><strong>Comentário:</strong></label>
+              <textarea
+                id="modal-comment"
+                class="form-control"
+                style="height: 200px; width: 100%"
+                disabled></textarea>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">
           Fechar
         </button>
       </div>

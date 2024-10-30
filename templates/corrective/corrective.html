@@ -48,13 +48,6 @@
     <script>
       {% include "utils/javascript/maintenances.js" %}
       {% include "utils/javascript/formatDate.js" %}
-
-      document.addEventListener('DOMContentLoaded', () => {
-        const dateCells = document.querySelectorAll('.data');
-        dateCells.forEach(cell => {
-          cell.textContent = formatDateTime(cell.textContent);
-        });
-      });
     </script>
   </body>
 </html>

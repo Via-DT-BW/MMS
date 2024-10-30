@@ -11,3 +11,10 @@ function formatDateTime(dateTimeString) {
   const date = new Date(dateTimeString);
   return date.toLocaleString("pt-BR", options);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const dateCells = document.querySelectorAll(".data");
+  dateCells.forEach((cell) => {
+    cell.textContent = formatDateTime(cell.textContent);
+  });
+});

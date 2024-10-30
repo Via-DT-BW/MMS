@@ -111,9 +111,10 @@
                     <a
                       class="nav-link"
                       type="button"
-                      href="/daily"
+                      data-toggle="modal"
+                      data-target="#loginModalDaily"
                       style="font-size: 20px; margin-right: 10px"
-                      >Daily Maintenance</a
+                      >Daily Team Communication</a
                     >
                   </li>
                   <li class="nav-item">
@@ -122,7 +123,16 @@
                       type="button"
                       href="/monotoring"
                       style="font-size: 20px; margin-right: 10px"
-                      >Monitoring Maintenance</a
+                      >Planning, Monitoring</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      type="button"
+                      href="/settings"
+                      style="font-size: 20px; margin-right: 10px"
+                      >Settings</a
                     >
                   </li>
                 </ul>
@@ -161,7 +171,8 @@
       </video>
     </section>
 
-    {% include "components/footer.html" %}
+    {% include "components/footer.html" %} {% include
+    "daily/components/loginModalDaily.html" %}
 
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
 

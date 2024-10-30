@@ -4,13 +4,10 @@
 <div class="card mt-4 mb-4">
   <div class="card-header">
     <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Pending</h5>
+      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Ongoing</h5>
     </div>
 
-    <form
-      method="GET"
-      action="/corrective"
-      class="form-row justify-content-center">
+    <form method="GET" action="/inwork" class="form-row justify-content-center">
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Filtrar por equipamento</small>
         <input
@@ -68,21 +65,22 @@
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
-        <a href="/corrective" class="btn btn-danger">Limpar</a>
+        <a href="/inwork" class="btn btn-danger">Limpar</a>
       </div>
     </form>
   </div>
 
   <div class="card-body">
-    {% if notifications|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção</p>
+    {% if ongoing|length == 0 %}
+    <p class="text-center">Sem Pedidos de Manutenção Em Curso</p>
     {% else %}
     <table class="table table-striped">
       <thead>
         <tr>
           <th>ID</th>
           <th>Linha de Produção</th>
-          <th>Número do Operador</th>
+          <th>Nº do Operador</th>
+          <th>Nº do Técnico</th>
           <th>Descrição</th>
           <th>Data de Criação</th>
           <th>Equipamento</th>
@@ -93,50 +91,51 @@
         </tr>
       </thead>
       <tbody>
-        {% for notification in notifications %}
+        {% for ongo in ongoing %}
         <tr>
-          <td>{{ notification.id }}</td>
-          <td>{{ notification.prod_line }}</td>
-          <td>{{ notification.n_operador }}</td>
-          <td>{{ notification.description }}</td>
-          <td class="data">{{ notification.data_pedido }}</td>
-          <td>{{ notification.equipament }}</td>
-          <td>{{ notification.stopped_production }}</td>
+          <td>{{ ongo.id }}</td>
+          <td>{{ ongo.prod_line }}</td>
+          <td>{{ ongo.n_operador }}</td>
+          <td>{{ ongo.n_tecnico }}</td>
+          <td>{{ ongo.description }}</td>
+          <td class="data">{{ ongo.data_pedido }}</td>
+          <td>{{ ongo.equipament }}</td>
+          <td>{{ ongo.stopped_production }}</td>
           <td>
-            {% if notification.sap_order %} {{ notification.sap_order }} {% else
-            %}
+            {% if ongo.sap_order %} {{ ongo.sap_order }} {% else %}
             <span class="text-muted">Aguarda criação</span>
             {% endif %}
           </td>
           <td>
-            {% if notification.SMSState == 1 %} Enviado {% else %} Por Enviar {%
-            endif %}
+            {% if ongo.SMSState == 1 %} Enviado {% else %} Por Enviar {% endif
+            %}
           </td>
           <td>
             <button
               class="btn btn-info btn-md"
               data-toggle="modal"
               data-target="#detailsModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-equipament="{{ notification.equipament }}"
-              data-functional-location="{{ notification.functional_location }}"
-              data-sap-state="{{ notification.SAPState }}"
-              data-sms-state="{{ notification.SMSState }}"
-              data-sms-date="{{ notification.sms_date }}"
-              data-main-workcenter="{{ notification.main_workcenter }}">
+              data-id="{{ ongo.id }}"
+              data-description="{{ ongo.description }}"
+              data-equipament="{{ ongo.equipament }}"
+              data-functional-location="{{ ongo.functional_location }}"
+              data-sap-state="{{ ongo.SAPState }}"
+              data-sms-state="{{ ongo.SMSState }}"
+              data-sms-date="{{ ongo.sms_date }}"
+              data-main-workcenter="{{ ongo.main_workcenter }}">
               <i class="fas fa-eye"></i>
             </button>
             <button
-              class="btn btn-warning btn-md"
+              class="btn btn-danger btn-md"
               data-toggle="modal"
-              data-target="#takeModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-prod-line="{{ notification.prod_line }}"
-              data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}">
-              <i class="fa-regular fa-pen-to-square"></i>
+              data-target="#finishModal"
+              data-id="{{ ongo.id }}"
+              data-description="{{ ongo.description }}"
+              data-prod-line="{{ ongo.prod_line }}"
+              data-equipament="{{ ongo.equipament }}"
+              data-pedido-date="{{ ongo.data_pedido }}"
+              data-ini-date="{{ ongo.data_inicio_man }}">
+              <i class="fa-regular fa-circle-stop"></i>
             </button>
           </td>
         </tr>
@@ -148,7 +147,7 @@
 </div>
 
 {% include "corrective/components/detailsModal.html" %} {% include
-"corrective/components/takeModal.html" %}
+"corrective/components/finishModal.html" %}
 
 <script>
   {% include "corrective/js/openModal.js" %}

@@ -4,13 +4,10 @@
 <div class="card mt-4 mb-4">
   <div class="card-header">
     <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Pending</h5>
+      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Finished</h5>
     </div>
 
-    <form
-      method="GET"
-      action="/corrective"
-      class="form-row justify-content-center">
+    <form method="GET" action="/inwork" class="form-row justify-content-center">
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Filtrar por equipamento</small>
         <input
@@ -68,23 +65,24 @@
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
-        <a href="/corrective" class="btn btn-danger">Limpar</a>
+        <a href="/inwork" class="btn btn-danger">Limpar</a>
       </div>
     </form>
   </div>
 
   <div class="card-body">
-    {% if notifications|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção</p>
+    {% if finished|length == 0 %}
+    <p class="text-center">Sem Pedidos de Manutenção Concluídos</p>
     {% else %}
     <table class="table table-striped">
       <thead>
         <tr>
           <th>ID</th>
           <th>Linha de Produção</th>
-          <th>Número do Operador</th>
+          <th>Nº do Operador</th>
+          <th>Nº do Técnico</th>
           <th>Descrição</th>
-          <th>Data de Criação</th>
+          <th>Tempo de Manutenção (min)</th>
           <th>Equipamento</th>
           <th>Parou Produção?</th>
           <th>Estado SAP</th>
@@ -93,50 +91,48 @@
         </tr>
       </thead>
       <tbody>
-        {% for notification in notifications %}
+        {% for fini in finished %}
         <tr>
-          <td>{{ notification.id }}</td>
-          <td>{{ notification.prod_line }}</td>
-          <td>{{ notification.n_operador }}</td>
-          <td>{{ notification.description }}</td>
-          <td class="data">{{ notification.data_pedido }}</td>
-          <td>{{ notification.equipament }}</td>
-          <td>{{ notification.stopped_production }}</td>
+          <td>{{ fini.id }}</td>
+          <td>{{ fini.prod_line }}</td>
+          <td>{{ fini.n_operador }}</td>
+          <td>{{ fini.n_tecnico }}</td>
+          <td>{{ fini.description }}</td>
           <td>
-            {% if notification.sap_order %} {{ notification.sap_order }} {% else
+            {% if fini.tempo_manutencao %} {{ fini.tempo_manutencao }} {% else
             %}
+            <span class="text-muted">Sem tempo definido</span>
+            {% endif %}
+          </td>
+          <td>{{ fini.equipament }}</td>
+          <td>{{ fini.stopped_production }}</td>
+          <td>
+            {% if fini.sap_order %} {{ fini.sap_order }} {% else %}
             <span class="text-muted">Aguarda criação</span>
             {% endif %}
           </td>
           <td>
-            {% if notification.SMSState == 1 %} Enviado {% else %} Por Enviar {%
-            endif %}
+            {% if fini.SMSState == 1 %} Enviado {% else %} Por Enviar {% endif
+            %}
           </td>
           <td>
             <button
               class="btn btn-info btn-md"
               data-toggle="modal"
               data-target="#detailsModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-equipament="{{ notification.equipament }}"
-              data-functional-location="{{ notification.functional_location }}"
-              data-sap-state="{{ notification.SAPState }}"
-              data-sms-state="{{ notification.SMSState }}"
-              data-sms-date="{{ notification.sms_date }}"
-              data-main-workcenter="{{ notification.main_workcenter }}">
+              data-id="{{ fini.id }}"
+              data-description="{{ fini.description }}"
+              data-equipament="{{ fini.equipament }}"
+              data-functional-location="{{ fini.functional_location }}"
+              data-sap-state="{{ fini.SAPState }}"
+              data-sms-state="{{ fini.SMSState }}"
+              data-sms-date="{{ fini.sms_date }}"
+              data-tempo-man="{{ fini.tempo_manutencao }}"
+              data-main-workcenter="{{ fini.main_workcenter }}"
+              data-inicio-man="{{ fini.data_inicio_man }}"
+              data-fim-man="{{ fini.data_fim_man }}"
+              data-comment="{{fini.maintenance_comment}}">
               <i class="fas fa-eye"></i>
-            </button>
-            <button
-              class="btn btn-warning btn-md"
-              data-toggle="modal"
-              data-target="#takeModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-prod-line="{{ notification.prod_line }}"
-              data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}">
-              <i class="fa-regular fa-pen-to-square"></i>
             </button>
           </td>
         </tr>
@@ -148,7 +144,7 @@
 </div>
 
 {% include "corrective/components/detailsModal.html" %} {% include
-"corrective/components/takeModal.html" %}
+"corrective/components/finishModal.html" %}
 
 <script>
   {% include "corrective/js/openModal.js" %}

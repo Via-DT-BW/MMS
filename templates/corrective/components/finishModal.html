@@ -1,0 +1,99 @@
+<!-- Modal Finish -->
+<div
+  class="modal fade"
+  id="finishModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="finishModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="finishModalLabel">Finalizar Manutenção</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="finishModalForm">
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row mb-3">
+              <div hidden class="col-lg-6">
+                <label><strong>ID:</strong></label>
+                <input
+                  type="text"
+                  id="modal-id"
+                  class="form-control"
+                  readonly />
+              </div>
+              <div class="col-lg-6">
+                <label><strong>Data do Pedido:</strong></label>
+                <input
+                  type="text"
+                  id="modal-pedido-date"
+                  class="form-control"
+                  readonly />
+              </div>
+              <div class="col-lg-6">
+                <label><strong>Início da Manutenção:</strong></label>
+                <input
+                  type="text"
+                  id="modal-ini-date"
+                  class="form-control"
+                  readonly />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-12">
+                <label><strong>Descrição:</strong></label>
+                <input
+                  type="text"
+                  id="modal-description"
+                  class="form-control"
+                  readonly />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-12">
+                <label><strong>Equipamento:</strong></label>
+                <input
+                  type="text"
+                  id="modal-equipament"
+                  class="form-control"
+                  readonly />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-12">
+                <label for="maintenance_comment"
+                  ><strong>Comentários da Manutenção:</strong></label
+                >
+                <textarea
+                  id="maintenance_comment"
+                  class="form-control"
+                  rows="10"
+                  required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="submit"
+            class="btn"
+            style="background-color: #051729; color: white">
+            Finalizar
+          </button>
+
+          <button type="button" class="btn btn-danger" data-dismiss="modal">
+            Fechar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
