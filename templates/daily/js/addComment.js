@@ -3,17 +3,16 @@ document
   .addEventListener("click", function () {
     const form = document.getElementById("addDailyForm");
     const formData = new FormData(form);
-    console.log(formData);
     fetch("/api/add_daily_record", {
       method: "POST",
       body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.success) {
+        if (data.status === "success") {
           location.reload();
         } else {
-          alert("Erro ao adicionar registo: " + data.error);
+          alert("Erro ao adicionar registo: " + data.message);
         }
       })
       .catch((error) => console.error("Erro:", error));

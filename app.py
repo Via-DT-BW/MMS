@@ -40,14 +40,14 @@ def logout():
    session.pop('workernumber', None)
    session.pop('accesslevel', None)
    session.clear()
+   flash('Logout feito com sucesso.', 'info')
    return redirect(url_for('index'))
 
 @app.route('/')
 def index():
-  conn=pyodbc.connect(conexao_capture)
-  cursor = conn.cursor()
+    logout()
 
-  return render_template('index.html', year=year)
+    return render_template('index.html', year=year)
 
 #Corrective
 @app.route('/corrective', methods=['GET'])
@@ -376,6 +376,9 @@ def preventive():
     return redirect(url_for('preventive'))
   
 #Daily
+def empty_to_none(value):
+    return None if value == "" else value
+
 @app.route('/daily', methods=['GET'])
 def daily():
     if 'username' not in session:
@@ -384,30 +387,67 @@ def daily():
 
     try:
         username = session.get('username')
-        user_turno = session.get('turno')
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("EXEC GetDailyRecords")
-        records = cursor.fetchall()
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
+        filter_turno = empty_to_none(request.args.get('filter_turno', '', type=str))
+        filter_tl = empty_to_none(request.args.get('filter_tl', '', type=str))
+        start_date = empty_to_none(request.args.get('start_date', '', type=str))
+        end_date = empty_to_none(request.args.get('end_date', '', type=str))        
 
-        daily_data = [
-            {
-                'id': row.id,
-                'data': row.data,
-                'turno': row.turno,
-                'safety_comment': row.safety_comment,
-                'quality_comment': row.quality_comment,
-                'volume_comment': row.volume_comment,
-                'people_comment': row.people_comment,
-                'username': row.username
-            }
-            for row in records
-        ]
+
+        print("tl: ",filter_tl)
+        print("turno: ",filter_turno)
+        print("start_date: ",start_date)
+        print("end date: ",end_date)
+        
+        cursor.execute("""
+            EXEC GetDailyRecords 
+                @FilterTurno = ?, 
+                @FilterUsername = ?, 
+                @StartDate = ?, 
+                @EndDate = ?, 
+                @PageSize = ?, 
+                @Page = ?
+            """,
+            filter_turno, filter_tl, start_date, end_date, page_size, page
+        )
+        daily_data = cursor.fetchall()
+        print(daily_data)
+        
+        count_query = """
+            SELECT COUNT(*) 
+            FROM daily d
+            LEFT JOIN teamleaders tl ON d.id_tl = tl.id
+            WHERE 
+                (ISNULL(?, '') = '' OR tl.turno LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR tl.username LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR d.data >= ?) AND
+                (ISNULL(?, '') = '' OR d.data <= ?)
+        """
+        cursor.execute(count_query, filter_turno, filter_turno, filter_tl, filter_tl, start_date, start_date, end_date, end_date)
+        total_records = cursor.fetchone()[0]
+        print(total_records)
+        
+        total_pages = (total_records + page_size - 1) // page_size
+        start_page = max(1, page - 3)
+        end_page = min(total_pages, page + 3)
 
         return render_template('daily/log.html', 
                                maintenance="Daily Maintenance", 
-                               daily_data=daily_data,username=username, user_turno=user_turno)
+                               daily_data=daily_data,
+                               username=username,
+                               page=page, 
+                               total_pages=total_pages,
+                               start_page=start_page,
+                               end_page=end_page,
+                               page_size=page_size,
+                               filter_turno=filter_turno,
+                               filter_tl=filter_tl,
+                               start_date=start_date,
+                               end_date=end_date)
 
     except Exception as e:
         print(e)
@@ -535,6 +575,9 @@ def get_corrective_stats():
 
 @app.route('/api/add_daily_record', methods=['POST'])
 def add_daily_record():
+    if 'id_tl' not in session:
+        return jsonify({'status': 'error', 'message': 'Usuário não autenticado!'}), 403
+
     try:
         safety_comment = request.form.get('safety_comment')
         quality_comment = request.form.get('quality_comment')
@@ -555,11 +598,14 @@ def add_daily_record():
 
     except Exception as e:
         print(e)
-        flash('Erro ao adicionar comentários!', category='error')
+        flash('Erro ao adicionar os comentários.', category='error')
         return jsonify({'status': 'error', 'message': 'Erro ao adicionar comentários!'}), 500
+    
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.route('/api/prod_lines', methods=['GET'])
 def lines():

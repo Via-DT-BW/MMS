@@ -1,60 +1,164 @@
 {% extends 'daily/daily.html' %} {% block content %}
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
-<div class="card mt-4 mb-4">
-  <div class="card-header">
-    <h5>Daily Team Communication</h5>
+<div class="container-fluid mt-4">
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Daily Team Communication</h5>
+    </div>
+
+    <form
+      method="GET"
+      action="/daily"
+      class="form-row justify-content-center p-3">
+      <!-- Campo de filtro por Turno -->
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Filtrar por Turno</small>
+        <input
+          type="text"
+          name="filter_turno"
+          class="form-control"
+          placeholder="Turno"
+          value="{{ request.args.get('filter_turno', '') }}" />
+      </div>
+
+      <!-- Campo de filtro por Team Leader -->
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Filtrar por Team Leader</small>
+        <input
+          type="text"
+          name="filter_tl"
+          class="form-control"
+          placeholder="Team Leader"
+          value="{{ request.args.get('filter_tl', '') }}" />
+      </div>
+
+      <!-- Campo para Data Inicial -->
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Data inicial</small>
+        <input
+          type="date"
+          name="start_date"
+          class="form-control"
+          value="{{ request.args.get('start_date', '') }}" />
+      </div>
+
+      <!-- Campo para Data Final -->
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Data final</small>
+        <input
+          type="date"
+          name="end_date"
+          class="form-control"
+          value="{{ request.args.get('end_date', '') }}" />
+      </div>
+
+      <!-- Campo para Itens por Página -->
+      <div class="form-group col-md-1 text-center">
+        <small class="form-text text-muted">Itens por página</small>
+        <input
+          type="number"
+          name="page_size"
+          class="form-control"
+          value="{{ request.args.get('page_size', 10) }}"
+          min="1"
+          max="100"
+          placeholder="Itens por página" />
+      </div>
+
+      <!-- Botões para Filtrar e Limpar -->
+      <div
+        class="form-group col-md-3 d-flex align-items-end justify-content-center">
+        <button type="submit" class="btn btn-primary mr-2">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <a href="/daily" class="btn btn-danger">Limpar</a>
+      </div>
+    </form>
   </div>
 
-  <div class="card-body">
-    <div class="mb-2">
-      <button
-        class="btn"
-        style="background-color: #051729; color: white"
-        data-toggle="modal"
-        data-target="#addDailyModal">
-        Adicionar Comentários
-      </button>
-    </div>
-    <div>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Team Leader</th>
-            <th>Data dos Comentários</th>
-            <th>Turno</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if daily_data|length == 0 %}
-          <tr>
-            <td colspan="8" class="text-center">Sem Comentários</td>
-          </tr>
-          {% else %} {% for record in daily_data %}
-          <tr>
-            <td>{{ record.id }}</td>
-            <td>{{ record.username }}</td>
-            <td class="data">{{ record.data }}</td>
-            <td>{{ record.turno }}</td>
-            <td>
-              <button
-                class="btn btn-info btn-md"
-                data-toggle="modal"
-                data-target="#dailyDetailsModal"
-                data-id="{{ record.id }}"
-                data-safety="{{record.safety_comment}}"
-                data-quality="{{record.quality_comment}}"
-                data-volume="{{record.volume_comment}}"
-                data-people="{{record.people_comment}}">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %} {% endif %}
-        </tbody>
-      </table>
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-2">
+        <button
+          class="btn"
+          style="background-color: #051729; color: white"
+          data-toggle="modal"
+          data-target="#addDailyModal">
+          Adicionar Comentários
+        </button>
+      </div>
+
+      <div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Team Leader</th>
+              <th>Data dos Comentários</th>
+              <th>Turno</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if daily_data|length == 0 %}
+            <tr>
+              <td colspan="5" class="text-center">Sem Comentários</td>
+            </tr>
+            {% else %} {% for record in daily_data %}
+            <tr>
+              <td>{{ record.id }}</td>
+              <td>{{ record.username }}</td>
+              <td class="data">{{ record.data }}</td>
+              <td>{{ record.turno }}</td>
+              <td>
+                <button
+                  class="btn btn-info btn-md"
+                  data-toggle="modal"
+                  data-target="#dailyDetailsModal"
+                  data-id="{{ record.id }}"
+                  data-safety="{{record.safety_comment}}"
+                  data-quality="{{record.quality_comment}}"
+                  data-volume="{{record.volume_comment}}"
+                  data-people="{{record.people_comment}}">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %} {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <nav aria-label="Page navigation">
+        <ul class="pagination d-flex justify-content-center">
+          {% if page > 1 %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('daily', page=page-1, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
+              >«</a
+            >
+          </li>
+          {% endif %} {% for p in range(start_page, end_page + 1) %}
+          <li class="page-item {% if p == page %}active{% endif %}">
+            <a
+              class="page-link"
+              href="{{ url_for('daily', page=p, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
+              >{{ p }}</a
+            >
+          </li>
+          {% endfor %} {% if page < total_pages %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('daily', page=page+1, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
+              >»</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
   </div>
 </div>
