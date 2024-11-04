@@ -72,20 +72,42 @@ $(document).ready(function () {
     modal.find("#modal-description").val(description);
     modal.find("#modal-equipament").val(equipament);
     modal.find("#modal-prod-line").val(prodLine);
-    modal.find("#n_tecnico").val("");
+
+    $.ajax({
+      type: "GET",
+      url: "/api/tecnicos",
+      success: function (tecnicos) {
+        var selectTecnico = $("#select-tecnico");
+        selectTecnico.empty();
+        selectTecnico.append('<option value="">Selecione um técnico</option>');
+
+        tecnicos.forEach(function (tecnico) {
+          selectTecnico.append(
+            new Option(`${tecnico.nome} - ${tecnico.n_tecnico}`, tecnico.id)
+          );
+        });
+      },
+      error: function () {
+        alert("Erro ao buscar técnicos.");
+      },
+    });
 
     $("#takeModalForm").on("submit", function (e) {
       e.preventDefault();
-      var n_tecnico = $("#n_tecnico").val();
+      var tecnicoId = $("#select-tecnico").val();
       var id = $("#modal-id").val();
 
-      console.log(id, n_tecnico);
+      if (!tecnicoId) {
+        alert("Selecione um técnico.");
+        return;
+      }
+
       $.ajax({
         type: "POST",
         url: "/change_to_inwork",
         data: {
           id: id,
-          n_tecnico: n_tecnico,
+          tecnico_id: tecnicoId,
         },
         success: function (response) {
           if (response.status === "success") {
@@ -94,11 +116,8 @@ $(document).ready(function () {
             alert(response.message);
           }
         },
-        error: function (xhr) {
-          alert(xhr.responseJSON.message || "Erro ao processar a ação");
-        },
         error: function () {
-          alert("Erro ao processar a ação");
+          alert("Erro ao processar a ação.");
         },
       });
     });
@@ -146,6 +165,51 @@ $(document).ready(function () {
         },
         error: function () {
           alert("Erro ao processar a ação");
+        },
+      });
+    });
+  });
+
+  $("#rejectModal").on("show.bs.modal", function (event) {
+    var button = $(event.relatedTarget);
+    var id = button.data("id");
+    var description = button.data("description");
+    var prodLine = button.data("prod-line");
+    var equipament = button.data("equipament");
+    var pedidoDate = button.data("pedido-date");
+
+    var modal = $(this);
+    modal.find("#modal-reject-description").val(description);
+    modal.find("#modal-reject-prod-line").val(prodLine);
+    modal.find("#modal-reject-equipament").val(equipament);
+    modal.find("#modal-reject-pedido-date").val(formatDateTime(pedidoDate));
+
+    $("#btn-reject-submit").on("click", function () {
+      var modal = $("#rejectModal");
+      var comment = modal.find("#modal-reject-comment").val();
+      var notificationId = $(event.relatedTarget).data("id");
+
+      if (!comment) {
+        alert("Por favor, forneça um motivo para a rejeição.");
+        return;
+      }
+
+      $.ajax({
+        type: "POST",
+        url: "/reject_corrective_notification",
+        data: {
+          id: notificationId,
+          comment: comment,
+        },
+        success: function (response) {
+          if (response.status === "success") {
+            location.reload();
+          } else {
+            alert(response.message);
+          }
+        },
+        error: function (xhr) {
+          alert(xhr.responseJSON.message || "Erro ao processar a ação");
         },
       });
     });

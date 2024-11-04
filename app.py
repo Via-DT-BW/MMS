@@ -40,7 +40,6 @@ def logout():
    session.pop('workernumber', None)
    session.pop('accesslevel', None)
    session.clear()
-   flash('Logout feito com sucesso.', 'info')
    return redirect(url_for('index'))
 
 @app.route('/')
@@ -141,12 +140,35 @@ def corrective_notification():
 
         return redirect(url_for('corrective'))
 
+@app.route('/reject_corrective_notification', methods=['POST'])
+def reject_notification():
+    notification_id = request.form.get('id')
+    comment = request.form.get('comment')
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+        update_query = """
+            UPDATE corretiva
+            SET id_estado = ?, maintenance_comment = ?, tempo_manutencao = ?
+            WHERE id = ?
+        """
+        cursor.execute(update_query, (4, comment, 0,notification_id))
+        cursor.commit()
+        
+        flash('A ordem de manutenção foi cancelada.', category='info')
+        return jsonify(status='success')
+    except Exception as e:
+        print(e)
+        flash('Erro ao cancelar ordem!', category='error')
+        return jsonify(status='error', message=str(e))
+
 @app.route('/change_to_inwork', methods=['POST'])
 def change_to_inwork():
-    id = request.form.get('id')
-    n_tecnico = request.form.get('n_tecnico')
+    id_corretiva = request.form.get('id')
+    id_tecnico = request.form.get('tecnico_id')
     
-    if not id or not n_tecnico:
+    if not id_corretiva or not id_tecnico:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
     data_atual = datetime.now()
@@ -157,9 +179,14 @@ def change_to_inwork():
 
         cursor.execute('''
             UPDATE corretiva
-            SET n_tecnico = ?, id_estado = ?, data_inicio_man = ?
+            SET id_estado = ?, data_inicio_man = ?
             WHERE id = ?
-        ''', (n_tecnico, 2, data_atual, id))
+        ''', (2, data_atual, id_corretiva))
+
+        cursor.execute('''
+            INSERT INTO corretiva_tecnicos (id_tecnico, id_corretiva)
+            VALUES (?, ?)
+        ''', (id_tecnico, id_corretiva))
 
         conn.commit()
 
@@ -359,22 +386,63 @@ def autonomous():
 @app.route('/preventive', methods=['GET'])
 def preventive():
     try:
-        conn = pyodbc.connect(conexao_capture)
+        conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+
+        filter_equipment = request.args.get('filter', '', type=str)
+        filter_cost_center = request.args.get('filter_cost', '', type=str)
+        start_date = request.args.get('start_date', '', type=str)
+        end_date = request.args.get('end_date', '', type=str)
+        page_size = request.args.get('page_size', 10, type=int)
+        page = request.args.get('page', 1, type=int)
+
+        filter_equipment = None if filter_equipment == "" else filter_equipment
+        filter_cost_center = None if filter_cost_center == "" else filter_cost_center
+        start_date = None if start_date == "" else start_date
+        end_date = None if end_date == "" else end_date
+
+        cursor.execute("""
+            EXEC GetPreventiveRecords 
+                @FilterEquipment = ?, 
+                @FilterCostCenter = ?, 
+                @StartDate = ?, 
+                @EndDate = ?, 
+                @PageSize = ?, 
+                @Page = ?
+        """, filter_equipment, filter_cost_center, start_date, end_date, page_size, page)
+        
+        preventive_data = cursor.fetchall()
+
+        count_query = """
+            SELECT COUNT(*) 
+            FROM preventive 
+            WHERE 
+                (ISNULL(?, '') = '' OR equipament LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR cost_center LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR start_date >= ?) AND
+                (ISNULL(?, '') = '' OR end_date <= ?)
+        """
+        cursor.execute(count_query, filter_equipment, filter_equipment, 
+                       filter_cost_center, filter_cost_center, 
+                       start_date, start_date, 
+                       end_date, end_date)
+        total_records = cursor.fetchone()[0]
 
         return render_template('preventive/notifications.html', 
                                maintenance="Preventive Maintenance", 
-                               year=year)
+                               preventive=preventive_data, 
+                               total_records=total_records, 
+                               page_size=page_size,
+                               current_page=page)
 
     except Exception as e:
         print(e)
         flash(f'Ocorreu um erro: {str(e)}', category='error')
     finally:
         cursor.close()
-        conn.close()
-
+        conn.close
     return redirect(url_for('preventive'))
-  
+
 #Daily
 def empty_to_none(value):
     return None if value == "" else value
@@ -387,6 +455,7 @@ def daily():
 
     try:
         username = session.get('username')
+        turno = session.get('turno')
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
@@ -396,12 +465,6 @@ def daily():
         filter_tl = empty_to_none(request.args.get('filter_tl', '', type=str))
         start_date = empty_to_none(request.args.get('start_date', '', type=str))
         end_date = empty_to_none(request.args.get('end_date', '', type=str))        
-
-
-        print("tl: ",filter_tl)
-        print("turno: ",filter_turno)
-        print("start_date: ",start_date)
-        print("end date: ",end_date)
         
         cursor.execute("""
             EXEC GetDailyRecords 
@@ -415,7 +478,6 @@ def daily():
             filter_turno, filter_tl, start_date, end_date, page_size, page
         )
         daily_data = cursor.fetchall()
-        print(daily_data)
         
         count_query = """
             SELECT COUNT(*) 
@@ -429,7 +491,6 @@ def daily():
         """
         cursor.execute(count_query, filter_turno, filter_turno, filter_tl, filter_tl, start_date, start_date, end_date, end_date)
         total_records = cursor.fetchone()[0]
-        print(total_records)
         
         total_pages = (total_records + page_size - 1) // page_size
         start_page = max(1, page - 3)
@@ -440,6 +501,7 @@ def daily():
                                daily_data=daily_data,
                                username=username,
                                page=page, 
+                               user_turno=turno,
                                total_pages=total_pages,
                                start_page=start_page,
                                end_page=end_page,
@@ -533,6 +595,127 @@ def corrective_maintenance():
     print(e)
     return redirect(url_for('index'))
 
+@app.route('/api/tecnicos', methods=['GET'])
+def get_tecnicos():
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, nome, n_tecnico FROM tecnicos")
+
+        tecnicos = []
+        for row in cursor.fetchall():
+            tecnicos.append({
+                'id': row.id,
+                'nome': row.nome,
+                'n_tecnico': row.n_tecnico
+            })
+
+        return jsonify(tecnicos)
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': f'Ocorreu um erro: {str(e)}'}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/associate_tecnico', methods=['POST'])
+def associate_tecnico():
+    id_corretiva = request.form.get('id_corretiva')
+    id_tecnico = request.form.get('id_tecnico')
+
+    if not id_corretiva or not id_tecnico:
+        return jsonify({'error': 'Parâmetros insuficientes'}), 400
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            INSERT INTO corretiva_tecnicos (id_tecnico, id_corretiva, data_inicio)
+            VALUES (?, ?, ?)
+        ''', (id_tecnico, id_corretiva, datetime.now()))
+
+        conn.commit()
+        flash('Técnico associado com sucesso!', category='success')
+        return jsonify({'status': 'success', 'message': 'Técnico associado com sucesso!'})
+    except Exception as e:
+        print(e)
+        flash('Erro ao associar técnico!', category='error')
+        return jsonify({'status': 'error', 'message': 'Erro ao associar o técnico!'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/get_tecnicos_associados/<int:id_corretiva>', methods=['GET'])
+def get_tecnicos_associados(id_corretiva):
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT t.id, t.nome , t.n_tecnico
+            FROM corretiva_tecnicos ct
+            JOIN tecnicos t ON ct.id_tecnico = t.id
+            WHERE ct.id_corretiva = ? AND ct.data_fim IS NULL
+        ''', (id_corretiva,))
+
+        tecnicos = cursor.fetchall()
+
+        data = [{'id': tecnico.id, 'nome': tecnico.nome, 'n_tecnico': tecnico.n_tecnico} for tecnico in tecnicos]
+
+        return jsonify(data)
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Ocorreu um erro ao buscar os técnicos.'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/update_comment', methods=['POST'])
+def update_comment():
+    id_corretiva = request.form.get('id_corretiva')
+    id_tecnico = request.form.get('id_tecnico')
+    comment = request.form.get('comment')
+
+    if not id_corretiva or not id_tecnico or not comment:
+        return jsonify({'error': 'Parâmetros insuficientes'}), 400
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            UPDATE corretiva_tecnicos
+            SET maintenance_comment = ?, data_fim = GETDATE() -- Define a data de fim para agora
+            WHERE id_corretiva = ? AND id_tecnico = ?
+        ''', (comment, id_corretiva, id_tecnico))
+
+        if cursor.rowcount == 0:
+            flash('Registo não encontrado para atualização', category='error')
+            return jsonify({'status': 'error', 'message': 'Registo não encontrado para atualização!'}), 404
+
+        conn.commit()
+        flash('Comentário feito com sucesso!', category='success')
+        return jsonify({'status': 'success', 'message': 'Comentário feito com sucesso!'})
+    except Exception as e:
+        print(e)
+        flash('Erro ao fazer o comentário!', category='error')
+        return jsonify({'status': 'error', 'message': 'Erro ao fazer o comentário!'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
 @app.route('/api/get_corrective_stats')
 def get_corrective_stats():
     try:
@@ -551,7 +734,6 @@ def get_corrective_stats():
             
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
-        print(f"Filter Prod Line: {filter_prod_line}, Start Date: {start_date}, End Date: {end_date}")
 
         cursor.execute("EXEC GetCorrectiveStats @filter_prod_line=?, @start_date=?, @end_date=?", filter_prod_line if filter_prod_line else None    , start_date, end_date)
         

@@ -7,7 +7,10 @@
       <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Finished</h5>
     </div>
 
-    <form method="GET" action="/inwork" class="form-row justify-content-center">
+    <form
+      method="GET"
+      action="/finished"
+      class="form-row justify-content-center">
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Filtrar por equipamento</small>
         <input
@@ -65,7 +68,7 @@
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
-        <a href="/inwork" class="btn btn-danger">Limpar</a>
+        <a href="/finished" class="btn btn-danger">Limpar</a>
       </div>
     </form>
   </div>
@@ -77,7 +80,7 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>ID Corretiva</th>
           <th>Linha de Produção</th>
           <th>Nº do Operador</th>
           <th>Nº do Técnico</th>
@@ -93,7 +96,7 @@
       <tbody>
         {% for fini in finished %}
         <tr>
-          <td>{{ fini.id }}</td>
+          <td>{{ fini.id_corretiva }}</td>
           <td>{{ fini.prod_line }}</td>
           <td>{{ fini.n_operador }}</td>
           <td>{{ fini.n_tecnico }}</td>

@@ -78,6 +78,7 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>ID Corretiva</th>
           <th>Linha de Produção</th>
           <th>Nº do Operador</th>
           <th>Nº do Técnico</th>
@@ -85,7 +86,6 @@
           <th>Data de Criação</th>
           <th>Equipamento</th>
           <th>Parou Produção?</th>
-          <th>Estado SAP</th>
           <th>SMS</th>
           <th>Ações</th>
         </tr>
@@ -94,6 +94,7 @@
         {% for ongo in ongoing %}
         <tr>
           <td>{{ ongo.id }}</td>
+          <td>{{ ongo.id_corretiva }}</td>
           <td>{{ ongo.prod_line }}</td>
           <td>{{ ongo.n_operador }}</td>
           <td>{{ ongo.n_tecnico }}</td>
@@ -101,11 +102,6 @@
           <td class="data">{{ ongo.data_pedido }}</td>
           <td>{{ ongo.equipament }}</td>
           <td>{{ ongo.stopped_production }}</td>
-          <td>
-            {% if ongo.sap_order %} {{ ongo.sap_order }} {% else %}
-            <span class="text-muted">Aguarda criação</span>
-            {% endif %}
-          </td>
           <td>
             {% if ongo.SMSState == 1 %} Enviado {% else %} Por Enviar {% endif
             %}
@@ -124,6 +120,17 @@
               data-sms-date="{{ ongo.sms_date }}"
               data-main-workcenter="{{ ongo.main_workcenter }}">
               <i class="fas fa-eye"></i>
+            </button>
+            <button
+              class="btn btn-warning btn-md"
+              data-toggle="modal"
+              data-target="#commentsModal"
+              data-id="{{ ongo.id }}"
+              data-description="{{ ongo.description }}"
+              data-prod-line="{{ ongo.prod_line }}"
+              data-equipament="{{ ongo.equipament }}"
+              data-pedido-date="{{ ongo.data_pedido }}">
+              <i class="fa-solid fa-users"></i>
             </button>
             <button
               class="btn btn-danger btn-md"
@@ -147,10 +154,12 @@
 </div>
 
 {% include "corrective/components/detailsModal.html" %} {% include
-"corrective/components/finishModal.html" %}
+"corrective/components/finishModal.html" %} {% include
+"corrective/components/commentsModal.html" %}
 
 <script>
   {% include "corrective/js/openModal.js" %}
+  {% include "corrective/js/comments.js" %}
 </script>
 
 {% endblock %}

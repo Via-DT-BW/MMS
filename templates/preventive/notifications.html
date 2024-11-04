@@ -1,4 +1,175 @@
 {% extends 'preventive/preventive.html' %} {% block content %}
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
+<div class="card mt-4 mb-4">
+  <div class="card-header">
+    <div class="d-flex justify-content-start align-items-center mb-3">
+      <h5 class="m-0 text-center col-lg-12">Manutenção Preventiva</h5>
+    </div>
+
+    <form
+      method="GET"
+      action="/preventive"
+      class="form-row justify-content-center">
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Filtrar por equipamento</small>
+        <input
+          type="text"
+          name="filter"
+          class="form-control"
+          placeholder="Equipamento"
+          value="{{ request.args.get('filter', '') }}" />
+      </div>
+
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Filtrar por centro de custo</small>
+        <input
+          type="text"
+          name="filter_cost"
+          class="form-control"
+          placeholder="Centro de Custo"
+          value="{{ request.args.get('filter_cost', '') }}" />
+      </div>
+
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Data inicial</small>
+        <input
+          type="date"
+          name="start_date"
+          class="form-control"
+          value="{{ request.args.get('start_date', '') }}" />
+      </div>
+
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Data final</small>
+        <input
+          type="date"
+          name="end_date"
+          class="form-control"
+          value="{{ request.args.get('end_date', '') }}" />
+      </div>
+
+      <div class="form-group col-md-1 text-center">
+        <small class="form-text text-muted">Itens por página</small>
+        <input
+          type="number"
+          name="page_size"
+          class="form-control"
+          value="{{ request.args.get('page_size', 10) }}"
+          min="1"
+          max="100"
+          placeholder="Itens por página" />
+      </div>
+
+      <div
+        class="form-group col-md-3 d-flex align-items-end justify-content-center">
+        <button type="submit" class="btn btn-primary mr-2">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <a href="/preventive" class="btn btn-danger">Limpar</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card-body">
+    {% if preventive|length == 0 %}
+    <p class="text-center">Sem Pedidos de Manutenção Preventiva</p>
+    {% else %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Ordem</th>
+          <th>Equipamento</th>
+          <th>Descrição</th>
+          <th>Local Funcional</th>
+          <th>Denominação</th>
+          <th>Centro de Custo</th>
+          <th>Modificação</th>
+          <th>Data Inicial</th>
+          <th>Data Final</th>
+          <th>Plano de Manutenção</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prev in preventive %}
+        <tr>
+          <td>{{ prev.order }}</td>
+          <td>{{ prev.equipament }}</td>
+          <td>{{ prev.description }}</td>
+          <td>{{ prev.funtional_location }}</td>
+          <td>{{ prev.denomination }}</td>
+          <td>{{ prev.cost_center }}</td>
+          <td>{{ prev.modification }}</td>
+          <td>{{ prev.start_date }}</td>
+          <td>{{ prev.end_date }}</td>
+          <td>{{ prev.maintenance_plan }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        {% if current_page > 1 %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), page_size=request.args.get('page_size', 10), page=current_page - 1) }}"
+            aria-label="Anterior">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% endif %} {% set total_pages = (total_records // page_size) + (1 if
+        total_records % page_size > 0 else 0) %} {% set start_page =
+        current_page - 1 %} {% set end_page = current_page + 1 %} {% if
+        start_page < 1 %} {% set start_page = 1 %} {% endif %} {% if end_page >
+        total_pages %} {% set end_page = total_pages %} {% endif %} {% if
+        start_page > 1 %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), page_size=request.args.get('page_size', 10), page=1) }}"
+            >1</a
+          >
+        </li>
+        {% if start_page > 2 %}
+        <li class="page-item"><span class="page-link">...</span></li>
+        {% endif %} {% endif %} {% for page_num in range(start_page, end_page +
+        1) %}
+        <li
+          class="page-item {% if page_num == current_page %}active{% endif %}">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), page_size=request.args.get('page_size', 10), page=page_num) }}"
+            >{{ page_num }}</a
+          >
+        </li>
+        {% endfor %} {% if end_page < total_pages %} {% if end_page <
+        total_pages - 1 %}
+        <li class="page-item"><span class="page-link">...</span></li>
+        {% endif %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), page_size=request.args.get('page_size', 10), page=total_pages) }}"
+            >{{ total_pages }}</a
+          >
+        </li>
+        {% endif %} {% if current_page < total_pages %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), page_size=request.args.get('page_size', 10), page=current_page + 1) }}"
+            aria-label="Próximo">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    {% endif %}
+  </div>
+</div>
+
 {% endblock %}

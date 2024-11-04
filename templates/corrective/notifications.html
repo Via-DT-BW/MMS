@@ -138,6 +138,17 @@
               data-pedido-date="{{ notification.data_pedido }}">
               <i class="fa-regular fa-pen-to-square"></i>
             </button>
+            <button
+              class="btn btn-danger btn-md"
+              data-toggle="modal"
+              data-target="#rejectModal"
+              data-id="{{ notification.id }}"
+              data-description="{{ notification.description }}"
+              data-prod-line="{{ notification.prod_line }}"
+              data-equipament="{{ notification.equipament }}"
+              data-pedido-date="{{ notification.data_pedido }}">
+              <i class="fa-solid fa-ban"></i>
+            </button>
           </td>
         </tr>
         {% endfor %}
@@ -148,7 +159,8 @@
 </div>
 
 {% include "corrective/components/detailsModal.html" %} {% include
-"corrective/components/takeModal.html" %}
+"corrective/components/takeModal.html" %} {% include
+"corrective/components/rejectModal.html" %}
 
 <script>
   {% include "corrective/js/openModal.js" %}
