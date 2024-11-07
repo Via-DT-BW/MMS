@@ -11,7 +11,6 @@ $(document).ready(function () {
 
   $('#commentsTabs a[data-toggle="pill"]').on("click", function (event) {
     var targetTab = $(event.target).attr("href");
-    console.log("Aba ativada:", targetTab);
     toggleButtons(targetTab);
   });
 
@@ -70,6 +69,23 @@ $(document).ready(function () {
       },
     });
 
+    $.ajax({
+      type: "GET",
+      url: "/api/tipo_avarias",
+      success: function (tiposAvarias) {
+        $("#select-avaria")
+          .empty()
+          .append('<option value="">Selecione um tipo de avaria</option>');
+
+        tiposAvarias.forEach(function (tipo) {
+          $("#select-avaria").append(new Option(tipo.tipo, tipo.id));
+        });
+      },
+      error: function () {
+        alert("Erro ao carregar tipos de avarias.");
+      },
+    });
+
     toggleButtons("#commentSection");
   });
 
@@ -77,6 +93,7 @@ $(document).ready(function () {
     var idCorretiva = $("#corretiva-id").text();
     var tecnicoId = $("#select-tecnico").val();
     var comentario = $("#comment").val();
+    var tipoAvariaId = $("#select-avaria").val();
 
     if (!tecnicoId || !comentario) {
       alert("Por favor, selecione um técnico e adicione um comentário.");
@@ -90,10 +107,10 @@ $(document).ready(function () {
         id_corretiva: idCorretiva,
         id_tecnico: tecnicoId,
         comment: comentario,
+        id_tipo_avaria: tipoAvariaId,
       },
       success: function (response) {
         if (response.status === "success") {
-          alert("Comentário adicionado com sucesso!");
           $("#commentsModal").modal("hide");
           location.reload();
         } else {
@@ -124,7 +141,6 @@ $(document).ready(function () {
       },
       success: function (response) {
         if (response.status === "success") {
-          alert("Técnico associado com sucesso!");
           $("#commentsModal").modal("hide");
           location.reload();
         } else {

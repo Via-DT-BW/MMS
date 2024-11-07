@@ -267,7 +267,8 @@ def inwork():
 def finish_maintenance():
     id = request.form.get('id')
     maintenance_comment = request.form.get('maintenance_comment')
-    
+    id_tipo_avaria = request.form.get('id_tipo_avaria')
+
     if not id or not maintenance_comment:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
@@ -278,10 +279,16 @@ def finish_maintenance():
         cursor = conn.cursor()
 
         cursor.execute('''
+            UPDATE corretiva_tecnicos
+            SET maintenance_comment = ?, data_fim = ?, id_tipo_avaria = ?
+            WHERE id_corretiva = ? AND data_fim IS NULL
+        ''', (maintenance_comment, data_atual, id_tipo_avaria, id))
+
+        cursor.execute('''
             UPDATE corretiva
-            SET maintenance_comment = ?, id_estado = ?, data_fim_man = ?
+            SET data_fim_man = ?, id_estado = ?
             WHERE id = ?
-        ''', (maintenance_comment, 3, data_atual, id))
+        ''', (data_atual, 3, id))
 
         conn.commit()
 
@@ -623,6 +630,33 @@ def get_tecnicos():
         if 'conn' in locals():
             conn.close()
 
+@app.route('/api/tipo_avarias', methods=['GET'])
+def get_tipo_avarias():
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, tipo FROM tipo_avaria")
+
+        avarias = []
+        for row in cursor.fetchall():
+            avarias.append({
+                'id': row.id,
+                'tipo': row.tipo,
+            })
+
+        return jsonify(avarias)
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': f'Ocorreu um erro: {str(e)}'}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
 @app.route('/api/associate_tecnico', methods=['POST'])
 def associate_tecnico():
     id_corretiva = request.form.get('id_corretiva')
@@ -685,6 +719,7 @@ def update_comment():
     id_corretiva = request.form.get('id_corretiva')
     id_tecnico = request.form.get('id_tecnico')
     comment = request.form.get('comment')
+    id_tipo_avaria = request.form.get('id_tipo_avaria')
 
     if not id_corretiva or not id_tecnico or not comment:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
@@ -695,9 +730,9 @@ def update_comment():
 
         cursor.execute('''
             UPDATE corretiva_tecnicos
-            SET maintenance_comment = ?, data_fim = GETDATE() -- Define a data de fim para agora
+            SET maintenance_comment = ?, id_tipo_avaria = ?, data_fim = GETDATE()
             WHERE id_corretiva = ? AND id_tecnico = ?
-        ''', (comment, id_corretiva, id_tecnico))
+        ''', (comment, id_tipo_avaria, id_corretiva, id_tecnico))
 
         if cursor.rowcount == 0:
             flash('Registo não encontrado para atualização', category='error')

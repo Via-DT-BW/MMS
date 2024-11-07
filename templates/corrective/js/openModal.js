@@ -1,4 +1,21 @@
 $(document).ready(function () {
+  $.ajax({
+    type: "GET",
+    url: "/api/tipo_avarias",
+    success: function (tiposAvarias) {
+      $("#tipo-avaria")
+        .empty()
+        .append('<option value="">Selecione um tipo de avaria</option>');
+
+      tiposAvarias.forEach(function (tipo) {
+        $("#tipo-avaria").append(new Option(tipo.tipo, tipo.id));
+      });
+    },
+    error: function () {
+      alert("Erro ao carregar tipos de avarias.");
+    },
+  });
+
   $("#detailsModal").on("show.bs.modal", function (event) {
     var button = $(event.relatedTarget);
     var id = button.data("id");
@@ -123,50 +140,30 @@ $(document).ready(function () {
     });
   });
 
-  $("#finishModal").on("show.bs.modal", function (event) {
-    var button = $(event.relatedTarget);
-    var id = button.data("id");
-    var description = button.data("description");
-    var equipament = button.data("equipament");
-    var pedidoDate = button.data("pedido-date");
-    var iniDate = button.data("ini-date");
-    console.log(id, description, equipament, pedidoDate, iniDate);
+  $("#finishModalForm").on("submit", function (e) {
+    e.preventDefault();
+    var maintenanceComment = $("#maintenance_comment").val();
+    var id = $("#modal-id").val();
+    var tipoAvariaId = $("#tipo-avaria").val();
 
-    var modal = $(this);
-    modal.find("#modal-id").val(id);
-    modal.find("#modal-pedido-date").val(formatDateTime(pedidoDate));
-    modal.find("#modal-ini-date").val(formatDateTime(iniDate));
-    modal.find("#modal-description").val(description);
-    modal.find("#modal-equipament").val(equipament);
-    modal.find("#maintenance_comment").val("");
-
-    $("#finishModalForm").on("submit", function (e) {
-      e.preventDefault();
-      var maintenanceComment = $("#maintenance_comment").val();
-      var id = $("#modal-id").val();
-      console.log(maintenance_comment);
-
-      $.ajax({
-        type: "POST",
-        url: "/finish_maintenance",
-        data: {
-          id: id,
-          maintenance_comment: maintenanceComment,
-        },
-        success: function (response) {
-          if (response.status === "success") {
-            location.reload();
-          } else {
-            alert(response.message);
-          }
-        },
-        error: function (xhr) {
-          alert(xhr.responseJSON.message || "Erro ao processar a ação");
-        },
-        error: function () {
-          alert("Erro ao processar a ação");
-        },
-      });
+    $.ajax({
+      type: "POST",
+      url: "/finish_maintenance",
+      data: {
+        id: id,
+        maintenance_comment: maintenanceComment,
+        id_tipo_avaria: tipoAvariaId,
+      },
+      success: function (response) {
+        if (response.status === "success") {
+          location.reload();
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function (xhr) {
+        alert(xhr.responseJSON.message || "Erro ao processar a ação");
+      },
     });
   });
 

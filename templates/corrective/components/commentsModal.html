@@ -31,7 +31,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <ul class="nav nav-pills" id="commentsTabs" role="tablist">
+        <ul
+          class="nav nav-pills d-flex justify-content-center"
+          id="commentsTabs"
+          role="tablist">
           <li class="nav-item">
             <a
               class="nav-link active"
@@ -90,13 +93,23 @@
                 </p>
               </div>
             </div>
-            <div class="form-group">
-              <label for="select-tecnico"
-                ><strong>Selecionar Técnico:</strong></label
-              >
-              <select id="select-tecnico" class="form-control" required>
-                <option value="">Selecione um técnico</option>
-              </select>
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="select-tecnico"
+                  ><strong>Selecionar Técnico:</strong></label
+                >
+                <select id="select-tecnico" class="form-control" required>
+                  <option value="">Selecione um técnico</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="select-avaria"
+                  ><strong>Selecionar Tipo de Avaria:</strong></label
+                >
+                <select id="select-avaria" class="form-control" required>
+                  <option value="">Selecione um tipo de avaria</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
               <label for="comment"><strong>Comentário:</strong></label>

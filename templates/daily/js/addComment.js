@@ -17,3 +17,11 @@ document
       })
       .catch((error) => console.error("Erro:", error));
   });
+
+function updateCharCount(textareaId, countId) {
+  const textarea = document.getElementById(textareaId);
+  const countDisplay = document.getElementById(countId);
+  const charCount = textarea.value.length;
+
+  countDisplay.textContent = `${charCount}/200`;
+}

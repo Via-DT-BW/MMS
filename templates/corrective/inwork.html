@@ -125,7 +125,7 @@
               class="btn btn-warning btn-md"
               data-toggle="modal"
               data-target="#commentsModal"
-              data-id="{{ ongo.id }}"
+              data-id="{{ ongo.id_corretiva }}"
               data-description="{{ ongo.description }}"
               data-prod-line="{{ ongo.prod_line }}"
               data-equipament="{{ ongo.equipament }}"
@@ -134,14 +134,13 @@
             </button>
             <button
               class="btn btn-danger btn-md"
-              data-toggle="modal"
-              data-target="#finishModal"
-              data-id="{{ ongo.id }}"
+              data-id="{{ ongo.id_corretiva }}"
               data-description="{{ ongo.description }}"
               data-prod-line="{{ ongo.prod_line }}"
               data-equipament="{{ ongo.equipament }}"
               data-pedido-date="{{ ongo.data_pedido }}"
-              data-ini-date="{{ ongo.data_inicio_man }}">
+              data-ini-date="{{ ongo.data_inicio_man }}"
+              onclick="openFinishModal(this)">
               <i class="fa-regular fa-circle-stop"></i>
             </button>
           </td>
@@ -158,6 +157,48 @@
 "corrective/components/commentsModal.html" %}
 
 <script>
+  function openFinishModal(button) {
+      var id = button.getAttribute("data-id");
+      var modal = $("#finishModal");
+
+      $.ajax({
+        type: "GET",
+        url: "/api/get_tecnicos_associados/" + id,
+        success: function (tecnicos) {
+          if (tecnicos.length === 1) {
+            var tecnico = tecnicos[0];
+            var description = button.getAttribute("data-description");
+            var equipament = button.getAttribute("data-equipament");
+            var pedidoDate = button.getAttribute("data-pedido-date");
+            var iniDate = button.getAttribute("data-ini-date");
+
+            modal.find("#modal-id").val(id);
+            modal.find("#modal-pedido-date").val(formatDateTime(pedidoDate));
+            modal.find("#modal-ini-date").val(formatDateTime(iniDate));
+            modal.find("#modal-description").val(description);
+            modal.find("#modal-equipament").val(equipament);
+            modal.find("#maintenance_comment").val("");
+            modal.find("#tecnico-nome").text(tecnico.nome);
+
+            modal.modal("show");
+          }
+          else if(tecnicos.length < 1) {
+            alert(
+              "Tem de existir pelo menos um técnico associado para finalizar a manutenção."
+            );
+          }
+          else{
+            alert(
+              "Apenas um técnico deve estar associado para finalizar a manutenção."
+            );
+          }
+        },
+        error: function () {
+          alert("Erro ao buscar técnicos associados.");
+        },
+      });
+    }
+
   {% include "corrective/js/openModal.js" %}
   {% include "corrective/js/comments.js" %}
 </script>
