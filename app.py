@@ -258,6 +258,7 @@ def change_to_inwork():
         conn.close()
         
         flash('A manutenção encontra-se agora EM CURSO!', category='success')
+        logout()
         return jsonify({'status': 'success', 'message': 'A manutenção encontra-se agora EM CURSO!'})
 
     except Exception as e:

@@ -10,29 +10,19 @@ session['username'] %}
     data-toggle="modal"
     data-target="#modalCorrective">
     <i class="fas fa-tools" style="color: #2cedd4"></i>
-    <span>Pedido de Manutenção</span>
+    <span style="bold">Pedido de Manutenção</span>
   </a>
 </li>
 
-<div class="sidebar-heading mt-2" style="color: #2cedd4">Avisos</div>
+<div class="sidebar-heading mt-2" style="color: #2cedd4">
+  Pedidos de Manutenção
+</div>
+
 <li class="nav-item">
   <a class="btn nav-link collapsed" href="/corrective">
     <span>Pendentes</span>
   </a>
 </li>
-
-<div class="sidebar-heading mt-2" style="color: #2cedd4">
-  Ordens de Manutenção
-</div>
-<li class="nav-item">
-  <a
-    class="btn nav-link collapsed"
-    data-toggle="modal"
-    data-target="#modalCorrectiveOrder">
-    <span>Criar ordem</span>
-  </a>
-</li>
-
 <li class="nav-item">
   <a class="btn nav-link collapsed" href="/inwork">
     <span>Em Curso</span>
@@ -48,6 +38,18 @@ session['username'] %}
 <li class="nav-item">
   <a class="btn nav-link collapsed" href="/corrective_comments">
     <span>Comentários</span>
+  </a>
+</li>
+
+<div class="sidebar-heading mt-2" style="color: #2cedd4">
+  Ordem de Manutenção
+</div>
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    data-toggle="modal"
+    data-target="#modalCorrectiveOrder">
+    <span>Criar ordem</span>
   </a>
 </li>
 

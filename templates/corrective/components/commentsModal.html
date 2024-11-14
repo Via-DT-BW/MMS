@@ -21,7 +21,7 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="commentsModalLabel">Manutenção</h5>
+        <h5 class="modal-title" id="commentsModalLabel">Registar Atividade</h5>
         <button
           type="button"
           class="close"
@@ -44,12 +44,14 @@
               role="tab"
               aria-controls="commentSection"
               aria-selected="true"
+              hidden
               >Comentários</a
             >
           </li>
           <li class="nav-item">
             <a class="nav-link" id="associate-pill"
-              >Associar me à Manutenção<i class="fa-solid fa-user ml-1"></i
+              >Registar me na Manutenção<i
+                class="fa-solid fa-user-plus ml-1"></i
             ></a>
           </li>
         </ul>
@@ -102,9 +104,10 @@
                 <label for="select-avaria"
                   ><strong>Selecionar Tipo de Avaria:</strong></label
                 >
-                <select id="select-avaria" class="form-control" required>
-                  <option value="">Selecione um tipo de avaria</option>
-                </select>
+                <select
+                  id="select-avaria"
+                  class="form-control"
+                  required></select>
               </div>
               <div class="col-md-3">
                 <label for="select-stop"
@@ -118,7 +121,9 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="comment"><strong>Comentário:</strong></label>
+              <label for="comment"
+                ><strong>Descrição da Atividade:</strong></label
+              >
               <span id="conta" class="float-right">0/300</span>
               <textarea
                 id="comment"
@@ -150,13 +155,9 @@
       </div>
 
       <div class="modal-footer">
-        <button
-          type="button"
-          id="submitComment"
-          class="btn"
-          style="background-color: #051729; color: white">
+        <button type="button" id="submitComment" class="btn btn-success">
           <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
-          Submeter Comentário
+          Registar Atividade
         </button>
         <button type="button" class="btn btn-danger" data-dismiss="modal">
           Fechar

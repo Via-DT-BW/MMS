@@ -78,8 +78,6 @@
     <table class="table" id="inwork">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>ID Corretiva</th>
           <th>Linha de Produção</th>
           <th>Nome do Técnico</th>
           <th>Nº do Técnico</th>
@@ -93,8 +91,6 @@
       <tbody>
         {% for ongo in ongoing %}
         <tr>
-          <td>{{ ongo.id }}</td>
-          <td>{{ ongo.id_corretiva }}</td>
           <td>{{ ongo.prod_line }}</td>
           <td>{{ ongo.nome }}</td>
           <td>{{ ongo.n_tecnico }}</td>

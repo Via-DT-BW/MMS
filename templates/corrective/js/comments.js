@@ -30,7 +30,7 @@ $(document).ready(function () {
 
     $("#select-tecnico, #select-new-tecnico")
       .empty()
-      .append('<option value="">Associe-se para comentar</option>');
+      .append('<option value="">Registe-se para comentar</option>');
 
     var tecnicoLogadoId = "{{ session['id_mt'] }}";
     var tecnicoLogadoNome = "{{ session['nome'] }}";
@@ -97,8 +97,13 @@ $(document).ready(function () {
     var tipoAvariaId = $("#select-avaria").val();
     var parou = $("#select-stop").val();
 
-    if (!tecnicoId || !comentario) {
-      alert("Por favor, selecione um técnico e adicione um comentário.");
+    if (!tecnicoId) {
+      alert("Por favor, registe-se na manutenção para registar atividade.");
+      return;
+    }
+
+    if (!comentario) {
+      alert("Por favor, faça um comentário.");
       return;
     }
 
