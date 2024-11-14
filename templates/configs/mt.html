@@ -1,0 +1,155 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container mt-4">
+  <h2>Gestão de Técnicos de Manutenção</h2>
+
+  <form method="get" action="{{ url_for('admin_mt') }}" class="mb-3">
+    <div class="row">
+      <div class="col-md-3">
+        <label for="area">Área:</label>
+        <input
+          type="text"
+          name="area"
+          id="area"
+          class="form-control"
+          value="{{ filtro_area or '' }}" />
+      </div>
+      <div class="col-md-3">
+        <label for="num">Nº Colaborador:</label>
+        <input
+          type="text"
+          name="num"
+          id="num"
+          class="form-control"
+          value="{{ filtro_num or '' }}" />
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('admin_mt') }}" class="btn btn-danger"
+          >Limpar Filtros</a
+        >
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button
+          class="btn btn-success"
+          type="button"
+          id="toggleAddForm"
+          aria-expanded="false"
+          aria-controls="addMTForm">
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  {% include "configs/components/dropdownAddMt.html" %}
+
+  <table class="table table-striped" id="tabela">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Nº Colaborador</th>
+        <th>Área</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mt in mts %}
+      <tr>
+        <td>{{ mt.id }}</td>
+        <td>{{ mt.username }}</td>
+        <td>{{ mt.nome }}</td>
+        <td>{{ mt.email }}</td>
+        <td>{{ mt.n_tecnico }}</td>
+        <td>{{ mt.area }}</td>
+        <td>
+          <button
+            class="btn btn-warning btn-md"
+            data-toggle="modal"
+            data-target="#editMTModal"
+            data-id="{{ mt.id }}"
+            data-username="{{ mt.username }}"
+            data-area="{{ mt.area }}"
+            data-n-colaborador="{{ mt.n_tecnico }}">
+            <i class="fa-solid fa-user-pen"></i>
+          </button>
+          <button
+            class="btn btn-danger btn-md"
+            onclick="confirmDelete({{ mt.id }})">
+            <i class="fa-solid fa-user-slash"></i>
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "configs/components/pagination.html" %}
+</div>
+
+{% include "configs/components/editMTModal.html" %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggleAddFormBtn = document.getElementById("toggleAddForm");
+    const form = document.getElementById("addMTForm");
+    const tabela = document.getElementById("tabela");
+    const nav = document.getElementById("nav");
+    const closeAddFormBtn = document.getElementById("closeAddForm");
+
+    toggleAddFormBtn.addEventListener("click", function () {
+      const isVisible = form.classList.contains("show");
+
+      if (isVisible) {
+        form.classList.remove("show");
+        tabela.style.display = "table";
+        nav.style.display = "block";
+      } else {
+        form.classList.add("show");
+        tabela.style.display = "none";
+        nav.style.display = "none";
+      }
+    });
+
+    closeAddFormBtn.addEventListener("click", function () {
+      form.classList.remove("show");
+      tabela.style.display = "table";
+      nav.style.display = "block";
+    });
+  });
+
+  function confirmDelete(technicianId) {
+    const isConfirmed = confirm("Tem certeza que deseja remover este técnico?");
+
+    if (isConfirmed) {
+      deleteTechnician(technicianId);
+    }
+  }
+
+  function deleteTechnician(technicianId) {
+    fetch(`/delete_mt/${technicianId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("Técnico removido com sucesso!");
+          window.location.reload();
+        } else {
+          alert("Erro ao remover técnico!");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
+        alert("Erro inesperado ao tentar remover o técnico!");
+      });
+  }
+</script>
+
+{% endblock %}

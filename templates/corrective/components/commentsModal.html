@@ -48,16 +48,9 @@
             >
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link"
-              id="associate-pill"
-              data-toggle="pill"
-              href="#associateSection"
-              role="tab"
-              aria-controls="associateSection"
-              aria-selected="false"
-              >Associar Técnico</a
-            >
+            <a class="nav-link" id="associate-pill"
+              >Associar me à Manutenção<i class="fa-solid fa-user ml-1"></i
+            ></a>
           </li>
         </ul>
 
@@ -94,15 +87,18 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-md-6">
+              <div class="col-md-5">
                 <label for="select-tecnico"
                   ><strong>Selecionar Técnico:</strong></label
                 >
-                <select id="select-tecnico" class="form-control" required>
-                  <option value="">Selecione um técnico</option>
-                </select>
+                <select
+                  id="select-tecnico"
+                  class="form-control"
+                  required
+                  disabled></select>
               </div>
-              <div class="col-md-6">
+
+              <div class="col-md-4">
                 <label for="select-avaria"
                   ><strong>Selecionar Tipo de Avaria:</strong></label
                 >
@@ -110,13 +106,26 @@
                   <option value="">Selecione um tipo de avaria</option>
                 </select>
               </div>
+              <div class="col-md-3">
+                <label for="select-stop"
+                  ><strong>Parou a produção?</strong></label
+                >
+                <select id="select-stop" class="form-control" required>
+                  <option value="">Selecione</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
               <label for="comment"><strong>Comentário:</strong></label>
+              <span id="conta" class="float-right">0/300</span>
               <textarea
                 id="comment"
                 class="form-control"
                 rows="6"
+                maxlength="300"
+                oninput="updateCharCount('comment', 'conta', 'submitComment',300)"
                 required></textarea>
             </div>
           </div>
@@ -130,9 +139,11 @@
               <label for="select-new-tecnico"
                 ><strong>Selecionar Técnico para Associar:</strong></label
               >
-              <select id="select-new-tecnico" class="form-control" required>
-                <option value="">Selecione um técnico</option>
-              </select>
+              <select
+                id="select-new-tecnico"
+                class="form-control"
+                required
+                disabled></select>
             </div>
           </div>
         </div>
@@ -146,10 +157,6 @@
           style="background-color: #051729; color: white">
           <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
           Submeter Comentário
-        </button>
-        <button type="button" id="associateTechnician" class="btn btn-success">
-          <i class="fa-solid fa-user mr-1"></i>
-          Associar Técnico
         </button>
         <button type="button" class="btn btn-danger" data-dismiss="modal">
           Fechar

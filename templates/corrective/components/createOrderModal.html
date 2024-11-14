@@ -1,0 +1,104 @@
+<div
+  id="modalCorrectiveOrder"
+  data-tecnico-nome="{{ session['nome'] }}"
+  data-tecnico-numero="{{ session['numero_mt'] }}"
+  data-tecnico-id="{{ session['id_mt'] }}"
+  class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Pedido de Manutenção</h3>
+      </div>
+      <div class="modal-body">
+        <form role="form" action="/corrective_order_by_mt" method="POST">
+          <input type="hidden" name="id" value="" />
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="control-label">Selecione a Linha</label>
+                <div>
+                  <select class="form-control" name="production_line" required>
+                    <option value="">Selecione uma linha.</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="control-label">Selecione uma descrição</label>
+                <select
+                  class="form-control"
+                  name="var_descricao"
+                  required
+                  disabled></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="control-label">Número de Equipamento</label>
+                <select
+                  class="form-control"
+                  name="equipament_var"
+                  required
+                  disabled></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label">Número do Técnico</label>
+                <input
+                  type="text"
+                  id="tecnico-display"
+                  class="form-control"
+                  value="{{ session['nome'] }} - {{ session['numero_mt'] }}"
+                  disabled />
+
+                <input
+                  type="hidden"
+                  id="tecnico-id"
+                  name="var_numero_tecnico"
+                  value="{{ session['id_mt'] }}" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label">A linha parou a produção ?</label>
+                <select
+                  class="form-control"
+                  name="paragem_producao"
+                  required
+                  disabled>
+                  <option value="">Selecione</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <br />
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="order-button">
+              Criar Ordem
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -24,6 +24,34 @@ $(document).ready(function () {
     });
   });
 
+  $("#modalCorrectiveOrder").on("show.bs.modal", function () {
+    loadLines();
+
+    const tecnicoSelect = $("#tecnico-select");
+
+    $("#linha-select").change(function () {
+      const linhaSelecionada = $(this).val();
+
+      if (linhaSelecionada) {
+        $.ajax({
+          url: `/api/corrective?machine=${linhaSelecionada}`,
+          type: "GET",
+          success: function (data) {
+            populateModalFields(data);
+            $("#equipament_var, #var_descricao, #var_numero_tecnico").prop(
+              "disabled",
+              false
+            );
+            console.log(data);
+          },
+          error: function () {
+            alert("Erro ao carregar dados do modal");
+          },
+        });
+      }
+    });
+  });
+
   function loadLines() {
     $.ajax({
       url: "/api/prod_lines",
@@ -79,6 +107,7 @@ $(document).ready(function () {
     const descriptionSelect = $('select[name="var_descricao"]');
     const equipamentSelect = $('select[name="equipament_var"]');
     const operatorSelect = $('select[name="var_numero_operador"]');
+    const tecnicos = $('select[name="var_numero_tecnico"]');
 
     descriptionSelect.empty();
     equipamentSelect.empty();

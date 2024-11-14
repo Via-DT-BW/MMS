@@ -5,7 +5,7 @@
   role="dialog"
   aria-labelledby="detailsModalLabel"
   aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="detailsModalLabel">
@@ -31,6 +31,28 @@
                 disabled />
             </div>
             <div class="col-lg-6">
+              <label for="modal-main-workcenter"
+                ><strong>Centro de Trabalho:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-main-workcenter"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <label for="modal-functional-location"
+                ><strong>Local Funcional:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-functional-location"
+                class="form-control"
+                disabled />
+            </div>
+            <div class="col-lg-6">
               <label for="modal-equipament"
                 ><strong>Equipamento:</strong></label
               >
@@ -42,29 +64,7 @@
             </div>
           </div>
           <div class="row mb-3">
-            <div class="col-lg-12">
-              <label for="modal-functional-location"
-                ><strong>Local Funcional:</strong></label
-              >
-              <input
-                type="text"
-                id="modal-functional-location"
-                class="form-control"
-                disabled />
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-lg-6">
-              <label for="modal-main-workcenter"
-                ><strong>Centro de Trabalho:</strong></label
-              >
-              <input
-                type="text"
-                id="modal-main-workcenter"
-                class="form-control"
-                disabled />
-            </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="modal-sap-state"><strong>Estado SAP:</strong></label>
               <input
                 type="text"
@@ -72,9 +72,7 @@
                 class="form-control"
                 disabled />
             </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="modal-sms-state"><strong>Estado SMS:</strong></label>
               <input
                 type="text"
@@ -82,7 +80,7 @@
                 class="form-control"
                 disabled />
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="modal-sms-date"><strong>Data SMS:</strong></label>
               <input
                 type="text"
@@ -92,7 +90,7 @@
             </div>
           </div>
           <div class="row mb-3 d-none" id="inicio-man-row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="modal-inicio-man"
                 ><strong>Início da Manutenção:</strong></label
               >
@@ -102,7 +100,7 @@
                 class="form-control"
                 disabled />
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="modal-fim-man"
                 ><strong>Fim da Manutenção:</strong></label
               >
@@ -112,17 +110,15 @@
                 class="form-control"
                 disabled />
             </div>
-          </div>
-          <div class="row mb-3 d-none" id="tempo-row">
-            <div class="col-lg-12">
+            <div class="col-lg-4" id="tempo-row">
               <label for="modal-tempo-man"
-                ><strong>Tempo de Manutenção (minutos):</strong></label
+                ><strong>Tempo de Manutenção (min):</strong></label
               >
               <input
                 type="text"
                 id="modal-tempo-man"
                 class="form-control"
-                disabled />
+                disabled></input>
             </div>
           </div>
           <div class="row mb-3 d-none" id="comment-row">

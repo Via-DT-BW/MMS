@@ -77,13 +77,12 @@
     {% if finished|length == 0 %}
     <p class="text-center">Sem Pedidos de Manutenção Concluídos</p>
     {% else %}
-    <table class="table table-striped">
+    <table class="table" id="finished">
       <thead>
         <tr>
           <th>ID Corretiva</th>
           <th>Linha de Produção</th>
           <th>Nº do Operador</th>
-          <th>Nº do Técnico</th>
           <th>Descrição</th>
           <th>Tempo de Manutenção (min)</th>
           <th>Equipamento</th>
@@ -95,11 +94,10 @@
       </thead>
       <tbody>
         {% for fini in finished %}
-        <tr>
+        <tr style="cursor: pointer" class="striped-row">
           <td>{{ fini.id_corretiva }}</td>
           <td>{{ fini.prod_line }}</td>
           <td>{{ fini.n_operador }}</td>
-          <td>{{ fini.n_tecnico }}</td>
           <td>{{ fini.description }}</td>
           <td>
             {% if fini.tempo_manutencao %} {{ fini.tempo_manutencao }} {% else
@@ -120,10 +118,10 @@
           </td>
           <td>
             <button
-              class="btn btn-info btn-md"
+              class="btn btn-info btn-md open-modal"
               data-toggle="modal"
               data-target="#detailsModal"
-              data-id="{{ fini.id }}"
+              data-id="{{ fini.id_corretiva }}"
               data-description="{{ fini.description }}"
               data-equipament="{{ fini.equipament }}"
               data-functional-location="{{ fini.functional_location }}"
@@ -134,11 +132,37 @@
               data-main-workcenter="{{ fini.main_workcenter }}"
               data-inicio-man="{{ fini.data_inicio_man }}"
               data-fim-man="{{ fini.data_fim_man }}"
-              data-comment="{{fini.maintenance_comment}}">
+              data-comment="{{ fini.maintenance_comment }}">
               <i class="fas fa-eye"></i>
+            </button>
+            <button
+              class="btn btn-warning btn-md"
+              onclick="toggleComments({{ fini.id_corretiva }})">
+              <i class="fa-regular fa-rectangle-list"></i>
             </button>
           </td>
         </tr>
+        <tr></tr>
+        <tr
+          id="comments-{{ fini.id_corretiva }}"
+          class="comment-row"
+          style="display: none">
+          <td colspan="10" class="bg-light">
+            <table class="table table-striped mt-3">
+              <thead>
+                <tr style="background-color: white">
+                  <th>Nº Técnico</th>
+                  <th>Técnico</th>
+                  <th>Comentário</th>
+                  <th>Duração (minutos)</th>
+                  <th>Tipo de Avaria</th>
+                </tr>
+              </thead>
+              <tbody class="comments-table-body"></tbody>
+            </table>
+          </td>
+        </tr>
+
         {% endfor %}
       </tbody>
     </table>
@@ -149,8 +173,23 @@
 {% include "corrective/components/detailsModal.html" %} {% include
 "corrective/components/finishModal.html" %}
 
+<style>
+  #finished tbody tr:nth-child(odd) {
+    background-color: #f2f2f2;
+  }
+
+  #finished tbody tr:nth-child(even) {
+    background-color: white;
+  }
+  #finished tbody tr:hover {
+    background-color: #00386c !important;
+    color: white;
+  }
+</style>
+
 <script>
   {% include "corrective/js/openModal.js" %}
+  {% include "corrective/js/toggleComments.js" %}
 </script>
 
 {% endblock %}

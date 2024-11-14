@@ -90,25 +90,6 @@ $(document).ready(function () {
     modal.find("#modal-equipament").val(equipament);
     modal.find("#modal-prod-line").val(prodLine);
 
-    $.ajax({
-      type: "GET",
-      url: "/api/tecnicos",
-      success: function (tecnicos) {
-        var selectTecnico = $("#select-tecnico");
-        selectTecnico.empty();
-        selectTecnico.append('<option value="">Selecione um técnico</option>');
-
-        tecnicos.forEach(function (tecnico) {
-          selectTecnico.append(
-            new Option(`${tecnico.nome} - ${tecnico.n_tecnico}`, tecnico.id)
-          );
-        });
-      },
-      error: function () {
-        alert("Erro ao buscar técnicos.");
-      },
-    });
-
     $("#takeModalForm").on("submit", function (e) {
       e.preventDefault();
       var tecnicoId = $("#select-tecnico").val();
@@ -144,13 +125,14 @@ $(document).ready(function () {
     e.preventDefault();
     var maintenanceComment = $("#maintenance_comment").val();
     var id = $("#modal-id").val();
+    var id_corretiva = $("#modal-id-corretiva").val();
     var tipoAvariaId = $("#tipo-avaria").val();
-
     $.ajax({
       type: "POST",
       url: "/finish_maintenance",
       data: {
         id: id,
+        id_corretiva: id_corretiva,
         maintenance_comment: maintenanceComment,
         id_tipo_avaria: tipoAvariaId,
       },

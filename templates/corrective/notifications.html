@@ -127,6 +127,8 @@
               data-main-workcenter="{{ notification.main_workcenter }}">
               <i class="fas fa-eye"></i>
             </button>
+            {% if session['username'] %}
+
             <button
               class="btn btn-warning btn-md"
               data-toggle="modal"
@@ -149,6 +151,7 @@
               data-pedido-date="{{ notification.data_pedido }}">
               <i class="fa-solid fa-ban"></i>
             </button>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}

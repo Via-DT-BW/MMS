@@ -30,39 +30,40 @@ $(document).ready(function () {
 
     $("#select-tecnico, #select-new-tecnico")
       .empty()
-      .append('<option value="">Selecione um técnico</option>');
+      .append('<option value="">Associe-se para comentar</option>');
+
+    var tecnicoLogadoId = "{{ session['id_mt'] }}";
+    var tecnicoLogadoNome = "{{ session['nome'] }}";
+    var tecnicoLogadoNumero = "{{ session['numero_mt'] }}";
+
+    var optionText = tecnicoLogadoNome + " - " + tecnicoLogadoNumero;
+    var option = new Option(optionText, tecnicoLogadoId);
+    $("#select-new-tecnico").append(option);
+    $("#select-new-tecnico").prop("disabled", true);
 
     $.ajax({
       type: "GET",
       url: "/api/get_tecnicos_associados/" + idCorretiva,
       success: function (tecnicosAssociados) {
+        var tecnicoSelecionado = false;
+
         tecnicosAssociados.forEach(function (tecnico) {
           var optionText = tecnico.nome + " - " + tecnico.n_tecnico;
-          $("#select-tecnico").append(new Option(optionText, tecnico.id));
+          var option = new Option(optionText, tecnico.id);
+
+          if (tecnico.id == tecnicoLogadoId) {
+            $(option).prop("selected", true);
+            tecnicoSelecionado = true;
+          }
+
+          $("#select-tecnico").append(option);
         });
 
-        $.ajax({
-          type: "GET",
-          url: "/api/tecnicos",
-          success: function (todosOsTecnicos) {
-            $("#select-new-tecnico").empty();
-            $("#select-new-tecnico").append(
-              '<option value="">Selecione um técnico</option>'
-            );
-
-            todosOsTecnicos.forEach(function (tecnico) {
-              if (!tecnicosAssociados.some((t) => t.id === tecnico.id)) {
-                var optionText = tecnico.nome + " - " + tecnico.n_tecnico;
-                $("#select-new-tecnico").append(
-                  new Option(optionText, tecnico.id)
-                );
-              }
-            });
-          },
-          error: function () {
-            alert("Erro ao carregar todos os técnicos.");
-          },
-        });
+        if (!tecnicoSelecionado) {
+          $("#submitComment").prop("disabled", true);
+        } else {
+          $("#submitComment").prop("disabled", false);
+        }
       },
       error: function () {
         alert("Erro ao carregar técnicos associados.");
@@ -94,6 +95,7 @@ $(document).ready(function () {
     var tecnicoId = $("#select-tecnico").val();
     var comentario = $("#comment").val();
     var tipoAvariaId = $("#select-avaria").val();
+    var parou = $("#select-stop").val();
 
     if (!tecnicoId || !comentario) {
       alert("Por favor, selecione um técnico e adicione um comentário.");
@@ -108,6 +110,7 @@ $(document).ready(function () {
         id_tecnico: tecnicoId,
         comment: comentario,
         id_tipo_avaria: tipoAvariaId,
+        stopped_prod: parou,
       },
       success: function (response) {
         if (response.status === "success") {
@@ -123,32 +126,58 @@ $(document).ready(function () {
     });
   });
 
-  $("#associateTechnician").on("click", function () {
+  $("#associate-pill").on("click", function () {
     var idCorretiva = $("#corretiva-id").text();
-    var newTecnicoId = $("#select-new-tecnico").val();
+    var tecnicoLogadoId = "{{ session['id_mt'] }}";
 
-    if (!newTecnicoId) {
+    if (!tecnicoLogadoId) {
       alert("Por favor, selecione um técnico para associar.");
       return;
     }
 
     $.ajax({
-      type: "POST",
-      url: "/api/associate_tecnico",
+      type: "GET",
+      url: "/api/check_association",
       data: {
         id_corretiva: idCorretiva,
-        id_tecnico: newTecnicoId,
+        id_tecnico: tecnicoLogadoId,
       },
-      success: function (response) {
-        if (response.status === "success") {
-          $("#commentsModal").modal("hide");
-          location.reload();
+      success: function (data) {
+        if (data.associado) {
+          alert("Você já está associado a esta manutenção.");
+          return;
+        }
+
+        var confirmation = confirm(
+          "Tem a certeza de que deseja se associar a esta manutenção?"
+        );
+
+        if (confirmation) {
+          $.ajax({
+            type: "POST",
+            url: "/api/associate_tecnico",
+            data: {
+              id_corretiva: idCorretiva,
+              id_tecnico: tecnicoLogadoId,
+            },
+            success: function (response) {
+              if (response.status === "success") {
+                $("#commentsModal").modal("hide");
+                location.reload();
+              } else {
+                alert(response.message);
+              }
+            },
+            error: function () {
+              alert("Erro ao associar o técnico.");
+            },
+          });
         } else {
-          alert(response.message);
+          console.log("Associação cancelada.");
         }
       },
       error: function () {
-        alert("Erro ao associar o técnico.");
+        alert("Erro ao verificar a associação.");
       },
     });
   });
