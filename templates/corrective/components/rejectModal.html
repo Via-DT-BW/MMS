@@ -1,0 +1,85 @@
+<!-- Modal de Rejeição -->
+<div
+  class="modal fade"
+  id="rejectModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="rejectModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rejectModalLabel">Rejeitar Pedido</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="modal-reject-prod-line">Linha de Produção</label>
+              <input
+                type="text"
+                class="form-control"
+                id="modal-reject-prod-line"
+                disabled />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="modal-reject-equipament">Equipamento</label>
+              <input
+                type="text"
+                class="form-control"
+                id="modal-reject-equipament"
+                disabled />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="modal-reject-description">Descrição</label>
+              <input
+                type="text"
+                class="form-control"
+                id="modal-reject-description"
+                disabled />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="modal-reject-pedido-date">Data do Pedido</label>
+              <input
+                type="text"
+                class="form-control"
+                id="modal-reject-pedido-date"
+                disabled />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="modal-reject-comment">Motivo da Rejeição</label>
+          <textarea
+            class="form-control"
+            id="modal-reject-comment"
+            rows="7"
+            required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="btn-reject-submit">
+          Rejeitar
+        </button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

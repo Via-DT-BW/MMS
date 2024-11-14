@@ -1,10 +1,11 @@
+<!-- templates/corrective/corrective.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="static/plat_static/css/sb-admin-2.min.css" />
-    <title>Corrective Maintenance</title>
+    <title>Monotoring Maintenance</title>
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600" />
@@ -28,7 +29,7 @@
   </head>
   <body id="page-top">
     <div id="wrapper">
-      {% include 'corrective/components/sidebar_links.html' %}
+      {% include 'monotoring/components/sidebar_links.html' %}
 
       <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
@@ -38,10 +39,6 @@
       </div>
     </div>
 
-    {% include "components/modalCorrectiveMaintenace.html" %} {% include
-    "corrective/components/createOrderModal.html" %} {% include
-    'corrective/components/loginModal.html' %}
-
     <script src="static/plat_static/js/sb-admin-2.min.js"></script>
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
 
@@ -50,8 +47,6 @@
     <script>
       {% include "utils/javascript/maintenances.js" %}
       {% include "utils/javascript/formatDate.js" %}
-      {% include "utils/javascript/charCount.js" %}
-      {% include "corrective/js/login.js" %}
     </script>
   </body>
 </html>

@@ -1,0 +1,86 @@
+{% extends 'components/sidebar.html' %} {% block content %} {% if
+session['username'] %}
+<div class="justify-content-center d-flex" style="color: #2cedd4">
+  Bem-vindo, {{ session['nome'] }}!
+</div>
+
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    data-toggle="modal"
+    data-target="#modalCorrective">
+    <i class="fas fa-tools" style="color: #2cedd4"></i>
+    <span>Pedido de Manutenção</span>
+  </a>
+</li>
+
+<div class="sidebar-heading mt-2" style="color: #2cedd4">Avisos</div>
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/corrective">
+    <span>Pendentes</span>
+  </a>
+</li>
+
+<div class="sidebar-heading mt-2" style="color: #2cedd4">
+  Ordens de Manutenção
+</div>
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    data-toggle="modal"
+    data-target="#modalCorrectiveOrder">
+    <span>Criar ordem</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/inwork">
+    <span>Em Curso</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/finished">
+    <span>Concluídas</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/corrective_comments">
+    <span>Comentários</span>
+  </a>
+</li>
+
+<div class="sidebar-heading mt-2" style="color: #2cedd4">Analytics</div>
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/corrective_analytics">
+    <span>Total de Pedidos</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/logout">
+    <i class="fas fa-sign-out-alt" style="color: #2cedd4"></i>
+    <span>Sair</span>
+  </a>
+</li>
+{% else %}
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    data-toggle="modal"
+    data-target="#modalCorrective">
+    <i class="fas fa-tools" style="color: #2cedd4"></i>
+    <span>Pedido de Manutenção</span>
+  </a>
+</li>
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    data-toggle="modal"
+    data-target="#modalLogin">
+    <i class="fas fa-sign-in-alt" style="color: #2cedd4"></i>
+    <span>Login</span>
+  </a>
+</li>
+{% endif %} {% endblock %}

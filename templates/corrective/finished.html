@@ -4,12 +4,12 @@
 <div class="card mt-4 mb-4">
   <div class="card-header">
     <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Pending</h5>
+      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Finished</h5>
     </div>
 
     <form
       method="GET"
-      action="/corrective"
+      action="/finished"
       class="form-row justify-content-center">
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Filtrar por equipamento</small>
@@ -68,23 +68,23 @@
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
-        <a href="/corrective" class="btn btn-danger">Limpar</a>
+        <a href="/finished" class="btn btn-danger">Limpar</a>
       </div>
     </form>
   </div>
 
   <div class="card-body">
-    {% if notifications|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção</p>
+    {% if finished|length == 0 %}
+    <p class="text-center">Sem Pedidos de Manutenção Concluídos</p>
     {% else %}
-    <table class="table table-striped">
+    <table class="table" id="finished">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>ID Corretiva</th>
           <th>Linha de Produção</th>
-          <th>Número do Operador</th>
+          <th>Nº do Operador</th>
           <th>Descrição</th>
-          <th>Data de Criação</th>
+          <th>Tempo de Manutenção (min)</th>
           <th>Equipamento</th>
           <th>Parou Produção?</th>
           <th>Estado SAP</th>
@@ -93,67 +93,76 @@
         </tr>
       </thead>
       <tbody>
-        {% for notification in notifications %}
-        <tr>
-          <td>{{ notification.id }}</td>
-          <td>{{ notification.prod_line }}</td>
-          <td>{{ notification.n_operador }}</td>
-          <td>{{ notification.description }}</td>
-          <td class="data">{{ notification.data_pedido }}</td>
-          <td>{{ notification.equipament }}</td>
-          <td>{{ notification.stopped_production }}</td>
+        {% for fini in finished %}
+        <tr style="cursor: pointer" class="striped-row">
+          <td>{{ fini.id_corretiva }}</td>
+          <td>{{ fini.prod_line }}</td>
+          <td>{{ fini.n_operador }}</td>
+          <td>{{ fini.description }}</td>
           <td>
-            {% if notification.sap_order %} {{ notification.sap_order }} {% else
+            {% if fini.tempo_manutencao %} {{ fini.tempo_manutencao }} {% else
             %}
+            <span class="text-muted">Sem tempo definido</span>
+            {% endif %}
+          </td>
+          <td>{{ fini.equipament }}</td>
+          <td>{{ fini.stopped_production }}</td>
+          <td>
+            {% if fini.sap_order %} {{ fini.sap_order }} {% else %}
             <span class="text-muted">Aguarda criação</span>
             {% endif %}
           </td>
           <td>
-            {% if notification.SMSState == 1 %} Enviado {% else %} Por Enviar {%
-            endif %}
+            {% if fini.SMSState == 1 %} Enviado {% else %} Por Enviar {% endif
+            %}
           </td>
           <td>
             <button
-              class="btn btn-info btn-md"
+              class="btn btn-info btn-md open-modal"
               data-toggle="modal"
               data-target="#detailsModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-equipament="{{ notification.equipament }}"
-              data-functional-location="{{ notification.functional_location }}"
-              data-sap-state="{{ notification.SAPState }}"
-              data-sms-state="{{ notification.SMSState }}"
-              data-sms-date="{{ notification.sms_date }}"
-              data-main-workcenter="{{ notification.main_workcenter }}">
+              data-id="{{ fini.id_corretiva }}"
+              data-description="{{ fini.description }}"
+              data-equipament="{{ fini.equipament }}"
+              data-functional-location="{{ fini.functional_location }}"
+              data-sap-state="{{ fini.SAPState }}"
+              data-sms-state="{{ fini.SMSState }}"
+              data-sms-date="{{ fini.sms_date }}"
+              data-tempo-man="{{ fini.tempo_manutencao }}"
+              data-main-workcenter="{{ fini.main_workcenter }}"
+              data-inicio-man="{{ fini.data_inicio_man }}"
+              data-fim-man="{{ fini.data_fim_man }}"
+              data-comment="{{ fini.maintenance_comment }}">
               <i class="fas fa-eye"></i>
             </button>
-            {% if session['username'] %}
-
             <button
               class="btn btn-warning btn-md"
-              data-toggle="modal"
-              data-target="#takeModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-prod-line="{{ notification.prod_line }}"
-              data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}">
-              <i class="fa-regular fa-pen-to-square"></i>
+              onclick="toggleComments({{ fini.id_corretiva }})">
+              <i class="fa-regular fa-rectangle-list"></i>
             </button>
-            <button
-              class="btn btn-danger btn-md"
-              data-toggle="modal"
-              data-target="#rejectModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-prod-line="{{ notification.prod_line }}"
-              data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}">
-              <i class="fa-solid fa-ban"></i>
-            </button>
-            {% endif %}
           </td>
         </tr>
+        <tr></tr>
+        <tr
+          id="comments-{{ fini.id_corretiva }}"
+          class="comment-row"
+          style="display: none">
+          <td colspan="10" class="bg-light">
+            <table class="table table-striped mt-3">
+              <thead>
+                <tr style="background-color: white">
+                  <th>Nº Técnico</th>
+                  <th>Técnico</th>
+                  <th>Comentário</th>
+                  <th>Duração (minutos)</th>
+                  <th>Tipo de Avaria</th>
+                </tr>
+              </thead>
+              <tbody class="comments-table-body"></tbody>
+            </table>
+          </td>
+        </tr>
+
         {% endfor %}
       </tbody>
     </table>
@@ -162,11 +171,25 @@
 </div>
 
 {% include "corrective/components/detailsModal.html" %} {% include
-"corrective/components/takeModal.html" %} {% include
-"corrective/components/rejectModal.html" %}
+"corrective/components/finishModal.html" %}
+
+<style>
+  #finished tbody tr:nth-child(odd) {
+    background-color: #f2f2f2;
+  }
+
+  #finished tbody tr:nth-child(even) {
+    background-color: white;
+  }
+  #finished tbody tr:hover {
+    background-color: #00386c !important;
+    color: white;
+  }
+</style>
 
 <script>
   {% include "corrective/js/openModal.js" %}
+  {% include "corrective/js/toggleComments.js" %}
 </script>
 
 {% endblock %}

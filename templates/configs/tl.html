@@ -1,0 +1,167 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container mt-4">
+  <h2>Gestão de Team Leaders</h2>
+
+  <form method="get" action="{{ url_for('admin_tl') }}" class="mb-3">
+    <div class="row">
+      <div class="col-md-2">
+        <label for="area">Área:</label>
+        <input
+          type="text"
+          name="area"
+          id="area"
+          class="form-control"
+          value="{{ filtro_area or '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label for="turno">Turno:</label>
+        <input
+          type="text"
+          name="turno"
+          id="turno"
+          class="form-control"
+          value="{{ filtro_turno or '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label for="num">Nº Colaborador:</label>
+        <input
+          type="text"
+          name="num"
+          id="num"
+          class="form-control"
+          value="{{ filtro_num or '' }}" />
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('admin_tl') }}" class="btn btn-danger"
+          >Limpar Filtros</a
+        >
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button
+          class="btn btn-success"
+          type="button"
+          id="toggleAddForm"
+          aria-expanded="false"
+          aria-controls="addTeamLeaderForm">
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  {% include "configs/components/dropdownAddTl.html" %}
+
+  <table class="table table-striped" id="tabela">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Nº Colaborador</th>
+        <th>Turno</th>
+        <th>Área</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tl in teamleaders %}
+      <tr>
+        <td>{{ tl.id }}</td>
+        <td>{{ tl.username }}</td>
+        <td>{{ tl.email }}</td>
+        <td>{{ tl.n_colaborador }}</td>
+        <td>{{ tl.turno }}</td>
+        <td>{{ tl.area }}</td>
+        <td>
+          <button
+            class="btn btn-warning btn-md"
+            data-toggle="modal"
+            data-target="#editTlModal"
+            data-id="{{ tl.id }}"
+            data-username="{{ tl.username }}"
+            data-turno="{{ tl.turno }}"
+            data-area="{{ tl.area }}"
+            data-n-colaborador="{{ tl.n_colaborador }}">
+            <i class="fa-solid fa-user-pen"></i>
+          </button>
+          <button
+            class="btn btn-danger btn-md"
+            onclick="confirmDelete({{ tl.id }})">
+            <i class="fa-solid fa-user-slash"></i>
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "configs/components/pagination.html" %}
+</div>
+
+{% include "configs/components/editTlModal.html" %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggleAddFormBtn = document.getElementById("toggleAddForm");
+    const form = document.getElementById("addTeamLeaderForm");
+    const tabela = document.getElementById("tabela");
+    const nav = document.getElementById("nav");
+    const closeAddFormBtn = document.getElementById("closeAddForm");
+
+    toggleAddFormBtn.addEventListener("click", function () {
+      const isVisible = form.classList.contains("show");
+
+      if (isVisible) {
+        form.classList.remove("show");
+        tabela.style.display = "table";
+        nav.style.display = "block";
+      } else {
+        form.classList.add("show");
+        tabela.style.display = "none";
+        nav.style.display = "none";
+      }
+    });
+
+    closeAddFormBtn.addEventListener("click", function () {
+      form.classList.remove("show");
+      tabela.style.display = "table";
+      nav.style.display = "block";
+    });
+  });
+
+  function confirmDelete(tlId) {
+    const isConfirmed = confirm(
+      "Tem certeza que deseja remover este Team Leader?"
+    );
+
+    if (isConfirmed) {
+      deleteTechnician(tlId);
+    }
+  }
+
+  function deleteTechnician(tlId) {
+    fetch(`/delete_tl/${tlId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("Team Leader removido com sucesso!");
+          window.location.reload();
+        } else {
+          alert("Erro ao remover técnico!");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
+        alert("Erro inesperado ao tentar remover o Team Leader!");
+      });
+  }
+</script>
+
+{% endblock %}

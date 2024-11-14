@@ -1,10 +1,11 @@
-<nav aria-label="Page navigation" class="mt-4">
+<nav aria-label="Page navigation" class="mt-4" id="nav">
   <ul class="pagination justify-content-center">
+    <!-- Botão "Anterior" -->
     {% if page > 1 %}
     <li class="page-item">
       <a
         class="page-link"
-        href="?page={{ page - 1 }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
+        href="{{ url_for('admin_tl', page=page - 1, area=filtro_area, turno=filtro_turno) }}"
         >&laquo;</a
       >
     </li>
@@ -12,7 +13,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page=1&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
+        href="{{ url_for('admin_tl', page=1, area=filtro_area, turno=filtro_turno) }}"
         >1</a
       >
     </li>
@@ -24,7 +25,7 @@
     <li class="page-item {% if p == page %}active{% endif %}">
       <a
         class="page-link"
-        href="?page={{ p }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
+        href="{{ url_for('admin_tl', page=p, area=filtro_area, turno=filtro_turno) }}"
         >{{ p }}</a
       >
     </li>
@@ -37,7 +38,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page={{ total_pages }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
+        href="{{ url_for('admin_tl', page=total_pages, area=filtro_area, turno=filtro_turno) }}"
         >{{ total_pages }}</a
       >
     </li>
@@ -45,7 +46,7 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="?page={{ page + 1 }}&page_size={{ request.args.get('page_size', 10) }}&filter={{ request.args.get('filter', '') }}&filter_prod_line={{ request.args.get('filter_prod_line', '') }}"
+        href="{{ url_for('admin_tl', page=page + 1, area=filtro_area, turno=filtro_turno) }}"
         >&raquo;</a
       >
     </li>

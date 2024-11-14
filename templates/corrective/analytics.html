@@ -1,0 +1,71 @@
+{% extends 'corrective/corrective.html' %} {% block content %}
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="card mt-4 mb-4">
+  <div class="card-header">
+    <form id="filterForm" class="form-row justify-content-center">
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted"
+          >Filtrar por linha de produção</small
+        >
+        <input
+          type="text"
+          id="filter_prod_line"
+          name="filter_prod_line"
+          class="form-control"
+          placeholder="Linha de Produção"
+          value="{{ filter_prod_line }}" />
+      </div>
+
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Data inicial</small>
+        <input
+          type="date"
+          id="start_date"
+          name="start_date"
+          class="form-control"
+          value="{{ start_date }}" />
+      </div>
+
+      <div class="form-group col-md-2 text-center">
+        <small class="form-text text-muted">Data final</small>
+        <input
+          type="date"
+          id="end_date"
+          name="end_date"
+          class="form-control"
+          value="{{ end_date }}" />
+      </div>
+
+      <div
+        class="form-group col-md-3 d-flex align-items-end justify-content-center">
+        <button
+          type="button"
+          onclick="loadChartData()"
+          class="btn btn-primary mr-2">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <button type="button" onclick="clearFilters()" class="btn btn-danger">
+          Limpar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card mt-4 mb-4 shadow-lg">
+      <div class="card-header">Gráfico de Pedidos de Manutenção por Estado</div>
+      <div class="card-body">
+        <div id="totalState"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script>
+  {% include "corrective/js/graphicTotal.js" %}
+</script>
+{% endblock %}

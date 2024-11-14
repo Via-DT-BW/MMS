@@ -1,0 +1,18 @@
+{% extends 'components/sidebar.html' %} {% block content %}
+
+<div
+  class="sidebar-item text-center mb-3"
+  style="padding: 10px; border-radius: 5px">
+  <span style="font-weight: bold; color: #2cedd4"
+    >Bem-vindo, {{ username }}!</span
+  >
+</div>
+
+<div class="sidebar-heading mt-2" style="color: #2cedd4">Exemplo separador</div>
+<li class="nav-item">
+  <a class="nav-link collapsed" href="/daily">
+    <span>Comentários</span>
+  </a>
+</li>
+
+{% endblock %}

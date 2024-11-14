@@ -84,9 +84,7 @@
                     <a
                       class="nav-link"
                       type="button"
-                      data-toggle="modal"
-                      data-target="#LoginMRP"
-                      href="#"
+                      href="/autonomous"
                       style="font-size: 20px; margin-right: 10px"
                       >Autonomous Maintenance</a
                     >
@@ -95,9 +93,7 @@
                     <a
                       class="nav-link"
                       type="button"
-                      data-toggle="modal"
-                      data-target="#myModal"
-                      href="#"
+                      href="/preventive"
                       style="font-size: 20px; margin-right: 10px"
                       >Preventive Maintenance</a
                     >
@@ -116,10 +112,19 @@
                       class="nav-link"
                       type="button"
                       data-toggle="modal"
-                      data-target="#myModal3"
-                      href="#"
+                      data-target="#loginModal"
+                      data-url="/login_daily"
+                      style="font-size: 20px; margin-right: 10px">
+                      Daily Team Communication
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      type="button"
+                      href="/monotoring"
                       style="font-size: 20px; margin-right: 10px"
-                      >Daily Maintenance</a
+                      >Planning, Monitoring</a
                     >
                   </li>
                   <li class="nav-item">
@@ -127,18 +132,18 @@
                       class="nav-link"
                       type="button"
                       data-toggle="modal"
-                      data-target="#SparesLogin"
-                      href="#"
-                      style="font-size: 20px; margin-right: 10px"
-                      >Monitoring Maintenance</a
-                    >
+                      data-target="#loginModal"
+                      data-url="/login_settings"
+                      style="font-size: 20px; margin-right: 10px">
+                      Settings
+                    </a>
                   </li>
                 </ul>
               </div>
             </nav>
+            {% include "components/messages.html" %}
           </div>
         </div>
-        <div class="row">{% include "components/messages.html" %}</div>
       </div>
     </div>
 
@@ -169,7 +174,8 @@
       </video>
     </section>
 
-    {% include "components/footer.html" %}
+    {% include "components/footer.html" %} {% include
+    "components/loginModal.html" %}
 
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
 
@@ -178,6 +184,8 @@
     <script src="static/initial_page/js/bootstrap.min.js"></script>
 
     <script>
+      {% include "utils/javascript/login.js" %}
+
       function detectIE() {
         var ua = window.navigator.userAgent;
 

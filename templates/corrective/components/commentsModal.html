@@ -1,0 +1,167 @@
+<style>
+  .nav-pills .nav-link.active,
+  .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #00386c;
+  }
+
+  .nav-pills .nav-link {
+    border-radius: 0.35rem;
+    color: #00386c;
+  }
+</style>
+
+<div
+  class="modal fade"
+  id="commentsModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="commentsModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="commentsModalLabel">Manutenção</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul
+          class="nav nav-pills d-flex justify-content-center"
+          id="commentsTabs"
+          role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              id="comment-pill"
+              data-toggle="pill"
+              href="#commentSection"
+              role="tab"
+              aria-controls="commentSection"
+              aria-selected="true"
+              >Comentários</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="associate-pill"
+              >Associar me à Manutenção<i class="fa-solid fa-user ml-1"></i
+            ></a>
+          </li>
+        </ul>
+
+        <div class="tab-content mt-3">
+          <div
+            class="tab-pane fade show active"
+            id="commentSection"
+            role="tabpanel"
+            aria-labelledby="comment-pill">
+            <div id="corretiva-info" class="row mb-3">
+              <div class="col-md-6">
+                <p hidden>
+                  <strong>ID:</strong>
+                  <span id="corretiva-id"></span>
+                </p>
+                <p>
+                  <strong>Linha de Produção:</strong>
+                  <span id="corretiva-prod-line"></span>
+                </p>
+                <p>
+                  <strong>Descrição:</strong>
+                  <span id="corretiva-description"></span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p>
+                  <strong>Equipamento:</strong>
+                  <span id="corretiva-equipament"></span>
+                </p>
+                <p>
+                  <strong>Data do Pedido:</strong>
+                  <span id="corretiva-pedido-date"></span>
+                </p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-md-5">
+                <label for="select-tecnico"
+                  ><strong>Selecionar Técnico:</strong></label
+                >
+                <select
+                  id="select-tecnico"
+                  class="form-control"
+                  required
+                  disabled></select>
+              </div>
+
+              <div class="col-md-4">
+                <label for="select-avaria"
+                  ><strong>Selecionar Tipo de Avaria:</strong></label
+                >
+                <select id="select-avaria" class="form-control" required>
+                  <option value="">Selecione um tipo de avaria</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label for="select-stop"
+                  ><strong>Parou a produção?</strong></label
+                >
+                <select id="select-stop" class="form-control" required>
+                  <option value="">Selecione</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="comment"><strong>Comentário:</strong></label>
+              <span id="conta" class="float-right">0/300</span>
+              <textarea
+                id="comment"
+                class="form-control"
+                rows="6"
+                maxlength="300"
+                oninput="updateCharCount('comment', 'conta', 'submitComment',300)"
+                required></textarea>
+            </div>
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="associateSection"
+            role="tabpanel"
+            aria-labelledby="associate-pill">
+            <div class="form-group">
+              <label for="select-new-tecnico"
+                ><strong>Selecionar Técnico para Associar:</strong></label
+              >
+              <select
+                id="select-new-tecnico"
+                class="form-control"
+                required
+                disabled></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          id="submitComment"
+          class="btn"
+          style="background-color: #051729; color: white">
+          <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
+          Submeter Comentário
+        </button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
