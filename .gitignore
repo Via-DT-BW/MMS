@@ -6,8 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-settings/
-
 # Distribution / packaging
 .Python
 build/
@@ -110,7 +108,6 @@ ipython_config.py
 #   in version control.
 #   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
 sql/
-settings/
 
 .pdm.toml
 .pdm-python
@@ -164,3 +161,4 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+connections/
