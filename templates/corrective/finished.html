@@ -11,7 +11,7 @@
       method="GET"
       action="/finished"
       class="form-row justify-content-center">
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Filtrar por equipamento</small>
         <input
           type="text"
@@ -21,7 +21,7 @@
           value="{{ request.args.get('filter', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted"
           >Filtrar por linha de produção</small
         >
@@ -33,7 +33,7 @@
           value="{{ request.args.get('filter_prod_line', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data inicial</small>
         <input
           type="date"
@@ -42,7 +42,7 @@
           value="{{ request.args.get('start_date', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data final</small>
         <input
           type="date"
@@ -51,7 +51,7 @@
           value="{{ request.args.get('end_date', '') }}" />
       </div>
 
-      <div class="form-group col-md-1 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Itens por página</small>
         <input
           type="number"
@@ -64,7 +64,7 @@
       </div>
 
       <div
-        class="form-group col-md-3 d-flex align-items-end justify-content-center">
+        class="form-group col-md-4 col-sm-6 col-12 d-flex align-items-end justify-content-center">
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
@@ -73,7 +73,7 @@
     </form>
   </div>
 
-  <div class="card-body">
+  <div class="card-body table-responsive">
     {% if finished|length == 0 %}
     <p class="text-center">Sem Pedidos de Manutenção Concluídos</p>
     {% else %}
@@ -154,8 +154,10 @@
                   <th>Nº Técnico</th>
                   <th>Técnico</th>
                   <th>Comentário</th>
-                  <th>Duração (minutos)</th>
                   <th>Tipo de Avaria</th>
+                  <th>Duração (minutos)</th>
+                  <th>Data Início</th>
+                  <th>Data Fim</th>
                 </tr>
               </thead>
               <tbody class="comments-table-body"></tbody>

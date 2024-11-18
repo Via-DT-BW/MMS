@@ -17,15 +17,17 @@ function toggleComments(id) {
                               <td>${comment.n_tecnico}</td>
                               <td>${comment.tecnico_nome}</td>
                               <td>${comment.maintenance_comment}</td>
-                              <td>${comment.duracao_intervencao} minutos</td>
                               <td>${comment.tipo_avaria}</td>
+                              <td>${comment.duracao_intervencao} minutos</td>
+                              <td>${formatDateTime(comment.data_inicio)}</td>
+                              <td>${formatDateTime(comment.data_fim)}</td>
                           `;
             commentsTableBody.appendChild(row);
           });
         } else {
           const commentsTableBody = row.querySelector(".comments-table-body");
           commentsTableBody.innerHTML =
-            '<tr><td colspan="5" class="text-muted text-center">Sem comentários disponíveis</td></tr>';
+            '<tr><td colspan="7" class="text-muted text-center">Sem comentários disponíveis</td></tr>';
         }
       })
       .catch((error) => {

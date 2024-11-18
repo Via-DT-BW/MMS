@@ -11,8 +11,8 @@
       method="GET"
       action="/corrective"
       class="form-row justify-content-center">
-      <div class="form-group col-md-2 text-center">
-        <small class="form-text text-muted">Filtrar por equipamento</small>
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Equipamento</small>
         <input
           type="text"
           name="filter"
@@ -21,10 +21,8 @@
           value="{{ request.args.get('filter', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
-        <small class="form-text text-muted"
-          >Filtrar por linha de produção</small
-        >
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Linha de Produção</small>
         <input
           type="text"
           name="filter_prod_line"
@@ -33,26 +31,8 @@
           value="{{ request.args.get('filter_prod_line', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
-        <small class="form-text text-muted">Data inicial</small>
-        <input
-          type="date"
-          name="start_date"
-          class="form-control"
-          value="{{ request.args.get('start_date', '') }}" />
-      </div>
-
-      <div class="form-group col-md-2 text-center">
-        <small class="form-text text-muted">Data final</small>
-        <input
-          type="date"
-          name="end_date"
-          class="form-control"
-          value="{{ request.args.get('end_date', '') }}" />
-      </div>
-
-      <div class="form-group col-md-1 text-center">
-        <small class="form-text text-muted">Itens por página</small>
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Por página</small>
         <input
           type="number"
           name="page_size"
@@ -63,8 +43,25 @@
           placeholder="Itens por página" />
       </div>
 
-      <div
-        class="form-group col-md-3 d-flex align-items-end justify-content-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Data inicial</small>
+        <input
+          type="date"
+          name="start_date"
+          class="form-control"
+          value="{{ request.args.get('start_date', '') }}" />
+      </div>
+
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Data final</small>
+        <input
+          type="date"
+          name="end_date"
+          class="form-control"
+          value="{{ request.args.get('end_date', '') }}" />
+      </div>
+
+      <div class="form-group col-12 text-center mt-3">
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
@@ -73,7 +70,7 @@
     </form>
   </div>
 
-  <div class="card-body">
+  <div class="card-body table-responsive">
     {% if notifications|length == 0 %}
     <p class="text-center">Sem Pedidos de Manutenção</p>
     {% else %}

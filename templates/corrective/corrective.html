@@ -26,6 +26,7 @@
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous" />
   </head>
+
   <body id="page-top">
     <div id="wrapper">
       {% include 'corrective/components/sidebar_links.html' %}
@@ -47,7 +48,23 @@
 
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
     <script src="static/initial_page/js/bootstrap.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const modalLogin = document.getElementById("modalLogin");
+        const inputCard = document.getElementById("card_num");
+
+        if (modalLogin && inputCard) {
+          $(modalLogin).on("shown.bs.modal", function () {
+            inputCard.focus();
+          });
+        }
+      });
+
       {% include "utils/javascript/maintenances.js" %}
       {% include "utils/javascript/formatDate.js" %}
       {% include "utils/javascript/charCount.js" %}

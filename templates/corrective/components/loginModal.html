@@ -19,23 +19,48 @@
       </div>
       <div class="modal-body">
         <form id="loginForm">
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input
-              type="text"
-              class="form-control"
-              id="username"
-              name="username"
-              required />
+          <p class="text-muted">
+            Preencha apenas uma das opções abaixo para fazer login.
+          </p>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="card_num" style="color: black"
+                  >Login com cartão</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="card_num"
+                  name="card_num" />
+              </div>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              name="password"
-              required />
+          <p class="text-left" style="color: black">Login com crendenciais</p>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="username"
+                  name="username"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required />
+              </div>
+            </div>
           </div>
           <button
             type="submit"
