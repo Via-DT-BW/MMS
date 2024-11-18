@@ -1306,7 +1306,9 @@ def get_corretiva_comments():
         'n_tecnico': row.n_tecnico,
         'maintenance_comment': row.maintenance_comment,
         'duracao_intervencao': row.duracao_intervencao,
-        'tipo_avaria': row.tipo_avaria
+        'tipo_avaria': row.tipo_avaria,
+        'data_inicio': row.ini,
+        'data_fim': row.fim
     } for row in cursor.fetchall()]
     
     return jsonify(comments)
