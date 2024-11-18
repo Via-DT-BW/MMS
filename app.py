@@ -51,14 +51,21 @@ def index():
 @app.route('/login_corrective', methods=['POST'])
 def login_corrective():
     data = request.get_json()
+    card = data.get('card')
     username = data.get('username')
     password = data.get('password')
 
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
-        
-        cursor.execute("SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE username=? AND password=?", (username, password))
+
+        if card:
+            cursor.execute("SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE card_number=?", (card,))
+        elif username and password:
+            cursor.execute("SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE username=? AND password=?", (username, password,))
+        else:
+            return jsonify({'success': False, 'error': 'Nenhum dado fornecido'}), 400
+
         user = cursor.fetchone()
 
         if user:
@@ -176,7 +183,6 @@ def corrective_order_by_mt():
         var_descricao = request.form.get('var_descricao')
         equipament_var = request.form.get('equipament_var')
         var_numero_tecnico = request.form.get('var_numero_tecnico')
-        print(var_numero_tecnico)
         paragem_producao = request.form.get('paragem_producao')
 
         try:
@@ -327,8 +333,6 @@ def finish_maintenance():
     id_corretiva = request.form.get('id_corretiva')
     maintenance_comment = request.form.get('maintenance_comment')
     id_tipo_avaria = request.form.get('id_tipo_avaria')
-    
-    print(id, id_corretiva, maintenance_comment)
 
     if not id or not maintenance_comment:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
@@ -349,7 +353,7 @@ def finish_maintenance():
             UPDATE corretiva
             SET data_fim_man = ?, id_estado = ?
             WHERE id = ?
-        ''', (data_atual, 3, id))
+        ''', (data_atual, 3, id_corretiva))
 
         conn.commit()
 
