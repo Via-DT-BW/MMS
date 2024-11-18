@@ -110,6 +110,7 @@ ipython_config.py
 #   in version control.
 #   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
 sql/
+settings/
 
 .pdm.toml
 .pdm-python
