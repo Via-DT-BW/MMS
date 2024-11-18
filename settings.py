@@ -1,7 +1,7 @@
 import json
 
 def conexao_capture():
-    fileObject = open("settings/settings.json", "r")
+    fileObject = open("connections/settings.json", "r")
     jsonContent = fileObject.read()
     aList = json.loads(jsonContent)
     #resultado da pesquisa do Json
@@ -9,7 +9,7 @@ def conexao_capture():
     return connection_string
 
 def conexao_mms():
-    fileObject = open("settings/settings.json", "r")
+    fileObject = open("connections/settings.json", "r")
     jsonContent = fileObject.read()
     aList = json.loads(jsonContent)
     connection_string=aList[1]['connection_string_mms']
