@@ -111,7 +111,7 @@ def corrective():
         notifications = cursor.fetchall()
         count_query = """
             SELECT COUNT(*) 
-            FROM [MMS_teste].[dbo].[corretiva] 
+            FROM [MMS].[dbo].[corretiva] 
             WHERE 
                 (ISNULL(?, '') = '' OR [equipament] LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR [prod_line] LIKE '%' + ? + '%') AND
