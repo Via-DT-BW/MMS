@@ -1,8 +1,8 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__/*
 *.py[cod]
 *$py.class
-
+*.pyc
 # C extensions
 *.so
 
@@ -164,5 +164,3 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 connections/
-__pycache__/settings.cpython-312.pyc
-__pycache__/settings.cpython-312.pyc

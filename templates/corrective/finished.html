@@ -100,8 +100,8 @@
           <td>{{ fini.n_operador }}</td>
           <td>{{ fini.description }}</td>
           <td>
-            {% if fini.tempo_manutencao %} {{ fini.tempo_manutencao }} {% else
-            %}
+            {% if fini.tempo_manutencao >= 0 %} {{ fini.tempo_manutencao }} {%
+            else %}
             <span class="text-muted">Sem tempo definido</span>
             {% endif %}
           </td>
@@ -113,7 +113,7 @@
             {% endif %}
           </td>
           <td>
-            {% if fini.SMSState == 1 %} Enviado {% else %} Por Enviar {% endif
+            {% if fini.SMSState == '1' %} Enviado {% else %} Por Enviar {% endif
             %}
           </td>
           <td>

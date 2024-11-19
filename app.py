@@ -1,3 +1,4 @@
+import os
 from flask import Config, Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from datetime import date, datetime
 import pyodbc
@@ -11,16 +12,18 @@ try:
     conexao_capture=settings.conexao_capture()
     conn=pyodbc.connect(conexao_capture)
 except Exception as e:
-  print("Falha de ligacao à BD do Capture")
+    print(e)
+    print("Falha de ligacao à BD do Capture")
   
 try:
     conexao_mms=settings.conexao_mms()
     conn_mms=pyodbc.connect(conexao_mms)
 except Exception as e:
-  print("Falha de ligacao à BD do MMS")
+    print(e)
+    print("Falha de ligacao à BD do MMS")
 
 app = Flask(__name__)
-app_name = "MMS"
+app_name = os.getenv("APP_NAME")
 app.config.from_object(Config)
 
 mail = Mail(app)
@@ -218,12 +221,16 @@ def reject_notification():
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+        
+        #insert na tabela corretiva técnicos para associar o 
+        #técnico que está a negar
+        
         update_query = """
             UPDATE corretiva
-            SET id_estado = ?, maintenance_comment = ?, tempo_manutencao = ?
+            SET id_estado = ?
             WHERE id = ?
         """
-        cursor.execute(update_query, (4, comment, 0,notification_id))
+        cursor.execute(update_query, (4, notification_id))
         cursor.commit()
         
         flash('A ordem de manutenção foi cancelada.', category='info')
