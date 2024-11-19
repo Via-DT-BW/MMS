@@ -4,7 +4,7 @@ def conexao_capture():
     fileObject = open("connections/settings.json", "r")
     jsonContent = fileObject.read()
     aList = json.loads(jsonContent)
-    #resultado da pesquisa do Json
+
     connection_string=aList[0]['connection_string_capture']
     return connection_string
 
