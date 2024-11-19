@@ -112,9 +112,9 @@ def corrective():
             page, page_size, filter_equipment, start_date, end_date, filter_prod_line
         )
         notifications = cursor.fetchall()
-        count_query = """
+        count_query = f"""
             SELECT COUNT(*) 
-            FROM [MMS].[dbo].[corretiva] 
+            FROM [{app_name}].[dbo].[corretiva] 
             WHERE 
                 (ISNULL(?, '') = '' OR [equipament] LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR [prod_line] LIKE '%' + ? + '%') AND
