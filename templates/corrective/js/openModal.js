@@ -121,34 +121,6 @@ $(document).ready(function () {
     });
   });
 
-  $("#finishModalForm").on("submit", function (e) {
-    e.preventDefault();
-    var maintenanceComment = $("#maintenance_comment").val();
-    var id = $("#modal-id").val();
-    var id_corretiva = $("#modal-id-corretiva").val();
-    var tipoAvariaId = $("#tipo-avaria").val();
-    $.ajax({
-      type: "POST",
-      url: "/finish_maintenance",
-      data: {
-        id: id,
-        id_corretiva: id_corretiva,
-        maintenance_comment: maintenanceComment,
-        id_tipo_avaria: tipoAvariaId,
-      },
-      success: function (response) {
-        if (response.status === "success") {
-          location.reload();
-        } else {
-          alert(response.message);
-        }
-      },
-      error: function (xhr) {
-        alert(xhr.responseJSON.message || "Erro ao processar a ação");
-      },
-    });
-  });
-
   $("#rejectModal").on("show.bs.modal", function (event) {
     var button = $(event.relatedTarget);
     var id = button.data("id");

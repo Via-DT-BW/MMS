@@ -308,11 +308,20 @@ def inwork():
         total_pages = (total_records + page_size - 1) // page_size 
         start_page = max(1, page - 3)
         end_page = min(total_pages, page + 3)
+        
+        tecnico_id= session['id_mt']
+        cursor.execute("""
+            EXEC GetTecnicoInWorks 
+                @IdTecnico = ?
+        """, (tecnico_id,))
+
+        tecnico_in_works = [item[0] for item in cursor.fetchall()]
 
         return render_template('corrective/inwork.html', 
                                maintenance="Corrective Maintenance", 
                                year=year, 
                                ongoing=ongoing, 
+                               tecnico_in_works=tecnico_in_works,
                                page=page, 
                                total_pages=total_pages,
                                start_page=start_page,

@@ -1,4 +1,10 @@
 {% extends 'corrective/corrective.html' %} {% block content %}
+<style>
+  .working-row {
+    background-color: #d1e7dd !important;
+    font-size: 1.05rem;
+  }
+</style>
 
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
@@ -90,7 +96,16 @@
       </thead>
       <tbody>
         {% for ongo in ongoing %}
-        <tr>
+        <tr
+          {%
+          if
+          ongo.id_corretiva
+          in
+          tecnico_in_works
+          %}class="working-row"
+          {%
+          endif
+          %}>
           <td>{{ ongo.prod_line }}</td>
           <td>{{ ongo.nome }}</td>
           <td>{{ ongo.n_tecnico }}</td>
@@ -117,10 +132,12 @@
               class="btn btn-secondary btn-md"
               data-toggle="modal"
               data-target="#commentsModal"
-              data-id="{{ ongo.id_corretiva }}"
+              data-id="{{ ongo.id }}"
+              data-id-corretiva="{{ ongo.id_corretiva }}"
               data-description="{{ ongo.description }}"
               data-prod-line="{{ ongo.prod_line }}"
               data-equipament="{{ ongo.equipament }}"
+              data-ini-date="{{ ongo.data_inicio_man }}"
               data-pedido-date="{{ ongo.data_pedido }}">
               <i class="fa-solid fa-users"></i>
             </button>
@@ -129,18 +146,14 @@
               onclick="toggleComments({{ ongo.id_corretiva }})">
               <i class="fa-regular fa-rectangle-list"></i>
             </button>
+            {% if ongo.id_corretiva not in tecnico_in_works %}
             <button
-              class="btn btn-danger btn-md"
-              data-id="{{ ongo.id }}"
+              class="btn btn-primary btn-md"
               data-id-corretiva="{{ ongo.id_corretiva }}"
-              data-description="{{ ongo.description }}"
-              data-prod-line="{{ ongo.prod_line }}"
-              data-equipament="{{ ongo.equipament }}"
-              data-pedido-date="{{ ongo.data_pedido }}"
-              data-ini-date="{{ ongo.data_inicio_man }}"
-              onclick="openFinishModal(this)">
-              <i class="fa-solid fa-stop"></i>
+              onclick="associateTechnician(this)">
+              <i class="fa-solid fa-user-plus ml-1"></i>
             </button>
+            {% endif %}
           </td>
         </tr>
         <tr></tr>
@@ -193,46 +206,58 @@
 <script>
   {% include "corrective/js/toggleComments.js" %}
 
-  function openFinishModal(button) {
-    var id = button.getAttribute("data-id");
-    var id_corretiva = button.getAttribute("data-id-corretiva");
-    var modal = $("#finishModal");
-    console.log(id, id_corretiva)
+  function associateTechnician(button) {
+    var idCorretiva = $(button).data("id-corretiva");
+    var tecnicoLogadoId = "{{ session['id_mt'] }}";
+
+    if (!tecnicoLogadoId) {
+      alert("Por favor, selecione um técnico para associar.");
+      return;
+    }
+
     $.ajax({
       type: "GET",
-      url: "/api/get_tecnicos_associados/" + id_corretiva,
-      success: function (tecnicos) {
-        if (tecnicos.length === 1) {
-          var tecnico = tecnicos[0];
-          var description = button.getAttribute("data-description");
-          var equipament = button.getAttribute("data-equipament");
-          var pedidoDate = button.getAttribute("data-pedido-date");
-          var iniDate = button.getAttribute("data-ini-date");
-
-          modal.find("#modal-id").val(id);
-          modal.find("#modal-id-corretiva").val(id_corretiva);
-          modal.find("#modal-pedido-date").val(formatDateTime(pedidoDate));
-          modal.find("#modal-ini-date").val(formatDateTime(iniDate));
-          modal.find("#modal-description").val(description);
-          modal.find("#modal-equipament").val(equipament);
-          modal.find("#maintenance_comment").val("");
-          modal.find("#tecnico-nome").text(tecnico.nome);
-
-          modal.modal("show");
+      url: "/api/check_association",
+      data: {
+        id_corretiva: idCorretiva,
+        id_tecnico: tecnicoLogadoId,
+      },
+      success: function (data) {
+        if (data.associado) {
+          alert("Você já está associado a esta manutenção.");
+          return;
         }
-        else if(tecnicos.length < 1) {
-          alert(
-            "Tem de existir pelo menos um técnico associado para finalizar a manutenção."
-          );
-        }
-        else{
-          alert(
-            "Apenas um técnico deve estar associado para finalizar a manutenção."
-          );
+
+        var confirmation = confirm(
+          "Tem a certeza de que deseja se associar a esta manutenção?"
+        );
+
+        if (confirmation) {
+          $.ajax({
+            type: "POST",
+            url: "/api/associate_tecnico",
+            data: {
+              id_corretiva: idCorretiva,
+              id_tecnico: tecnicoLogadoId,
+            },
+            success: function (response) {
+              if (response.status === "success") {
+                $("#commentsModal").modal("hide");
+                location.reload();
+              } else {
+                alert(response.message);
+              }
+            },
+            error: function () {
+              alert("Erro ao associar o técnico.");
+            },
+          });
+        } else {
+          console.log("Associação cancelada.");
         }
       },
       error: function () {
-        alert("Erro ao buscar técnicos associados.");
+        alert("Erro ao verificar a associação.");
       },
     });
   }

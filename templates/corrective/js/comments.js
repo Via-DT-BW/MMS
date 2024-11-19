@@ -1,22 +1,8 @@
 $(document).ready(function () {
-  function toggleButtons(tabId) {
-    if (tabId === "#commentSection") {
-      $("#submitComment").show();
-      $("#associateTechnician").hide();
-    } else if (tabId === "#associateSection") {
-      $("#associateTechnician").show();
-      $("#submitComment").hide();
-    }
-  }
-
-  $('#commentsTabs a[data-toggle="pill"]').on("click", function (event) {
-    var targetTab = $(event.target).attr("href");
-    toggleButtons(targetTab);
-  });
-
   $("#commentsModal").on("show.bs.modal", function (event) {
     var button = $(event.relatedTarget);
-    var idCorretiva = button.data("id");
+    var idCorretiva = button.data("id-corretiva");
+    var id = button.data("id");
 
     $("#corretiva-id").text(idCorretiva);
     $("#corretiva-description").text(button.data("description"));
@@ -87,7 +73,52 @@ $(document).ready(function () {
       },
     });
 
-    toggleButtons("#commentSection");
+    $("#finishMaintenance").on("click", function () {
+      var maintenanceComment = $("#comment").val();
+      var idCorretiva = $("#corretiva-id").text();
+      var tipoAvariaId = $("#select-avaria").val();
+      var parouProducao = $("#select-stop").val();
+
+      if (
+        !maintenanceComment ||
+        !idCorretiva ||
+        !tipoAvariaId ||
+        !parouProducao
+      ) {
+        alert(
+          "Preencha todos os campos obrigatórios antes de finalizar a manutenção."
+        );
+        return;
+      }
+
+      if (!id) {
+        alert("Erro: ID da intervenção não encontrado.");
+        return;
+      }
+
+      $.ajax({
+        type: "POST",
+        url: "/finish_maintenance",
+        data: {
+          id_corretiva: idCorretiva,
+          id: id,
+          maintenance_comment: maintenanceComment,
+          id_tipo_avaria: tipoAvariaId,
+          parou_producao: parouProducao,
+        },
+        success: function (response) {
+          if (response.status === "success") {
+            alert("Manutenção finalizada com sucesso!");
+            location.reload();
+          } else {
+            alert(response.message || "Erro ao finalizar a manutenção.");
+          }
+        },
+        error: function (xhr) {
+          alert(xhr.responseJSON?.message || "Erro ao processar a ação.");
+        },
+      });
+    });
   });
 
   $("#submitComment").on("click", function () {
@@ -127,62 +158,6 @@ $(document).ready(function () {
       },
       error: function () {
         alert("Erro ao adicionar o comentário.");
-      },
-    });
-  });
-
-  $("#associate-pill").on("click", function () {
-    var idCorretiva = $("#corretiva-id").text();
-    var tecnicoLogadoId = "{{ session['id_mt'] }}";
-
-    if (!tecnicoLogadoId) {
-      alert("Por favor, selecione um técnico para associar.");
-      return;
-    }
-
-    $.ajax({
-      type: "GET",
-      url: "/api/check_association",
-      data: {
-        id_corretiva: idCorretiva,
-        id_tecnico: tecnicoLogadoId,
-      },
-      success: function (data) {
-        if (data.associado) {
-          alert("Você já está associado a esta manutenção.");
-          return;
-        }
-
-        var confirmation = confirm(
-          "Tem a certeza de que deseja se associar a esta manutenção?"
-        );
-
-        if (confirmation) {
-          $.ajax({
-            type: "POST",
-            url: "/api/associate_tecnico",
-            data: {
-              id_corretiva: idCorretiva,
-              id_tecnico: tecnicoLogadoId,
-            },
-            success: function (response) {
-              if (response.status === "success") {
-                $("#commentsModal").modal("hide");
-                location.reload();
-              } else {
-                alert(response.message);
-              }
-            },
-            error: function () {
-              alert("Erro ao associar o técnico.");
-            },
-          });
-        } else {
-          console.log("Associação cancelada.");
-        }
-      },
-      error: function () {
-        alert("Erro ao verificar a associação.");
       },
     });
   });
