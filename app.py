@@ -225,7 +225,7 @@ def reject_notification():
         
         update_corretiva_query = """
             UPDATE corretiva
-            SET id_estado = ?, data_fim_man = ?, data_fim_man = ?
+            SET id_estado = ?, data_inicio_man = ?, data_fim_man = ?
             WHERE id = ?
         """
         cursor.execute(update_corretiva_query, (4, current_time, current_time, notification_id))
@@ -602,7 +602,18 @@ def daily():
         turno = session.get('turno')
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+        area = session.get('area')
+        id_tl = session.get('id_tl')
 
+        today = datetime.today().strftime('%Y-%m-%d')
+        print(today)
+        cursor.execute("""
+            SELECT id
+            FROM daily
+            WHERE id_tl = ? AND CONVERT(date, data) = ?
+        """, id_tl, today)
+        daily_record = cursor.fetchone()
+        
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
         filter_turno = empty_to_none(request.args.get('filter_turno', '', type=str))
@@ -611,15 +622,16 @@ def daily():
         end_date = empty_to_none(request.args.get('end_date', '', type=str))        
         
         cursor.execute("""
-            EXEC GetDailyRecords 
+            EXEC GetDailyRecords
                 @FilterTurno = ?, 
                 @FilterUsername = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @PageSize = ?, 
-                @Page = ?
+                @Page = ?,
+                @area = ?
             """,
-            filter_turno, filter_tl, start_date, end_date, page_size, page
+            filter_turno, filter_tl, start_date, end_date, page_size, page, area
         )
         daily_data = cursor.fetchall()
         
@@ -631,9 +643,11 @@ def daily():
                 (ISNULL(?, '') = '' OR tl.turno LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR tl.username LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR d.data >= ?) AND
-                (ISNULL(?, '') = '' OR d.data <= ?)
+                (ISNULL(?, '') = '' OR d.data <= ?) AND
+                (tl.area = ?)
+                
         """
-        cursor.execute(count_query, filter_turno, filter_turno, filter_tl, filter_tl, start_date, start_date, end_date, end_date)
+        cursor.execute(count_query, filter_turno, filter_turno, filter_tl, filter_tl, start_date, start_date, end_date, end_date, area)
         total_records = cursor.fetchone()[0]
         
         total_pages = (total_records + page_size - 1) // page_size
@@ -653,7 +667,8 @@ def daily():
                                filter_turno=filter_turno,
                                filter_tl=filter_tl,
                                start_date=start_date,
-                               end_date=end_date)
+                               end_date=end_date,
+                               daily_record=daily_record)
 
     except Exception as e:
         print(e)
@@ -673,13 +688,14 @@ def login_daily():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("SELECT id, username, turno FROM teamleaders WHERE username=? AND password=?", (username, password))
+        cursor.execute("SELECT id, username, area, turno FROM teamleaders WHERE username=? AND password=?", (username, password))
         user = cursor.fetchone()
 
         if user:
             session['username'] = user.username
             session['id_tl'] = user.id
             session['turno'] = user.turno
+            session['area'] = user.area
             return jsonify({'success': True})
         else:
             return jsonify({'success': False, 'error': 'Credenciais inválidas'}), 401
@@ -1423,6 +1439,46 @@ def add_daily_record():
             cursor.close()
         if conn:
             conn.close()
+
+@app.route('/api/edit_daily_record', methods=['POST'])
+def edit_daily_record():
+    if 'username' not in session:
+        return jsonify({'status': 'error', 'message': 'Usuário não autenticado.'}), 403
+    
+    try:
+        record_id = request.form.get('id')
+        safety_comment = request.form.get('safety_comment')
+        quality_comment = request.form.get('quality_comment')
+        volume_comment = request.form.get('volume_comment')
+        people_comment = request.form.get('people_comment')
+
+        if not record_id or not safety_comment or not quality_comment or not volume_comment or not people_comment:
+            return jsonify({'status': 'error', 'message': 'Todos os campos são obrigatórios.'}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        today = datetime.today().strftime('%Y-%m-%d')
+        cursor.execute("""
+            UPDATE daily
+            SET safety_comment = ?, quality_comment = ?, volume_comment = ?, people_comment = ?
+            WHERE id = ? AND CONVERT(date, data) = ?
+        """, (safety_comment, quality_comment, volume_comment, people_comment, record_id, today))
+
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({'status': 'error', 'message': 'Comentário não encontrado ou já editado.'}), 404
+
+        return jsonify({'status': 'success', 'message': 'Comentário atualizado com sucesso.'}), 200
+
+    except Exception as e:
+        print(f"Erro ao atualizar comentário: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Ocorreu um erro ao atualizar o comentário.'}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/api/prod_lines', methods=['GET'])
 def lines():
