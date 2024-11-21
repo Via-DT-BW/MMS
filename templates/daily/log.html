@@ -80,6 +80,7 @@
   <div class="card">
     <div class="card-body">
       <div class="mb-2">
+        {% if not daily_record %}
         <button
           class="btn"
           style="background-color: #051729; color: white"
@@ -87,6 +88,7 @@
           data-target="#addDailyModal">
           Adicionar Comentários
         </button>
+        {% endif %}
       </div>
 
       <div>
@@ -112,6 +114,19 @@
               <td class="data">{{ record.data }}</td>
               <td>{{ record.turno }}</td>
               <td>
+                {% if daily_record.id == record.id %}
+                <button
+                  class="btn btn-warning btn-md"
+                  data-toggle="modal"
+                  data-target="#editDailyModal"
+                  data-id="{{ record.id }}"
+                  data-safety="{{ record.safety_comment }}"
+                  data-quality="{{ record.quality_comment }}"
+                  data-volume="{{ record.volume_comment }}"
+                  data-people="{{ record.people_comment }}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                {% endif %}
                 <button
                   class="btn btn-info btn-md"
                   data-toggle="modal"
@@ -164,10 +179,12 @@
 </div>
 
 {% include "daily/components/addCommentModal.html" %} {% include
-"daily/components/dailyDetailsModal.html" %}
+"daily/components/dailyDetailsModal.html" %} {% include
+"daily/components/editCommentsModal.html" %}
 
 <script>
   {% include "daily/js/addComment.js" %}
+  {% include "daily/js/editComments.js" %}
   {% include "daily/js/dailyDetailsModal.js" %}
 </script>
 
