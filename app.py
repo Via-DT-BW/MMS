@@ -47,7 +47,6 @@ def logout():
 @app.route('/')
 def index():
     logout()
-
     return render_template('index.html', year=year)
 
 #Corrective
@@ -112,9 +111,9 @@ def corrective():
             page, page_size, filter_equipment, start_date, end_date, filter_prod_line
         )
         notifications = cursor.fetchall()
-        count_query = """
+        count_query = f"""
             SELECT COUNT(*) 
-            FROM [MMS].[dbo].[corretiva] 
+            FROM [{app_name}].[dbo].[corretiva] 
             WHERE 
                 (ISNULL(?, '') = '' OR [equipament] LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR [prod_line] LIKE '%' + ? + '%') AND
@@ -128,7 +127,7 @@ def corrective():
         end_page = min(total_pages, page + 3)
 
         return render_template('corrective/notifications.html', 
-                               maintenance="Corrective Maintenance", 
+                               maintenance="Manutenção", 
                                year=year, 
                                notifications=notifications, 
                                page=page, 
@@ -216,29 +215,39 @@ def corrective_order_by_mt():
 @app.route('/reject_corrective_notification', methods=['POST'])
 def reject_notification():
     notification_id = request.form.get('id')
+    technician_id = request.form.get('technician_id')
     comment = request.form.get('comment')
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
         
-        #insert na tabela corretiva técnicos para associar o 
-        #técnico que está a negar
-        
-        update_query = """
+        update_corretiva_query = """
             UPDATE corretiva
-            SET id_estado = ?
+            SET id_estado = ?, data_fim_man = ?, data_fim_man = ?
             WHERE id = ?
         """
-        cursor.execute(update_query, (4, notification_id))
+        cursor.execute(update_corretiva_query, (4, current_time, current_time, notification_id))
+
+        update_tecnico_query = """
+            INSERT INTO corretiva_tecnicos (id_tecnico, id_corretiva, maintenance_comment, data_fim)
+            VALUES (?, ?, ?, ?)
+        """
+        cursor.execute(update_tecnico_query, (technician_id, notification_id, comment, current_time))
+
         cursor.commit()
         
         flash('A ordem de manutenção foi cancelada.', category='info')
         return jsonify(status='success')
     except Exception as e:
-        print(e)
+        print(f"Erro: {e}")
+        conn.rollback()
         flash('Erro ao cancelar ordem!', category='error')
         return jsonify(status='error', message=str(e))
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/change_to_inwork', methods=['POST'])
 def change_to_inwork():
@@ -259,6 +268,7 @@ def change_to_inwork():
             SET id_estado = ?, data_inicio_man = ?
             WHERE id = ?
         ''', (2, data_atual, id_corretiva))
+        
 
         cursor.execute('''
             INSERT INTO corretiva_tecnicos (id_tecnico, id_corretiva)
@@ -316,7 +326,7 @@ def inwork():
         start_page = max(1, page - 3)
         end_page = min(total_pages, page + 3)
         
-        tecnico_id= session['id_mt']
+        tecnico_id = session.get('id_mt')
         cursor.execute("""
             EXEC GetTecnicoInWorks 
                 @IdTecnico = ?
@@ -325,7 +335,7 @@ def inwork():
         tecnico_in_works = [item[0] for item in cursor.fetchall()]
 
         return render_template('corrective/inwork.html', 
-                               maintenance="Corrective Maintenance", 
+                               maintenance="Manutenção", 
                                year=year, 
                                ongoing=ongoing, 
                                tecnico_in_works=tecnico_in_works,
@@ -362,7 +372,7 @@ def finish_maintenance():
         cursor.execute('''
             UPDATE corretiva_tecnicos
             SET maintenance_comment = ?, data_fim = ?, id_tipo_avaria = ?
-            WHERE id = ? AND id_corretiva = ? AND data_fim IS NULL
+            WHERE id_tecnico = ? AND id_corretiva = ? AND data_fim IS NULL
         ''', (maintenance_comment, data_atual, id_tipo_avaria, id, id_corretiva))
 
         cursor.execute('''
@@ -422,7 +432,7 @@ def finished():
         end_page = min(total_pages, page + 3)
 
         return render_template('corrective/finished.html', 
-                               maintenance="Corrective Maintenance", 
+                               maintenance="Manutenção", 
                                year=year, 
                                finished=finished, 
                                page=page, 
@@ -441,7 +451,7 @@ def finished():
 
 @app.route('/corrective_analytics')
 def corrective_analytics():
-    return render_template('corrective/analytics.html', maintenance="Corrective Maintenance")
+    return render_template('corrective/analytics.html', maintenance="Manutenção")
 
 @app.route('/corrective_comments', methods=['GET'])
 def corrective_comments():
@@ -479,7 +489,7 @@ def corrective_comments():
         print(total_records, total_pages)
 
         return render_template('corrective/comments.html', 
-                               maintenance="Corrective Maintenance", 
+                               maintenance="Manutenção", 
                                year=year, 
                                comments=comments, 
                                page=page, 
@@ -1157,6 +1167,7 @@ def associate_tecnico():
 
         conn.commit()
         flash('Técnico associado com sucesso!', category='success')
+        logout()
         return jsonify({'status': 'success', 'message': 'Técnico associado com sucesso!'})
     except Exception as e:
         print(e)
@@ -1170,7 +1181,6 @@ def associate_tecnico():
 
 @app.route('/api/check_association', methods=['GET'])
 def check_association():
-    id_corretiva = request.args.get('id_corretiva')
     id_tecnico = request.args.get('id_tecnico')
 
     try:
@@ -1178,15 +1188,25 @@ def check_association():
         cursor = conn.cursor()
 
         query = """
-        SELECT 1
-        FROM corretiva_tecnicos
-        WHERE id_corretiva = ? AND id_tecnico = ? AND data_fim IS NULL
+        SELECT c.id, c.description, c.equipament, c.data_pedido, c.prod_line
+        FROM corretiva_tecnicos ct
+        JOIN corretiva c ON c.id = ct.id_corretiva
+        WHERE ct.id_tecnico = ? AND ct.data_fim IS NULL
         """
-        cursor.execute(query, (id_corretiva, id_tecnico))
+        cursor.execute(query, (id_tecnico,))
         result = cursor.fetchone()
 
         if result:
-            return jsonify({"associado": True})
+            return jsonify({
+                "associado": True,
+                "manutencao": {
+                    "id": result.id,
+                    "prod_line": result.prod_line,
+                    "description": result.description,
+                    "equipament": result.equipament,
+                    "data_pedido": result.data_pedido,
+                }
+            })
         else:
             return jsonify({"associado": False})
 
@@ -1328,6 +1348,47 @@ def get_corretiva_comments():
     } for row in cursor.fetchall()]
     
     return jsonify(comments)
+
+@app.route('/api/check_all_interventions_completed', methods=['GET'])
+def check_all_interventions_completed():
+    if 'id_mt' not in session:
+        return jsonify({'status': 'error', 'message': 'Usuário não autenticado!'}), 403
+
+    try:
+        id_corretiva = request.args.get('id_corretiva')
+        id_tecnico = request.args.get('id_tecnico')
+
+        if not id_corretiva or not id_tecnico:
+            return jsonify({'status': 'error', 'message': 'ID da correção e ID do técnico são obrigatórios!'}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT COUNT(*) AS pending_interventions
+            FROM corretiva_tecnicos
+            WHERE id_corretiva = ? 
+              AND data_fim IS NULL
+              AND id_tecnico != ?;
+        """, id_corretiva, id_tecnico)
+
+        result = cursor.fetchone()
+        pending_interventions = result.pending_interventions if result else 0
+
+        if pending_interventions > 0:
+            return jsonify({'status': 'warning', 'message': 'Não é possível finalizar. Existem intervenções não finalizadas de outros técnicos.'}), 200
+        
+        return jsonify({'status': 'success', 'message': 'Apenas a sua intervenção está pendente, pode finalizar.'})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 'error', 'message': 'Erro ao verificar o status das intervenções!'}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.route('/api/add_daily_record', methods=['POST'])
 def add_daily_record():

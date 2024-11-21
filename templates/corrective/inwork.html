@@ -11,7 +11,7 @@
 <div class="card mt-4 mb-4">
   <div class="card-header">
     <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Ongoing</h5>
+      <h5 class="m-0 text-center col-lg-12">Manutenções Em Curso</h5>
     </div>
 
     <form method="GET" action="/inwork" class="form-row justify-content-center">
@@ -85,8 +85,7 @@
       <thead>
         <tr>
           <th>Linha de Produção</th>
-          <th>Nome do Técnico</th>
-          <th>Nº do Técnico</th>
+          <th>Técnico (último)</th>
           <th>Descrição</th>
           <th>Data de Início</th>
           <th>Equipamento</th>
@@ -107,8 +106,7 @@
           endif
           %}>
           <td>{{ ongo.prod_line }}</td>
-          <td>{{ ongo.nome }}</td>
-          <td>{{ ongo.n_tecnico }}</td>
+          <td>{{ ongo.nome}} - {{ongo.n_tecnico }}</td>
           <td>{{ ongo.description }}</td>
           <td class="data">{{ ongo.data_inicio }}</td>
           <td>{{ ongo.equipament }}</td>
@@ -243,7 +241,7 @@
             success: function (response) {
               if (response.status === "success") {
                 $("#commentsModal").modal("hide");
-                location.reload();
+                window.location.href = "/corrective";
               } else {
                 alert(response.message);
               }

@@ -1,16 +1,3 @@
-<style>
-  .nav-pills .nav-link.active,
-  .nav-pills .show > .nav-link {
-    color: #fff;
-    background-color: #00386c;
-  }
-
-  .nav-pills .nav-link {
-    border-radius: 0.35rem;
-    color: #00386c;
-  }
-</style>
-
 <div
   class="modal fade"
   id="commentsModal"
@@ -37,6 +24,14 @@
             id="commentSection"
             role="tabpanel"
             aria-labelledby="comment-pill">
+            <div
+              class="alert alert-warning"
+              id="technical-warning"
+              style="display: none">
+              <strong>Aviso:</strong> Já se encontra noutra manutenção. Faça um
+              comentário para esta manutenção, se deseja começar outra.
+            </div>
+
             <div id="corretiva-info" class="row mb-3">
               <div class="col-md-6">
                 <p hidden>
