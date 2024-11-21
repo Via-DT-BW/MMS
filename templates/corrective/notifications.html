@@ -4,7 +4,7 @@
 <div class="card mt-4 mb-4">
   <div class="card-header">
     <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Corrective Maintenance Pending</h5>
+      <h5 class="m-0 text-center col-lg-12">Manutenções Pendentes</h5>
     </div>
 
     <form
@@ -96,7 +96,7 @@
           <td>{{ notification.prod_line }}</td>
           <td>{{ notification.n_operador }}</td>
           <td>{{ notification.description }}</td>
-          <td>{{ notification.data_pedido }}</td>
+          <td class="data">{{ notification.data_pedido }}</td>
           <td>{{ notification.equipament }}</td>
           <td>{{ notification.stopped_production }}</td>
           <td>
@@ -125,18 +125,17 @@
               <i class="fas fa-eye"></i>
             </button>
             {% if session['username'] %}
-
             <button
-              class="btn btn-success btn-md"
-              data-toggle="modal"
-              data-target="#takeModal"
+              class="btn btn-success btn-md check-association"
               data-id="{{ notification.id }}"
               data-description="{{ notification.description }}"
               data-prod-line="{{ notification.prod_line }}"
               data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}">
+              data-pedido-date="{{ notification.data_pedido }}"
+              data-id-tecnico="{{ session['id_mt'] }}">
               <i class="fa-solid fa-play"></i>
             </button>
+
             <button
               class="btn btn-danger btn-md"
               data-toggle="modal"
@@ -145,7 +144,9 @@
               data-description="{{ notification.description }}"
               data-prod-line="{{ notification.prod_line }}"
               data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}">
+              data-pedido-date="{{ notification.data_pedido }}"
+              data-id-mt="{{ session['id_mt'] }}"
+              data-nome-mt="{{ session['nome'] }}">
               <i class="fa-solid fa-ban"></i>
             </button>
             {% endif %}
@@ -160,7 +161,8 @@
 
 {% include "corrective/components/detailsModal.html" %} {% include
 "corrective/components/takeModal.html" %} {% include
-"corrective/components/rejectModal.html" %}
+"corrective/components/rejectModal.html" %}{% include
+"corrective/components/commentsModal.html" %}
 
 <script>
   {% include "corrective/js/openModal.js" %}

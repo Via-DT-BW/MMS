@@ -75,49 +75,206 @@ $(document).ready(function () {
     }
   });
 
-  $("#takeModal").on("show.bs.modal", function (event) {
-    var button = $(event.relatedTarget);
+  $(".check-association").on("click", function () {
+    var button = $(this);
     var id = button.data("id");
-    var description = button.data("description");
-    var equipament = button.data("equipament");
-    var pedidoDate = button.data("pedido-date");
-    var prodLine = button.data("prod-line");
+    var tecnicoId = button.data("id-tecnico");
 
-    var modal = $(this);
-    modal.find("#modal-id").val(id);
-    modal.find("#modal-pedido-date").val(formatDateTime(pedidoDate));
-    modal.find("#modal-description").val(description);
-    modal.find("#modal-equipament").val(equipament);
-    modal.find("#modal-prod-line").val(prodLine);
+    $.ajax({
+      type: "GET",
+      url: "/api/check_association",
+      data: { id_tecnico: tecnicoId, id_corretiva: id },
+      success: function (response) {
+        if (response.associado) {
+          var tecnicoLogadoNome = "{{ session['nome'] }}";
+          var tecnicoLogadoNumero = "{{ session['numero_mt'] }}";
 
-    $("#takeModalForm").on("submit", function (e) {
-      e.preventDefault();
-      var tecnicoId = $("#select-tecnico").val();
-      var id = $("#modal-id").val();
+          var tecnicoTexto = tecnicoLogadoNome + " - " + tecnicoLogadoNumero;
+          var option = new Option(tecnicoTexto, tecnicoId);
 
-      if (!tecnicoId) {
-        alert("Selecione um técnico.");
-        return;
-      }
+          $("#select-tecnico").append(option);
+          $("#select-tecnico").val(tecnicoId);
+          $("#commentsModal").modal("show");
 
-      $.ajax({
-        type: "POST",
-        url: "/change_to_inwork",
-        data: {
-          id: id,
-          tecnico_id: tecnicoId,
-        },
-        success: function (response) {
-          if (response.status === "success") {
-            location.reload();
-          } else {
-            alert(response.message);
-          }
-        },
-        error: function () {
-          alert("Erro ao processar a ação.");
-        },
-      });
+          $("#corretiva-id").text(response.manutencao.id);
+          $("#corretiva-description").text(response.manutencao.description);
+          $("#corretiva-equipament").text(response.manutencao.equipament);
+          $("#corretiva-prod-line").text(response.manutencao.prod_line);
+          $("#corretiva-pedido-date").text(
+            formatDateTime(response.manutencao.data_pedido)
+          );
+
+          $("#comment").val("");
+
+          $("#technical-warning").fadeIn();
+
+          setTimeout(function () {
+            $("#technical-warning").fadeOut();
+          }, 6000);
+
+          //Comments
+          $("#submitComment").on("click", function () {
+            var idCorretiva = $("#corretiva-id").text();
+            var tecnicoId = $("#select-tecnico").val();
+            var comentario = $("#comment").val();
+            var tipoAvariaId = $("#select-avaria").val();
+            var parou = $("#select-stop").val();
+
+            if (!tecnicoId) {
+              alert(
+                "Por favor, registe-se na manutenção para registar atividade."
+              );
+              return;
+            }
+
+            if (!comentario) {
+              alert("Por favor, faça um comentário.");
+              return;
+            }
+
+            $.ajax({
+              type: "POST",
+              url: "/api/update_comment",
+              data: {
+                id_corretiva: idCorretiva,
+                id_tecnico: tecnicoId,
+                comment: comentario,
+                id_tipo_avaria: tipoAvariaId,
+                stopped_prod: parou,
+              },
+              success: function (response) {
+                if (response.status === "success") {
+                  $("#commentsModal").modal("hide");
+                  location.reload();
+                } else {
+                  alert(response.message);
+                }
+              },
+              error: function () {
+                alert("Erro ao adicionar o comentário.");
+              },
+            });
+          });
+
+          $("#finishMaintenance").on("click", function () {
+            var maintenanceComment = $("#comment").val();
+            var idCorretiva = $("#corretiva-id").text();
+            var tipoAvariaId = $("#select-avaria").val();
+            var parouProducao = $("#select-stop").val();
+
+            if (
+              !maintenanceComment ||
+              !idCorretiva ||
+              !tipoAvariaId ||
+              !parouProducao
+            ) {
+              alert(
+                "Preencha todos os campos obrigatórios antes de finalizar a manutenção."
+              );
+              return;
+            }
+
+            if (!id) {
+              alert("Erro: ID da intervenção não encontrado.");
+              return;
+            }
+
+            $.ajax({
+              type: "GET",
+              url: "/api/check_all_interventions_completed",
+              data: { id_corretiva: idCorretiva, id_tecnico: tecnicoId },
+              success: function (response) {
+                if (response.status === "success") {
+                  $.ajax({
+                    type: "POST",
+                    url: "/finish_maintenance",
+                    data: {
+                      id_corretiva: idCorretiva,
+                      id: tecnicoId,
+                      maintenance_comment: maintenanceComment,
+                      id_tipo_avaria: tipoAvariaId,
+                      parou_producao: parouProducao,
+                    },
+                    success: function (response) {
+                      if (response.status === "success") {
+                        alert("Manutenção finalizada com sucesso!");
+                        location.reload();
+                      } else {
+                        alert(
+                          response.message || "Erro ao finalizar a manutenção."
+                        );
+                      }
+                    },
+                    error: function (xhr) {
+                      alert(
+                        xhr.responseJSON?.message || "Erro ao processar a ação."
+                      );
+                    },
+                  });
+                } else if (response.status === "warning") {
+                  alert(
+                    response.message ||
+                      "Ação não permitida devido a intervenções pendentes, por favor garanta que é o único técnico na manutenção."
+                  );
+                } else {
+                  alert(
+                    response.message ||
+                      "Erro ao verificar o status das intervenções."
+                  );
+                }
+              },
+              error: function () {
+                alert("Erro ao verificar o status das intervenções.");
+              },
+            });
+          });
+        } else {
+          $("#takeModal").modal("show");
+
+          $("#modal-id").val(id);
+          $("#modal-pedido-date").val(
+            formatDateTime(button.data("pedido-date"))
+          );
+          $("#modal-description-t").val(button.data("description"));
+          $("#modal-equipament-t").val(button.data("equipament"));
+          $("#modal-prod-line").val(button.data("prod-line"));
+        }
+      },
+      error: function () {
+        alert("Erro ao verificar associação do técnico.");
+      },
+    });
+  });
+
+  $("#takeModalForm").on("submit", function (e) {
+    e.preventDefault();
+    var tecnicoId = $("#select-tecnico-t").val();
+    var id = $("#modal-id").val();
+
+    console.log(tecnicoId, id);
+
+    if (!tecnicoId) {
+      alert("Selecione um técnico.");
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "/change_to_inwork",
+      data: {
+        id: id,
+        tecnico_id: tecnicoId,
+      },
+      success: function (response) {
+        if (response.status === "success") {
+          location.reload();
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function () {
+        alert("Erro ao processar a ação.");
+      },
     });
   });
 
@@ -128,12 +285,15 @@ $(document).ready(function () {
     var prodLine = button.data("prod-line");
     var equipament = button.data("equipament");
     var pedidoDate = button.data("pedido-date");
+    var idMt = button.data("id-mt");
+    var nameT = button.data("nome-mt");
 
     var modal = $(this);
     modal.find("#modal-reject-description").val(description);
     modal.find("#modal-reject-prod-line").val(prodLine);
     modal.find("#modal-reject-equipament").val(equipament);
     modal.find("#modal-reject-pedido-date").val(formatDateTime(pedidoDate));
+    $("#modal-reject-technician").val(nameT);
 
     $("#btn-reject-submit").on("click", function () {
       var modal = $("#rejectModal");
@@ -151,6 +311,7 @@ $(document).ready(function () {
         data: {
           id: notificationId,
           comment: comment,
+          technician_id: idMt,
         },
         success: function (response) {
           if (response.status === "success") {

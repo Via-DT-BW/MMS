@@ -56,23 +56,6 @@ $(document).ready(function () {
       },
     });
 
-    $.ajax({
-      type: "GET",
-      url: "/api/tipo_avarias",
-      success: function (tiposAvarias) {
-        $("#select-avaria")
-          .empty()
-          .append('<option value="">Selecione um tipo de avaria</option>');
-
-        tiposAvarias.forEach(function (tipo) {
-          $("#select-avaria").append(new Option(tipo.tipo, tipo.id));
-        });
-      },
-      error: function () {
-        alert("Erro ao carregar tipos de avarias.");
-      },
-    });
-
     $("#finishMaintenance").on("click", function () {
       var maintenanceComment = $("#comment").val();
       var idCorretiva = $("#corretiva-id").text();
@@ -97,25 +80,46 @@ $(document).ready(function () {
       }
 
       $.ajax({
-        type: "POST",
-        url: "/finish_maintenance",
-        data: {
-          id_corretiva: idCorretiva,
-          id: id,
-          maintenance_comment: maintenanceComment,
-          id_tipo_avaria: tipoAvariaId,
-          parou_producao: parouProducao,
-        },
+        type: "GET",
+        url: "/api/check_all_interventions_completed",
+        data: { id_corretiva: idCorretiva, id_tecnico: tecnicoLogadoId },
         success: function (response) {
           if (response.status === "success") {
-            alert("Manutenção finalizada com sucesso!");
-            location.reload();
+            $.ajax({
+              type: "POST",
+              url: "/finish_maintenance",
+              data: {
+                id_corretiva: idCorretiva,
+                id: tecnicoLogadoId,
+                maintenance_comment: maintenanceComment,
+                id_tipo_avaria: tipoAvariaId,
+                parou_producao: parouProducao,
+              },
+              success: function (response) {
+                if (response.status === "success") {
+                  alert("Manutenção finalizada com sucesso!");
+                  location.reload();
+                } else {
+                  alert(response.message || "Erro ao finalizar a manutenção.");
+                }
+              },
+              error: function (xhr) {
+                alert(xhr.responseJSON?.message || "Erro ao processar a ação.");
+              },
+            });
+          } else if (response.status === "warning") {
+            alert(
+              response.message ||
+                "Ação não permitida devido a intervenções pendentes, por favor garanta que é o único técnico na manutenção."
+            );
           } else {
-            alert(response.message || "Erro ao finalizar a manutenção.");
+            alert(
+              response.message || "Erro ao verificar o status das intervenções."
+            );
           }
         },
-        error: function (xhr) {
-          alert(xhr.responseJSON?.message || "Erro ao processar a ação.");
+        error: function () {
+          alert("Erro ao verificar o status das intervenções.");
         },
       });
     });
