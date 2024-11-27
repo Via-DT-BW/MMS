@@ -1,0 +1,217 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container mt-4">
+  <h2>Gestão de Contactos</h2>
+
+  <form method="get" action="{{ url_for('contacts') }}" class="mb-3">
+    <div class="row">
+      <div class="col-md-2">
+        <label for="nome">Nome:</label>
+        <input
+          type="text"
+          name="nome"
+          id="nome"
+          class="form-control"
+          value="{{ nome or '' }}" />
+      </div>
+      <div class="col-md-2">
+        <label for="numberBW">Número BW:</label>
+        <input
+          type="text"
+          name="number_bw"
+          id="numberBW"
+          class="form-control"
+          value="{{ number_bw or '' }}" />
+      </div>
+      <div class="col-md-1">
+        <label for="area">Área:</label>
+        <input
+          type="text"
+          name="area"
+          id="area"
+          class="form-control"
+          value="{{ area or '' }}" />
+      </div>
+      <div class="col-md-1">
+        <label for="shift">Turno:</label>
+        <input
+          type="text"
+          name="shift"
+          id="shift"
+          class="form-control"
+          value="{{ shift or '' }}" />
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('contacts') }}" class="btn btn-danger"
+          >Limpar Filtros</a
+        >
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button
+          class="btn btn-success"
+          type="button"
+          id="toggleAddForm"
+          data-bs-toggle="modal"
+          data-bs-target="#addContactModal">
+          <i class="fa-solid fa-user-plus"></i> Adicionar
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <table class="table table-striped" id="contactsTable">
+    <thead>
+      <tr>
+        <th class="sortable">ID</th>
+        <th class="sortable">Nome</th>
+        <th class="sortable">Número BW</th>
+        <th class="sortable">Email</th>
+        <th class="sortable">Telefone</th>
+        <th class="sortable">Área</th>
+        <th class="sortable">Turno</th>
+        <th class="sortable">Função</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if contacts and contacts|length > 0 %} {% for contact in contacts %}
+      <tr>
+        <td>{{ contact.Id }}</td>
+        <td>{{ contact.Name }}</td>
+        <td>{{ contact.NumberBW }}</td>
+        <td>{{ contact.Email }}</td>
+        <td>{{ contact.PhoneNumber }}</td>
+        <td>{{ contact.Area }}</td>
+        <td>{{ contact.Shift }}</td>
+        <td>{{ contact.Role }}</td>
+        <td>
+          <button
+            class="btn btn-warning btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#editContactModal"
+            data-id="{{ contact.Id }}"
+            data-name="{{ contact.Name }}"
+            data-numberbw="{{ contact.NumberBW }}"
+            data-email="{{ contact.Email }}"
+            data-phone="{{ contact.PhoneNumber }}"
+            data-area="{{ contact.Area }}"
+            data-shift="{{ contact.Shift }}"
+            data-role="{{ contact.Role }}">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </td>
+      </tr>
+      {% endfor %} {% else %}
+      <tr>
+        <td colspan="9" class="text-center text-muted">
+          Não foram encontrados contactos.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        {% if page > 1 %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('contacts', page=page-1, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
+            &laquo;
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">&laquo;</span>
+        </li>
+        {% endif %} {% for i in range(1, total_pages + 1) %}
+        <li class="page-item {% if i == page %}active{% endif %}">
+          <a
+            class="page-link"
+            href="{{ url_for('contacts', page=i, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
+            {{ i }}
+          </a>
+        </li>
+        {% endfor %} {% if page < total_pages %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('contacts', page=page+1, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
+            &raquo;
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">&raquo;</span>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    <div>Página {{ page }} de {{ total_pages }}</div>
+  </div>
+</div>
+
+{% include "configs/components/addContactModal.html"%} {% include
+"configs/components/editContactModal.html"%}
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const editContactModal = document.getElementById("editContactModal");
+    editContactModal.addEventListener("show.bs.modal", (event) => {
+      const button = event.relatedTarget;
+      const id = button.getAttribute("data-id");
+      const form = document.getElementById("editContactForm");
+      form.action = `/contacts/edit/${id}`;
+
+      document.getElementById("editName").value =
+        button.getAttribute("data-name");
+      document.getElementById("editNumberBW").value =
+        button.getAttribute("data-numberbw");
+      document.getElementById("editEmail").value =
+        button.getAttribute("data-email");
+      document.getElementById("editPhoneNumber").value =
+        button.getAttribute("data-phone");
+      document.getElementById("editArea").value =
+        button.getAttribute("data-area");
+      document.getElementById("editShift").value =
+        button.getAttribute("data-shift");
+      document.getElementById("editRole").value =
+        button.getAttribute("data-role");
+    });
+
+    const table = document.getElementById("contactsTable");
+    const headers = table.querySelectorAll("th");
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+
+    headers.forEach((header, index) => {
+      header.addEventListener("click", function () {
+        const isAscending = header.classList.contains("asc");
+        const sortedRows = rows.sort((rowA, rowB) => {
+          const cellA = rowA.children[index].textContent.trim();
+          const cellB = rowB.children[index].textContent.trim();
+
+          if (isAscending) {
+            return cellA.localeCompare(cellB);
+          } else {
+            return cellB.localeCompare(cellA);
+          }
+        });
+
+        headers.forEach((h) => h.classList.remove("asc", "desc"));
+        header.classList.add(isAscending ? "desc" : "asc");
+
+        const tbody = table.querySelector("tbody");
+        tbody.innerHTML = "";
+        sortedRows.forEach((row) => tbody.appendChild(row));
+      });
+    });
+  });
+</script>
+
+{% endblock %}

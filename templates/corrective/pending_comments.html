@@ -1,0 +1,160 @@
+{% extends 'corrective/corrective.html' %} {% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Comentários Pendentes</h2>
+
+      <!-- Filtros de Pesquisa -->
+      <form id="filterForm" method="GET" class="mb-4">
+        <div class="row">
+          <div class="col-md-3">
+            <label for="filter">Equipamento:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="filter"
+              name="filter"
+              value="{{ request.args.get('filter', '') }}" />
+          </div>
+          <div class="col-md-3">
+            <label for="filter_prod_line">Linha de Produção:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="filter_prod_line"
+              name="filter_prod_line"
+              value="{{ request.args.get('filter_prod_line', '') }}" />
+          </div>
+          <div class="col-md-3">
+            <label for="start_date">Data Início:</label>
+            <input
+              type="date"
+              class="form-control"
+              id="start_date"
+              name="start_date"
+              value="{{ request.args.get('start_date', '') }}" />
+          </div>
+          <div class="col-md-3">
+            <label for="end_date">Data Fim:</label>
+            <input
+              type="date"
+              class="form-control"
+              id="end_date"
+              name="end_date"
+              value="{{ request.args.get('end_date', '') }}" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          Aplicar Filtros
+        </button>
+        <a class="btn btn-danger mt-3" href="/pending_comments">
+          Limpar Filtros
+        </a>
+      </form>
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID Corretiva</th>
+            <th>Linha</th>
+            <th>Equipamento</th>
+            <th>Data Início</th>
+            <th>Data Fim</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if pending|length == 0 %}
+          <tr>
+            <td colspan="6" class="text-center">Sem comentários pendentes</td>
+          </tr>
+          {% else %} {% for comentario in pending %}
+          <tr>
+            <td>{{ comentario.id_corretiva }}</td>
+            <td>{{ comentario.prod_line }}</td>
+            <td>{{ comentario.equipament }}</td>
+            <td class="data">{{ comentario.data_inicio }}</td>
+            <td class="data">{{ comentario.data_fim }}</td>
+            <td>
+              <button
+                class="btn btn-warning edit-comment"
+                data-id="{{ comentario.id }}"
+                data-prod-line="{{ comentario.prod_line }}">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %} {% endif %}
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        {% if total_pages > 1 %}
+        <ul class="pagination justify-content-center">
+          {% for i in range(start_page, end_page + 1) %}
+          <li class="page-item {% if i == page %}active{% endif %}">
+            <a
+              class="page-link"
+              href="{{ url_for('pending_comments', page=i, filter=request.args.get('filter', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), filter_prod_line=request.args.get('filter_prod_line', '')) }}"
+              >{{ i }}</a
+            >
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "corrective/components/editPendingComment.html" %}
+
+<script>
+  document.querySelectorAll(".edit-comment").forEach((button) => {
+    button.addEventListener("click", function () {
+      const commentId = this.getAttribute("data-id");
+      const prodLine = this.getAttribute("data-prod-line");
+      fetchTipoAvarias(prodLine, "#tipo-avaria");
+      document.getElementById("modalComentario").value = "";
+      document.getElementById("tipo-avaria").value = "";
+
+      const myModal = new bootstrap.Modal(
+        document.getElementById("editCommentModal")
+      );
+      myModal.show();
+
+      document
+        .getElementById("saveComment")
+        .addEventListener("click", function () {
+          const updatedComment =
+            document.getElementById("modalComentario").value;
+          const updatedTipoAvaria =
+            document.getElementById("tipo-avaria").value;
+          console.log(commentId, updatedComment, updatedTipoAvaria);
+          $.ajax({
+            url: "/api/save_comment",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              id: commentId,
+              comment: updatedComment,
+              tipo_avaria: updatedTipoAvaria,
+            }),
+            success: function (response) {
+              if (response.status === "success") {
+                alert("Comentário editado com sucesso!");
+                myModal.hide();
+                location.reload();
+              } else {
+                alert("Erro ao editar comentário.");
+              }
+            },
+            error: function () {
+              alert("Erro ao editar comentário.");
+            },
+          });
+        });
+    });
+  });
+</script>
+{% endblock %}

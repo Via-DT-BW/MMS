@@ -1,0 +1,28 @@
+{% extends 'corrective/corrective.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div id="notifications-container"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div id="inwork-container"></div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $.get("/notifications?sidebar=False", function (data) {
+      $("#notifications-container").html(data);
+    });
+
+    $.get("/inwork?sidebar=False", function (data) {
+      $("#inwork-container").html(data);
+    });
+  });
+</script>
+
+{% endblock %}

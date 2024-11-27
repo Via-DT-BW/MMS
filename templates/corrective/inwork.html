@@ -1,4 +1,5 @@
-{% extends 'corrective/corrective.html' %} {% block content %}
+{% if use_corrective_layout %} {% extends 'corrective/corrective.html' %} {%
+endif %} {% block content %}
 <style>
   .working-row {
     background-color: #d1e7dd !important;
@@ -35,6 +36,18 @@
           class="form-control"
           placeholder="Linha de Produção"
           value="{{ request.args.get('filter_prod_line', '') }}" />
+      </div>
+
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted"
+          >Filtrar por número do técnico</small
+        >
+        <input
+          type="text"
+          name="filter_number"
+          class="form-control"
+          placeholder="Número do Técnico"
+          value="{{ request.args.get('filter_number', '') }}" />
       </div>
 
       <div class="form-group col-md-4 col-sm-6 col-12 text-center">
@@ -217,12 +230,11 @@
       type: "GET",
       url: "/api/check_association",
       data: {
-        id_corretiva: idCorretiva,
         id_tecnico: tecnicoLogadoId,
       },
       success: function (data) {
         if (data.associado) {
-          alert("Você já está associado a esta manutenção.");
+          alert("Já se encontra associado a outra manutenção.");
           return;
         }
 

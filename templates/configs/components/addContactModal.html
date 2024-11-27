@@ -1,0 +1,72 @@
+<div
+  class="modal fade"
+  id="addContactModal"
+  tabindex="-1"
+  aria-labelledby="addContactModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('add_contact') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addContactModalLabel">
+            Adicionar Contacto
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input
+            type="text"
+            name="name"
+            class="form-control mb-2"
+            placeholder="Nome"
+            required />
+          <input
+            type="text"
+            name="numberBW"
+            class="form-control mb-2"
+            placeholder="Número BW"
+            required />
+          <input
+            type="email"
+            name="email"
+            class="form-control mb-2"
+            placeholder="Email"
+            required />
+          <input
+            type="text"
+            name="phoneNumber"
+            class="form-control mb-2"
+            placeholder="Telefone"
+            required />
+          <input
+            type="text"
+            name="area"
+            class="form-control mb-2"
+            placeholder="Área"
+            required />
+          <input
+            type="text"
+            name="shift"
+            class="form-control mb-2"
+            placeholder="Turno"
+            required />
+          <input
+            type="text"
+            name="role"
+            class="form-control mb-2"
+            placeholder="Função"
+            required />
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">
+            Adicionar <i class="fa-solid fa-user-plus ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

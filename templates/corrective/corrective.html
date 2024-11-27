@@ -28,11 +28,30 @@
       crossorigin="anonymous" />
   </head>
 
+  <style>
+    body:not(.sidebar-toggled) .topbar {
+      display: none;
+    }
+
+    body.sidebar-toggled .topbar {
+      display: block;
+    }
+  </style>
+
   <body id="page-top">
     <div id="wrapper">
       {% include 'corrective/components/sidebar_links.html' %}
 
       <div id="content-wrapper" class="d-flex flex-column">
+        <nav
+          class="navbar navbar-expand navbar-light topbar mb-2 static-top shadow"
+          style="background-color: #051729">
+          <button
+            id="sidebarToggleTop"
+            class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars" style="color: #2efad9"></i>
+          </button>
+        </nav>
         <div id="content">
           <div class="container-fluid">{% block content %} {% endblock %}</div>
         </div>
@@ -66,6 +85,13 @@
         }
       });
 
+      document.getElementById('sidebarToggleTop').addEventListener('click', function () {
+        document.body.classList.toggle('sidebar-toggled');
+      });
+
+      {% if session['username']%}
+        {% include "corrective/js/checkComments.js" %}
+      {% endif %}
       {% include "utils/javascript/maintenances.js" %}
       {% include "utils/javascript/formatDate.js" %}
       {% include "utils/javascript/charCount.js" %}

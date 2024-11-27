@@ -1,4 +1,5 @@
-{% extends 'corrective/corrective.html' %} {% block content %}
+{% if use_corrective_layout %} {% extends 'corrective/corrective.html' %} {%
+endif %} {% block content %}
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
 <div class="card mt-4 mb-4">
@@ -29,6 +30,16 @@
           class="form-control"
           placeholder="Linha de Produção"
           value="{{ request.args.get('filter_prod_line', '') }}" />
+      </div>
+
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Número do Técnico</small>
+        <input
+          type="text"
+          name="filter_number"
+          class="form-control"
+          placeholder="Número do Técnico"
+          value="{{ request.args.get('filter_number', '') }}" />
       </div>
 
       <div class="form-group col-md-4 col-sm-6 col-12 text-center">
@@ -72,7 +83,7 @@
 
   <div class="card-body table-responsive">
     {% if notifications|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção</p>
+    <p class="text-center">Sem Pedidos de Manutenção Pendentes</p>
     {% else %}
     <table class="table table-striped">
       <thead>

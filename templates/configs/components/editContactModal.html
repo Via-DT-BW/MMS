@@ -1,0 +1,80 @@
+<div
+  class="modal fade"
+  id="editContactModal"
+  tabindex="-1"
+  aria-labelledby="editContactModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="" id="editContactForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editContactModalLabel">
+            Editar Contacto
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input
+            type="text"
+            name="name"
+            id="editName"
+            class="form-control mb-2"
+            placeholder="Nome"
+            required />
+          <input
+            type="text"
+            name="numberBW"
+            id="editNumberBW"
+            class="form-control mb-2"
+            placeholder="Número BW"
+            required />
+          <input
+            type="email"
+            name="email"
+            id="editEmail"
+            class="form-control mb-2"
+            placeholder="Email"
+            required />
+          <input
+            type="text"
+            name="phoneNumber"
+            id="editPhoneNumber"
+            class="form-control mb-2"
+            placeholder="Telefone"
+            required />
+          <input
+            type="text"
+            name="area"
+            id="editArea"
+            class="form-control mb-2"
+            placeholder="Área"
+            required />
+          <input
+            type="text"
+            name="shift"
+            id="editShift"
+            class="form-control mb-2"
+            placeholder="Turno"
+            required />
+          <input
+            type="text"
+            name="role"
+            id="editRole"
+            class="form-control mb-2"
+            placeholder="Função"
+            required />
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-warning">
+            Guardar
+            <i class="fa-solid fa-floppy-disk ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

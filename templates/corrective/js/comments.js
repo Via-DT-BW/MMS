@@ -3,6 +3,10 @@ $(document).ready(function () {
     var button = $(event.relatedTarget);
     var idCorretiva = button.data("id-corretiva");
     var id = button.data("id");
+    var prodLine = button.data("prod-line");
+    console.log(prodLine);
+
+    fetchTipoAvarias(prodLine, "#select-avaria");
 
     $("#corretiva-id").text(idCorretiva);
     $("#corretiva-description").text(button.data("description"));
@@ -98,7 +102,7 @@ $(document).ready(function () {
               success: function (response) {
                 if (response.status === "success") {
                   alert("Manutenção finalizada com sucesso!");
-                  location.reload();
+                  window.location.reload();
                 } else {
                   alert(response.message || "Erro ao finalizar a manutenção.");
                 }

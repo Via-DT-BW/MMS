@@ -1,15 +1,9 @@
 {% extends 'components/sidebar.html' %} {% block content %} {% if
 session['username'] %}
-<div class="justify-content-center d-flex" style="color: #2cedd4">
+<div class="justify-content-center text-center d-flex" style="color: #2cedd4">
   Bem-vindo, {{ session['username'] }}!
 </div>
 
-<li class="nav-item">
-  <a class="btn nav-link collapsed" href="/logout">
-    <i class="fas fa-sign-out-alt" style="color: #2cedd4"></i>
-    <span>Sair</span>
-  </a>
-</li>
 <div class="sidebar-heading mt-2" style="color: #2cedd4">Gerir</div>
 
 <li class="nav-item">
@@ -27,6 +21,19 @@ session['username'] %}
 <li class="nav-item">
   <a class="btn nav-link collapsed" href="/admin_avarias">
     <span>Tipos de Avarias</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/contacts">
+    <span>Lista de Contactos</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/logout">
+    <i class="fas fa-sign-out-alt" style="color: #2cedd4"></i>
+    <span>Sair</span>
   </a>
 </li>
 

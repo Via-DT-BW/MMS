@@ -1,0 +1,39 @@
+<div
+  class="modal fade"
+  id="addAvariaModal{{ area }}"
+  tabindex="-1"
+  aria-labelledby="addAvariaModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addAvariaModalLabel">
+          Adicionar Novo Tipo de Avaria - {{ area }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('add_avaria', area=area) }}">
+          <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo de Avaria</label>
+            <input
+              type="text"
+              class="form-control"
+              id="tipo"
+              name="tipo"
+              required />
+          </div>
+          <div class="mb-3">
+            <button type="submit" class="btn btn-success">
+              Adicionar Tipo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

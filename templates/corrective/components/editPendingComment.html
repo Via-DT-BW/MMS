@@ -1,0 +1,46 @@
+<div
+  class="modal fade"
+  id="editCommentModal"
+  tabindex="-1"
+  aria-labelledby="editCommentModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCommentModalLabel">
+          Editar Comentário
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="tipo-avaria">Tipo de Avaria</label>
+          <select id="tipo-avaria" class="form-control" required>
+            <option value="">Selecione um tipo de avaria</option>
+          </select>
+        </div>
+        <div class="form-group mt-2">
+          <label for="modalComentario">Comentário</label>
+          <textarea
+            class="form-control"
+            id="modalComentario"
+            rows="6"
+            required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="saveComment">
+          Editar
+          <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

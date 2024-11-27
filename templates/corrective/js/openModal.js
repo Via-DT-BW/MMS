@@ -1,21 +1,4 @@
 $(document).ready(function () {
-  $.ajax({
-    type: "GET",
-    url: "/api/tipo_avarias",
-    success: function (tiposAvarias) {
-      $("#tipo-avaria")
-        .empty()
-        .append('<option value="">Selecione um tipo de avaria</option>');
-
-      tiposAvarias.forEach(function (tipo) {
-        $("#tipo-avaria").append(new Option(tipo.tipo, tipo.id));
-      });
-    },
-    error: function () {
-      alert("Erro ao carregar tipos de avarias.");
-    },
-  });
-
   $("#detailsModal").on("show.bs.modal", function (event) {
     var button = $(event.relatedTarget);
     var id = button.data("id");
@@ -83,7 +66,7 @@ $(document).ready(function () {
     $.ajax({
       type: "GET",
       url: "/api/check_association",
-      data: { id_tecnico: tecnicoId, id_corretiva: id },
+      data: { id_tecnico: tecnicoId },
       success: function (response) {
         if (response.associado) {
           var tecnicoLogadoNome = "{{ session['nome'] }}";

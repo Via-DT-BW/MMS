@@ -24,34 +24,6 @@ $(document).ready(function () {
     });
   });
 
-  $("#modalCorrectiveOrder").on("show.bs.modal", function () {
-    loadLines();
-
-    const tecnicoSelect = $("#tecnico-select");
-
-    $("#linha-select").change(function () {
-      const linhaSelecionada = $(this).val();
-
-      if (linhaSelecionada) {
-        $.ajax({
-          url: `/api/corrective?machine=${linhaSelecionada}`,
-          type: "GET",
-          success: function (data) {
-            populateModalFields(data);
-            $("#equipament_var, #var_descricao, #var_numero_tecnico").prop(
-              "disabled",
-              false
-            );
-            console.log(data);
-          },
-          error: function () {
-            alert("Erro ao carregar dados do modal");
-          },
-        });
-      }
-    });
-  });
-
   function loadLines() {
     $.ajax({
       url: "/api/prod_lines",
@@ -75,6 +47,56 @@ $(document).ready(function () {
       },
     });
   }
+
+  $("#createOrder").on("click", function () {
+    var tecnicoId = "{{ session['id_mt'] }}";
+
+    $.ajax({
+      type: "GET",
+      url: "/api/check_association",
+      data: { id_tecnico: tecnicoId },
+      success: function (response) {
+        if (response.associado) {
+          alert(
+            "Você já está associado a outra manutenção. Finalize-a antes de iniciar uma nova."
+          );
+          return;
+        } else {
+          $("#modalCorrectiveOrder").modal("show");
+
+          loadLines();
+
+          const tecnicoSelect = $("#tecnico-select");
+
+          $("#linha-select")
+            .off("change")
+            .on("change", function () {
+              const linhaSelecionada = $(this).val();
+
+              if (linhaSelecionada) {
+                $.ajax({
+                  url: `/api/corrective?machine=${linhaSelecionada}`,
+                  type: "GET",
+                  success: function (data) {
+                    populateModalFields(data);
+                    $(
+                      "#equipament_var, #var_descricao, #var_numero_tecnico"
+                    ).prop("disabled", false);
+                    console.log(data);
+                  },
+                  error: function () {
+                    alert("Erro ao carregar dados do modal");
+                  },
+                });
+              }
+            });
+        }
+      },
+      error: function () {
+        alert("Erro ao verificar a associação do técnico.");
+      },
+    });
+  });
 
   function disableFields(disable) {
     $('select[name="var_descricao"]').prop("disabled", disable);
