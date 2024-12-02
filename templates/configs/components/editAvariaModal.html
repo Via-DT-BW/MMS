@@ -2,12 +2,13 @@
   class="modal fade"
   id="editAvariaModal{{ area }}"
   tabindex="-1"
-  aria-labelledby="editAvariaModalLabel"
-  aria-hidden="true">
+  aria-labelledby="editAvariaModalLabel{{ area }}"
+  aria-hidden="true"
+  data-area="{{ area }}">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editAvariaModalLabel">
+        <h5 class="modal-title" id="editAvariaModalLabel{{ area }}">
           Editar Tipo de Avaria
         </h5>
         <button
@@ -18,12 +19,19 @@
       </div>
       <div class="modal-body">
         <form method="POST" action="{{ url_for('edit_avaria', area=area) }}">
-          <input type="hidden" id="tipoId" name="id" />
+          <input
+            type="hidden"
+            class="tipo-id"
+            name="id"
+            data-area="{{ area }}" />
+
           <div class="mb-3">
-            <label for="tipo" class="form-label"
-              >Selecione o Tipo de Avaria</label
-            >
-            <select class="form-select" id="tipoSelect" name="id" required>
+            <label class="form-label">Selecione o Tipo de Avaria</label>
+            <select
+              class="form-select tipo-select"
+              name="id"
+              data-area="{{ area }}"
+              required>
               <option value="" disabled selected>
                 Selecione um tipo de avaria
               </option>
@@ -36,19 +44,17 @@
           </div>
 
           <div class="mb-3">
-            <label for="tipoEdit" class="form-label">Novo Tipo de Avaria</label>
+            <label class="form-label">Novo Tipo de Avaria</label>
             <input
               type="text"
-              class="form-control"
-              id="tipoEdit"
+              class="form-control tipo-edit"
               name="tipo"
+              data-area="{{ area }}"
               required />
           </div>
 
           <div class="mb-3">
-            <button type="submit" class="btn btn-success">
-              Salvar Alterações
-            </button>
+            <button type="submit" class="btn btn-success">Guardar</button>
           </div>
         </form>
       </div>
@@ -58,14 +64,20 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const tipoSelect = document.getElementById("tipoSelect");
-    const tipoEdit = document.getElementById("tipoEdit");
-    const tipoId = document.getElementById("tipoId");
+    document.addEventListener("change", function (event) {
+      if (event.target && event.target.classList.contains("tipo-select")) {
+        const tipoSelect = event.target;
+        const area = tipoSelect.getAttribute("data-area");
 
-    tipoSelect.addEventListener("change", function () {
-      const selectedOption = tipoSelect.options[tipoSelect.selectedIndex];
-      tipoEdit.value = selectedOption.getAttribute("data-tipo");
-      tipoId.value = selectedOption.value;
+        const tipoEdit = document.querySelector(
+          `.tipo-edit[data-area="${area}"]`
+        );
+        const tipoId = document.querySelector(`.tipo-id[data-area="${area}"]`);
+
+        const selectedOption = tipoSelect.options[tipoSelect.selectedIndex];
+        tipoEdit.value = selectedOption.getAttribute("data-tipo");
+        tipoId.value = selectedOption.value;
+      }
     });
   });
 </script>

@@ -440,7 +440,7 @@ def finished():
                 @FilterEquipment = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
-                @FilterProdLine = ?,
+                @FilterProdLine = ?
             """,
             page, page_size, filter_equipment, start_date, end_date, filter_prod_line
         )

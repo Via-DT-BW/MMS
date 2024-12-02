@@ -88,7 +88,13 @@
           <td>{{ comment.duracao_intervencao }}</td>
           <td>{{ comment.tipo_avaria }}</td>
           <td class="data">{{ comment.data_inicio_man }}</td>
+          {% if comment.data_fim_man %}
           <td class="data">{{ comment.data_fim_man }}</td>
+          {% else %}
+          <td>
+            <span class="text-muted">Manutenção em Curso</span>
+          </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
