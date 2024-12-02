@@ -1,3 +1,4 @@
+from collections import defaultdict
 import os
 from flask import Config, Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from datetime import date, datetime
@@ -21,6 +22,13 @@ try:
 except Exception as e:
     print(e)
     print("Falha de ligacao à BD do MMS")
+    
+try:
+    conexao_sms=settings.conexao_sms()
+    conn_sms=pyodbc.connect(conexao_sms)
+except Exception as e:
+    print(e)
+    print("Falha de ligacao à BD dos SMS")
 
 app = Flask(__name__)
 app_name = os.getenv("APP_NAME")
@@ -32,6 +40,8 @@ app.secret_key = 'secret_key_mms'
 
 today = date.today()
 year = today.strftime("%Y")
+
+sidebar = True
 
 @app.route('/logout')
 def logout():
@@ -89,6 +99,11 @@ def login_corrective():
 
 @app.route('/corrective', methods=['GET'])
 def corrective():
+    sidebar = False
+    return render_template('corrective/tables.html', use_corrective_layout=sidebar)
+
+@app.route('/notifications', methods=['GET'])
+def notifications():
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
@@ -99,6 +114,9 @@ def corrective():
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
+        
+        sidebar = request.args.get('sidebar', 'True').lower() == 'true'
+        
         cursor.execute("""
             EXEC GetFioriNotifications 
                 @PageNumber = ?, 
@@ -133,7 +151,8 @@ def corrective():
                                page=page, 
                                total_pages=total_pages,
                                start_page=start_page,
-                               end_page=end_page)
+                               end_page=end_page,
+                               use_corrective_layout=sidebar)
 
     except Exception as e:
         print(e)
@@ -142,7 +161,7 @@ def corrective():
         cursor.close()
         conn.close()
 
-    return redirect(url_for('corrective'))
+    return redirect(url_for('notifications'))
 
 @app.route('/corrective_notification', methods=['POST', 'GET'])
 def corrective_notification():
@@ -202,7 +221,7 @@ def corrective_order_by_mt():
             conn.commit()
 
             flash('Notificação enviada com sucesso', category='success')
-            return redirect(url_for('corrective'))
+            return redirect(url_for('inwork'))
         except Exception as e:
           print(e)
           flash(f'Ocorreu um erro: {str(e)}', category='error')
@@ -210,7 +229,7 @@ def corrective_order_by_mt():
             cursor.close()
             conn.close()
 
-        return redirect(url_for('corrective'))
+        return redirect(url_for('inwork'))
 
 @app.route('/reject_corrective_notification', methods=['POST'])
 def reject_notification():
@@ -304,6 +323,8 @@ def inwork():
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
+        filter_number = request.args.get('filter_number', '', type=str)
+        sidebar = request.args.get('sidebar', 'True').lower() == 'true'
         
         cursor.execute("""
             EXEC GetCorretivaInWorks
@@ -312,9 +333,10 @@ def inwork():
                 @FilterEquipment = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
-                @FilterProdLine = ?
+                @FilterProdLine = ?,
+                @FilterNumber = ?
             """,
-            page, page_size, filter_equipment, start_date, end_date, filter_prod_line
+            page, page_size, filter_equipment, start_date, end_date, filter_prod_line, filter_number
         )
         ongoing = cursor.fetchall()
         if ongoing:
@@ -342,7 +364,8 @@ def inwork():
                                page=page, 
                                total_pages=total_pages,
                                start_page=start_page,
-                               end_page=end_page)
+                               end_page=end_page,
+                               use_corrective_layout=sidebar)
 
     except Exception as e:
         print(e)
@@ -417,7 +440,7 @@ def finished():
                 @FilterEquipment = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
-                @FilterProdLine = ?
+                @FilterProdLine = ?,
             """,
             page, page_size, filter_equipment, start_date, end_date, filter_prod_line
         )
@@ -505,6 +528,55 @@ def corrective_comments():
         conn.close()
 
     return redirect(url_for('corrective_comments'))
+
+@app.route('/pending_comments', methods=['GET'])
+def pending_comments():
+    try:
+        if 'id_mt' not in session:
+            flash('Usuário não autenticado!', category='error')
+            return redirect(url_for('login'))
+        
+        tecnico_id = session['id_mt']
+        
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 10, type=int)
+        filter_equipment = request.args.get('filter', '', type=str)
+        start_date = request.args.get('start_date', type=str)
+        end_date = request.args.get('end_date', type=str)
+        filter_prod_line = request.args.get('filter_prod_line', '', type=str)
+
+        cursor.execute("""
+            EXEC GetPendingComments ?, ?, ?, ?, ?, ?, ?
+        """, tecnico_id, filter_equipment, start_date, end_date, filter_prod_line, page, page_size)
+
+        pending_comments = cursor.fetchall()
+
+        cursor.nextset()
+        total_count = cursor.fetchall()[0].total_count
+        
+        total_pages = (total_count + page_size - 1) // page_size
+        start_page = max(1, page - 3)
+        end_page = min(total_pages, page + 3)
+
+        return render_template('corrective/pending_comments.html', 
+                               maintenance="Manutenção",
+                               pending=pending_comments, 
+                               page=page, 
+                               total_pages=total_pages,
+                               start_page=start_page,
+                               end_page=end_page,
+                               total_records=total_count)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+        return redirect(url_for('pending_comments'))
+    finally:
+        cursor.close()
+        conn.close()
 
 #Autonomous
 @app.route('/autonomous', methods=['GET'])
@@ -837,10 +909,105 @@ def admin_tl():
         cursor.close()
         conn.close()
 
-    return redirect(url_for('settings'))
+    return redirect(url_for('admin_tl'))
+
+@app.route('/admin_avarias', methods=['GET', 'POST'])
+def admin_avarias():
+    if 'username' not in session:
+        flash('É necessário fazer login para acessar esta página.', category='error')
+        return redirect(url_for('index'))
+
+    try:
+        username = session.get('username')
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("EXEC AvariasPorArea")
+
+        tipos = cursor.fetchall()
+
+        cursor.nextset()
+        linhas = cursor.fetchall()
+
+        areas = defaultdict(lambda: {"tipos": [], "linhas": []})
+        for tipo in tipos:
+            areas[tipo.area_nome]["tipos"].append({
+                'id': tipo.tipo_id,
+                'tipo': tipo.tipo
+            })
+
+        for linha in linhas:
+            areas[linha.area_nome]["linhas"].append(linha.prod_line)
+
+        return render_template(
+            'configs/avarias.html',
+            maintenance="Settings",
+            username=username,
+            areas=areas
+        )
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('admin_avarias'))
+
+@app.route('/add_avaria/<area>', methods=['POST'])
+def add_avaria(area):
+    if 'username' not in session:
+        flash('É necessário fazer login para acessar esta página.', category='error')
+        return redirect(url_for('index'))
+
+    try:
+        tipo = request.form['tipo']
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("EXEC AddTipoAvaria @tipo = ?, @area = ?", tipo, area)
+
+        conn.commit()
+        flash(f'Tipo de avaria "{tipo}" adicionado com sucesso à área {area}.', category='success')
+    except Exception as e:
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('admin_avarias'))
+
+@app.route('/edit_avaria/<area>', methods=['POST'])
+def edit_avaria(area):
+    if 'username' not in session:
+        flash('É necessário fazer login para acessar esta página.', category='error')
+        return redirect(url_for('index'))
+
+    try:
+        id_tipo = request.form['id']
+        tipo = request.form['tipo']
+        
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+        print(id_tipo, tipo, area)
+        cursor.execute("EXEC AddTipoAvaria @id=?, @tipo=?, @area=?", id_tipo, tipo, area)
+        conn.commit()
+
+        flash('Tipo de avaria atualizado com sucesso!', category='success')
+        return redirect(url_for('admin_avarias'))
+
+    except Exception as e:
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+        return redirect(url_for('admin_avarias'))
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/update_teamleader', methods=['POST'])
 def update_teamleader():
+    
     if 'username' not in session:
         flash('É necessário fazer login para aceder a esta página.', category='error')
         return redirect(url_for('index'))
@@ -1081,6 +1248,92 @@ def delete_mt(id):
 
     return redirect(url_for('admin_mt'))
 
+@app.route('/contacts', methods=['GET'])
+def contacts():
+    page = int(request.args.get('page', 1)) 
+    page_size = int(request.args.get('page_size', 20))
+    number_bw = request.args.get('number_bw', None) 
+    turno = request.args.get('shift', None) 
+    area = request.args.get('area', None)
+    nome = request.args.get('nome', None)
+
+    try:
+        conn = pyodbc.connect(conexao_sms)
+        cursor = conn.cursor()
+        cursor.execute("EXEC GetContactsPaged @PageNumber=?,  @PageSize=?, @NumberBW=?, @Area=?, @Shift=?, @Nome=?", page, page_size, number_bw, area, turno, nome)
+        rows = cursor.fetchall()
+        contacts = []
+        total_count = 0
+        for row in rows:
+            contact = {
+                "Id": row.Id,
+                "Name": row.Name,
+                "NumberBW": row.NumberBW,
+                "Email": row.Email,
+                "PhoneNumber": row.PhoneNumber,
+                "Area": row.Area,
+                "Shift": row.Shift,
+                "Role": row.Role,
+            }
+            contacts.append(contact)
+            total_count = row.TotalCount
+
+        total_pages = (total_count + page_size - 1) // page_size
+
+        return render_template(
+            'configs/contacts.html',
+            contacts=contacts,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+            number_bw=number_bw,
+            area=area,
+            shift=turno,
+            nome=nome
+        )
+    except Exception as e:
+        print(f"Error fetching contacts: {e}")
+        return "Error loading contacts", 500
+
+@app.route('/contacts/add', methods=['POST'])
+def add_contact():
+    data = request.form
+    try:
+        conn = pyodbc.connect(conexao_sms)
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO [SMS].[dbo].[Contacts] (Name, NumberBW, Email, PhoneNumber, Area, Shift, Role)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, data['name'], data['numberBW'], data['email'], data['phoneNumber'], data['area'], data['shift'], data['role'])
+
+        conn.commit()
+        return redirect(url_for('contacts'))
+    except Exception as e:
+        print(f"Error adding contact: {e}")
+        return "Error adding contact", 500
+
+@app.route('/contacts/edit/<int:id>', methods=['POST'])
+def edit_contact(id):
+    data = request.form
+    try:
+        conn = pyodbc.connect(conexao_sms)
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE [SMS].[dbo].[Contacts]
+            SET Name = ?, NumberBW = ?, Email = ?, PhoneNumber = ?, Area = ?, Shift = ?, Role = ?
+            WHERE Id = ?
+        """, data['name'], data['numberBW'], data['email'], data['phoneNumber'], data['area'], data['shift'], data['role'], id)
+
+        conn.commit()
+        return redirect(url_for('contacts'))
+    except Exception as e:
+        print(f"Error editing contact: {e}")
+        return "Error editing contact", 500
+
 #API
 @app.route('/api/corrective', methods=['GET'])
 def corrective_maintenance():
@@ -1140,13 +1393,23 @@ def get_tecnicos():
 @app.route('/api/tipo_avarias', methods=['GET'])
 def get_tipo_avarias():
     try:
+        prod_line = request.args.get('prod_line')
+        
+        if not prod_line:
+            return jsonify({'error': 'Linha de produção não registada.'}), 400
+        
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("SELECT id, tipo FROM tipo_avaria")
-
+        cursor.execute("EXEC GetTipoAvariasByProdLine @prod_line = ?", (prod_line,))
+        
         avarias = []
-        for row in cursor.fetchall():
+        rows = cursor.fetchall()
+        
+        if not rows:
+            return jsonify({'error': 'Nenhum tipo de avaria encontrado para esta linha de produção.'}), 404
+
+        for row in rows:
             avarias.append({
                 'id': row.id,
                 'tipo': row.tipo,
@@ -1364,6 +1627,77 @@ def get_corretiva_comments():
     } for row in cursor.fetchall()]
     
     return jsonify(comments)
+
+@app.route('/api/check_comments', methods=['POST'])
+def check_comments():
+    if 'id_mt' not in session:
+        return jsonify({'status': 'error', 'message': 'Usuário não autenticado!'}), 403
+
+    id_tecnico = request.json.get('id_tecnico')
+    
+    if not id_tecnico:
+        return jsonify({'status': 'error', 'message': 'ID do técnico não fornecido!'}), 400
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+        
+        query = """
+            SELECT COUNT(*) 
+            FROM corretiva_tecnicos
+            WHERE id_tecnico = ? 
+              AND (maintenance_comment IS NULL OR id_tipo_avaria IS NULL)
+              AND data_fim IS NOT NULL
+        """
+        
+        cursor.execute(query, (id_tecnico,))
+        result = cursor.fetchone()
+
+        if result and result[0] > 0:
+            return jsonify({'status': 'success', 'has_pending_comments': 'SIM'}), 200
+        else:
+            return jsonify({'status': 'success', 'has_pending_comments': 'NAO'}), 200
+        
+    except Exception as e:
+        print(f"Erro ao verificar comentários: {e}")
+        return jsonify({'status': 'error', 'message': 'Erro ao verificar comentários'}), 500
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route('/api/save_comment', methods=['POST'])
+def save_comment():
+    try:
+        data = request.get_json()
+        comment_id = data['id']
+        comment_text = data['comment']
+        tipo_avaria_id = data['tipo_avaria']
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE corretiva_tecnicos
+            SET maintenance_comment = ?, id_tipo_avaria = ?
+            WHERE id = ?
+        """, comment_text, tipo_avaria_id, comment_id)
+
+        conn.commit()
+
+        return jsonify({"status": "success"})
+    
+    except Exception as e:
+        print(f"Erro ao salvar comentário: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @app.route('/api/check_all_interventions_completed', methods=['GET'])
 def check_all_interventions_completed():

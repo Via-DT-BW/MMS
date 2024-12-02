@@ -1,6 +1,5 @@
 function toggleComments(id) {
   const row = document.getElementById(`comments-${id}`);
-
   if (row.style.display === "table-row") {
     row.style.display = "none";
   } else {

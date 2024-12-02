@@ -14,3 +14,10 @@ def conexao_mms():
     aList = json.loads(jsonContent)
     connection_string=aList[1]['connection_string_mms']
     return connection_string
+
+def conexao_sms():
+    fileObject = open("connections/settings.json", "r")
+    jsonContent = fileObject.read()
+    aList = json.loads(jsonContent)
+    connection_string=aList[2]['connection_string_sms']
+    return connection_string

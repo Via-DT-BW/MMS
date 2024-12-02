@@ -1,0 +1,71 @@
+<div
+  class="modal fade"
+  id="editAvariaModal{{ area }}"
+  tabindex="-1"
+  aria-labelledby="editAvariaModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editAvariaModalLabel">
+          Editar Tipo de Avaria
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('edit_avaria', area=area) }}">
+          <input type="hidden" id="tipoId" name="id" />
+          <div class="mb-3">
+            <label for="tipo" class="form-label"
+              >Selecione o Tipo de Avaria</label
+            >
+            <select class="form-select" id="tipoSelect" name="id" required>
+              <option value="" disabled selected>
+                Selecione um tipo de avaria
+              </option>
+              {% for tipo in data.tipos %}
+              <option value="{{ tipo.id }}" data-tipo="{{ tipo.tipo }}">
+                {{ tipo.tipo }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="tipoEdit" class="form-label">Novo Tipo de Avaria</label>
+            <input
+              type="text"
+              class="form-control"
+              id="tipoEdit"
+              name="tipo"
+              required />
+          </div>
+
+          <div class="mb-3">
+            <button type="submit" class="btn btn-success">
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tipoSelect = document.getElementById("tipoSelect");
+    const tipoEdit = document.getElementById("tipoEdit");
+    const tipoId = document.getElementById("tipoId");
+
+    tipoSelect.addEventListener("change", function () {
+      const selectedOption = tipoSelect.options[tipoSelect.selectedIndex];
+      tipoEdit.value = selectedOption.getAttribute("data-tipo");
+      tipoId.value = selectedOption.value;
+    });
+  });
+</script>

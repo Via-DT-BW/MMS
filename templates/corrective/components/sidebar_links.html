@@ -1,6 +1,6 @@
 {% extends 'components/sidebar.html' %} {% block content %} {% if
 session['username'] %}
-<div class="justify-content-center d-flex" style="color: #2cedd4">
+<div class="justify-content-center d-flex text-center" style="color: #2cedd4">
   Bem-vindo, {{ session['nome'] }}!
 </div>
 
@@ -19,7 +19,7 @@ session['username'] %}
 </div>
 
 <li class="nav-item">
-  <a class="btn nav-link collapsed" href="/corrective">
+  <a class="btn nav-link collapsed" href="/notifications">
     <span>Pendentes</span>
   </a>
 </li>
@@ -35,9 +35,24 @@ session['username'] %}
   </a>
 </li>
 
+<div class="sidebar-heading mt-2" style="color: #2cedd4">Comentários</div>
+
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    href="/pending_comments"
+    id="comentariosPendentesBtn">
+    <span>Pendentes</span>
+    <i
+      id="alertIcon"
+      class="fas fa-exclamation-circle"
+      style="display: none; color: red"></i>
+  </a>
+</li>
+
 <li class="nav-item">
   <a class="btn nav-link collapsed" href="/corrective_comments">
-    <span>Comentários</span>
+    <span>Todos</span>
   </a>
 </li>
 
@@ -45,10 +60,7 @@ session['username'] %}
   Ordem de Manutenção
 </div>
 <li class="nav-item">
-  <a
-    class="btn nav-link collapsed"
-    data-toggle="modal"
-    data-target="#modalCorrectiveOrder">
+  <a id="createOrder" class="btn nav-link collapsed">
     <span>Criar ordem</span>
   </a>
 </li>

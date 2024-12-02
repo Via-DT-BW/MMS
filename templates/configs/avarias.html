@@ -1,0 +1,54 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="mt-4">
+  <h2 class="mb-4 text-center">Gestão de Tipos de Avarias</h2>
+
+  <div class="row">
+    {% for area, data in areas.items() %}
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-4 d-flex">
+      <div class="card flex-fill">
+        <div
+          style="background-color: #0e8187"
+          class="card-header text-white text-center">
+          <h5 class="mb-0">{{ area }}</h5>
+        </div>
+        <div class="card-body">
+          <h5 class="text-center">Linhas de Produção</h5>
+          <p>{{ data.linhas | join(', ') }}</p>
+
+          <h5 class="text-center">Tipos de Avarias</h5>
+          {% if data.tipos and data.tipos|length > 0 %}
+          <p>{{ data.tipos | map(attribute='tipo') | join(', ') }}</p>
+          {% else %}
+          <p>Sem tipos de avarias definidos</p>
+          {% endif %}
+
+          <div class="row mt-2">
+            <div class="col-md-6 justify-content-end d-flex">
+              <button
+                class="btn btn-warning"
+                data-bs-toggle="modal"
+                data-bs-target="#editAvariaModal{{ area }}">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+            </div>
+            <div class="col-md-6 justify-content-start d-flex">
+              <button
+                class="btn"
+                style="background-color: #051729; color: white"
+                data-bs-toggle="modal"
+                data-bs-target="#addAvariaModal{{ area }}">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% for tipo in data.tipos %} {% include
+    "configs/components/editAvariaModal.html" %}{% endfor %} {% include
+    "configs/components/addAvariaModal.html" %} {% endfor %}
+  </div>
+</div>
+
+{% endblock %}
