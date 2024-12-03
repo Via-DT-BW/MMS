@@ -11,7 +11,16 @@
       method="GET"
       action="/preventive"
       class="form-row justify-content-center">
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Filtrar por ordem</small>
+        <input
+          type="text"
+          name="filter_order"
+          class="form-control"
+          placeholder="Ordem"
+          value="{{ request.args.get('filter_order', '') }}" />
+      </div>
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Filtrar por equipamento</small>
         <input
           type="text"
@@ -21,7 +30,7 @@
           value="{{ request.args.get('filter', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Filtrar por centro de custo</small>
         <input
           type="text"
@@ -31,7 +40,7 @@
           value="{{ request.args.get('filter_cost', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data inicial</small>
         <input
           type="date"
@@ -40,7 +49,7 @@
           value="{{ request.args.get('start_date', '') }}" />
       </div>
 
-      <div class="form-group col-md-2 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data final</small>
         <input
           type="date"
@@ -49,7 +58,7 @@
           value="{{ request.args.get('end_date', '') }}" />
       </div>
 
-      <div class="form-group col-md-1 text-center">
+      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Itens por página</small>
         <input
           type="number"
@@ -62,7 +71,7 @@
       </div>
 
       <div
-        class="form-group col-md-3 d-flex align-items-end justify-content-center">
+        class="form-group col-12 d-flex align-items-end justify-content-center">
         <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
@@ -79,30 +88,30 @@
       <thead>
         <tr>
           <th>Ordem</th>
+          <th>Linha</th>
           <th>Equipamento</th>
           <th>Descrição</th>
           <th>Local Funcional</th>
           <th>Denominação</th>
-          <th>Centro de Custo</th>
-          <th>Modificação</th>
           <th>Data Inicial</th>
           <th>Data Final</th>
           <th>Plano de Manutenção</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         {% for prev in preventive %}
         <tr>
           <td>{{ prev.order }}</td>
+          <td>{{ prev.cost_center }}</td>
           <td>{{ prev.equipament }}</td>
           <td>{{ prev.description }}</td>
           <td>{{ prev.funtional_location }}</td>
           <td>{{ prev.denomination }}</td>
-          <td>{{ prev.cost_center }}</td>
-          <td>{{ prev.modification }}</td>
           <td>{{ prev.start_date }}</td>
           <td>{{ prev.end_date }}</td>
           <td>{{ prev.maintenance_plan }}</td>
+          <td>botão</td>
         </tr>
         {% endfor %}
       </tbody>

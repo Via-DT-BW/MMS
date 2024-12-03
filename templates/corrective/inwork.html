@@ -139,6 +139,7 @@ endif %} {% block content %}
               data-main-workcenter="{{ ongo.main_workcenter }}">
               <i class="fas fa-eye"></i>
             </button>
+            {% if session['username'] %}
             <button
               class="btn btn-secondary btn-md"
               data-toggle="modal"
@@ -152,19 +153,21 @@ endif %} {% block content %}
               data-pedido-date="{{ ongo.data_pedido }}">
               <i class="fa-solid fa-users"></i>
             </button>
+            {% endif %}
             <button
               class="btn btn-warning btn-md"
               onclick="toggleComments({{ ongo.id_corretiva }})">
               <i class="fa-regular fa-rectangle-list"></i>
             </button>
-            {% if ongo.id_corretiva not in tecnico_in_works %}
+            {% if session['username'] %} {% if ongo.id_corretiva not in
+            tecnico_in_works %}
             <button
               class="btn btn-primary btn-md"
               data-id-corretiva="{{ ongo.id_corretiva }}"
               onclick="associateTechnician(this)">
               <i class="fa-solid fa-user-plus ml-1"></i>
             </button>
-            {% endif %}
+            {% endif %} {% endif %}
           </td>
         </tr>
         <tr></tr>

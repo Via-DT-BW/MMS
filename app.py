@@ -100,7 +100,7 @@ def login_corrective():
 @app.route('/corrective', methods=['GET'])
 def corrective():
     sidebar = False
-    return render_template('corrective/tables.html', use_corrective_layout=sidebar)
+    return render_template('corrective/tables.html', maintenance="Manutenção", use_corrective_layout=sidebar)
 
 @app.route('/notifications', methods=['GET'])
 def notifications():
@@ -605,6 +605,7 @@ def preventive():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        filter_order = request.args.get('filter_order', '', type=str)
         filter_equipment = request.args.get('filter', '', type=str)
         filter_cost_center = request.args.get('filter_cost', '', type=str)
         start_date = request.args.get('start_date', '', type=str)
@@ -612,6 +613,7 @@ def preventive():
         page_size = request.args.get('page_size', 10, type=int)
         page = request.args.get('page', 1, type=int)
 
+        filter_order = None if filter_order == "" else filter_order
         filter_equipment = None if filter_equipment == "" else filter_equipment
         filter_cost_center = None if filter_cost_center == "" else filter_cost_center
         start_date = None if start_date == "" else start_date
@@ -620,12 +622,13 @@ def preventive():
         cursor.execute("""
             EXEC GetPreventiveRecords 
                 @FilterEquipment = ?, 
+                @FilterOrder = ?,
                 @FilterCostCenter = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @PageSize = ?, 
                 @Page = ?
-        """, filter_equipment, filter_cost_center, start_date, end_date, page_size, page)
+        """, filter_equipment, filter_order, filter_cost_center, start_date, end_date, page_size, page)
         
         preventive_data = cursor.fetchall()
 
@@ -634,11 +637,12 @@ def preventive():
             FROM preventive 
             WHERE 
                 (ISNULL(?, '') = '' OR equipament LIKE '%' + ? + '%') AND
+                (ISNULL(?, '') = '' OR [order] LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR cost_center LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR start_date >= ?) AND
                 (ISNULL(?, '') = '' OR end_date <= ?)
         """
-        cursor.execute(count_query, filter_equipment, filter_equipment, 
+        cursor.execute(count_query, filter_equipment, filter_equipment, filter_order, filter_order,
                        filter_cost_center, filter_cost_center, 
                        start_date, start_date, 
                        end_date, end_date)
@@ -838,7 +842,7 @@ def settings():
         cursor = conn.cursor()
 
 
-        return render_template('configs/settings.html', 
+        return render_template('configs/first_page.html', 
                                maintenance="Settings", 
                                username=username)
 
@@ -939,6 +943,8 @@ def admin_avarias():
         for linha in linhas:
             areas[linha.area_nome]["linhas"].append(linha.prod_line)
 
+        areas = dict(sorted(areas.items(), key=lambda x: x[0]))
+        
         return render_template(
             'configs/avarias.html',
             maintenance="Settings",
@@ -1080,6 +1086,9 @@ def delete_tl(id):
     conn = pyodbc.connect(conexao_mms)
     cursor = conn.cursor()
     try:
+        
+        cursor.execute("DELETE FROM [dbo].[daily] WHERE id_tl = ?", id)
+        
         cursor.execute("""
            DELETE FROM [dbo].[teamleaders] WHERE id = ?
         """, id)
@@ -1230,7 +1239,9 @@ def delete_mt(id):
     cursor = conn.cursor()
     try:
         cursor.execute("""
-           DELETE FROM [dbo].[tecnicos] WHERE id = ?
+           UPDATE [dbo].[tecnicos] 
+           SET ativo = 0
+           WHERE id = ?
         """, id)
 
         conn.commit()
