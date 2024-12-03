@@ -1,0 +1,59 @@
+<nav aria-label="Navegação Ordens">
+  <ul class="pagination justify-content-center">
+    {% if orders_current_page > 1 %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), orders_page_size=orders_page_size, orders_page=orders_current_page - 1, preventive_page=preventive_current_page) }}"
+        aria-label="Anterior">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %} {% set orders_total_pages = (orders_total // orders_page_size) +
+    (1 if orders_total % orders_page_size > 0 else 0) %} {% set start_page =
+    orders_current_page - 1 %} {% set end_page = orders_current_page + 1 %} {%
+    if start_page < 1 %} {% set start_page = 1 %} {% endif %} {% if end_page >
+    orders_total_pages %} {% set end_page = orders_total_pages %} {% endif %} {%
+    if start_page > 1 %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), orders_page_size=orders_page_size, orders_page=1, preventive_page=preventive_current_page) }}">
+        1
+      </a>
+    </li>
+    {% if start_page > 2 %}
+    <li class="page-item"><span class="page-link">...</span></li>
+    {% endif %} {% endif %} {% for page_num in range(start_page, end_page + 1)
+    %}
+    <li
+      class="page-item {% if page_num == orders_current_page %}active{% endif %}">
+      <a
+        class="page-link"
+        href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), orders_page_size=orders_page_size, orders_page=page_num, preventive_page=preventive_current_page) }}">
+        {{ page_num }}
+      </a>
+    </li>
+    {% endfor %} {% if end_page < orders_total_pages %} {% if end_page <
+    orders_total_pages - 1 %}
+    <li class="page-item"><span class="page-link">...</span></li>
+    {% endif %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), orders_page_size=orders_page_size, orders_page=orders_total_pages, preventive_page=preventive_current_page) }}">
+        {{ orders_total_pages }}
+      </a>
+    </li>
+    {% endif %} {% if orders_current_page < orders_total_pages %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="{{ url_for('preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), orders_page_size=orders_page_size, orders_page=orders_current_page + 1, preventive_page=preventive_current_page) }}"
+        aria-label="Próximo">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
