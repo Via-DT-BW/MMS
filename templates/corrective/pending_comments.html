@@ -51,42 +51,45 @@
           Limpar Filtros
         </a>
       </form>
-
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>ID Corretiva</th>
-            <th>Linha</th>
-            <th>Equipamento</th>
-            <th>Data Início</th>
-            <th>Data Fim</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if pending|length == 0 %}
-          <tr>
-            <td colspan="6" class="text-center">Sem comentários pendentes</td>
-          </tr>
-          {% else %} {% for comentario in pending %}
-          <tr>
-            <td>{{ comentario.id_corretiva }}</td>
-            <td>{{ comentario.prod_line }}</td>
-            <td>{{ comentario.equipament }}</td>
-            <td class="data">{{ comentario.data_inicio }}</td>
-            <td class="data">{{ comentario.data_fim }}</td>
-            <td>
-              <button
-                class="btn btn-warning edit-comment"
-                data-id="{{ comentario.id }}"
-                data-prod-line="{{ comentario.prod_line }}">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %} {% endif %}
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID Corretiva</th>
+              <th>Linha</th>
+              <th>Descrição</th>
+              <th>Equipamento</th>
+              <th>Data Início</th>
+              <th>Data Fim</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if pending|length == 0 %}
+            <tr>
+              <td colspan="7" class="text-center">Sem comentários pendentes</td>
+            </tr>
+            {% else %} {% for comentario in pending %}
+            <tr>
+              <td>{{ comentario.id_corretiva }}</td>
+              <td>{{ comentario.prod_line }}</td>
+              <td>{{ comentario.description }}</td>
+              <td>{{ comentario.equipament }}</td>
+              <td class="data">{{ comentario.data_inicio }}</td>
+              <td class="data">{{ comentario.data_fim }}</td>
+              <td>
+                <button
+                  class="btn btn-warning edit-comment"
+                  data-id="{{ comentario.id }}"
+                  data-prod-line="{{ comentario.prod_line }}">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %} {% endif %}
+          </tbody>
+        </table>
+      </div>
 
       <div class="pagination">
         {% if total_pages > 1 %}

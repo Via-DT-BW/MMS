@@ -102,6 +102,11 @@
             data-role="{{ contact.Role }}">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
+          <button
+            class="btn btn-danger btn-sm"
+            onclick="removeContact('{{contact.Id}}')">
+            <i class="fa-solid fa-user-minus"></i>
+          </button>
         </td>
       </tr>
       {% endfor %} {% else %}
@@ -212,6 +217,31 @@
       });
     });
   });
+
+  function removeContact(id) {
+    const userConfirmed = confirm("Tem certeza que deseja remover o Contacto?");
+    if (userConfirmed) {
+      fetch(`/contacts/remove`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: id }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            alert("Contacto removido com sucesso!");
+            location.reload();
+          } else {
+            alert("Erro ao remover contacto. Tente novamente.");
+          }
+        })
+        .catch((error) => {
+          console.error("Erro:", error);
+          alert("Ocorreu um erro ao remover o contacto. Tente novamente.");
+        });
+    }
+  }
 </script>
 
 {% endblock %}

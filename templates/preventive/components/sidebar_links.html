@@ -1,10 +1,16 @@
 {% extends 'components/sidebar.html' %} {% block content %}
 
-<div class="sidebar-heading mt-2" style="color: #2cedd4">Exemplo separador</div>
+<div class="sidebar-heading mt-2" style="color: #2cedd4">Preventivas</div>
 <li class="nav-item">
-  <a class="nav-link collapsed" href="">
-    <span>exemplo link</span>
+  <a class="nav-link collapsed" href="/preventive">
+    <span>Lista</span>
   </a>
 </li>
 
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/logout">
+    <i class="fas fa-sign-out-alt" style="color: #2cedd4"></i>
+    <span>Sair</span>
+  </a>
+</li>
 {% endblock %}

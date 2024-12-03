@@ -100,7 +100,7 @@ def login_corrective():
 @app.route('/corrective', methods=['GET'])
 def corrective():
     sidebar = False
-    return render_template('corrective/tables.html', use_corrective_layout=sidebar)
+    return render_template('corrective/tables.html', maintenance="Manutenção", use_corrective_layout=sidebar)
 
 @app.route('/notifications', methods=['GET'])
 def notifications():
@@ -605,13 +605,19 @@ def preventive():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        filter_order = request.args.get('filter_order', '', type=str)
         filter_equipment = request.args.get('filter', '', type=str)
         filter_cost_center = request.args.get('filter_cost', '', type=str)
         start_date = request.args.get('start_date', '', type=str)
         end_date = request.args.get('end_date', '', type=str)
-        page_size = request.args.get('page_size', 10, type=int)
-        page = request.args.get('page', 1, type=int)
 
+        preventive_page_size = request.args.get('preventive_page_size', 10, type=int)
+        preventive_page = request.args.get('preventive_page', 1, type=int)
+
+        orders_page_size = request.args.get('orders_page_size', 10, type=int)
+        orders_page = request.args.get('orders_page', 1, type=int)
+
+        filter_order = None if filter_order == "" else filter_order
         filter_equipment = None if filter_equipment == "" else filter_equipment
         filter_cost_center = None if filter_cost_center == "" else filter_cost_center
         start_date = None if start_date == "" else start_date
@@ -620,44 +626,101 @@ def preventive():
         cursor.execute("""
             EXEC GetPreventiveRecords 
                 @FilterEquipment = ?, 
+                @FilterOrder = ?,
                 @FilterCostCenter = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @PageSize = ?, 
                 @Page = ?
-        """, filter_equipment, filter_cost_center, start_date, end_date, page_size, page)
-        
+        """, filter_equipment, filter_order, filter_cost_center, start_date, end_date, preventive_page_size, preventive_page)
+
+        preventive_total = cursor.fetchone()[0]
+        cursor.nextset()
         preventive_data = cursor.fetchall()
 
-        count_query = """
-            SELECT COUNT(*) 
-            FROM preventive 
-            WHERE 
-                (ISNULL(?, '') = '' OR equipament LIKE '%' + ? + '%') AND
-                (ISNULL(?, '') = '' OR cost_center LIKE '%' + ? + '%') AND
-                (ISNULL(?, '') = '' OR start_date >= ?) AND
-                (ISNULL(?, '') = '' OR end_date <= ?)
-        """
-        cursor.execute(count_query, filter_equipment, filter_equipment, 
-                       filter_cost_center, filter_cost_center, 
-                       start_date, start_date, 
-                       end_date, end_date)
-        total_records = cursor.fetchone()[0]
+        cursor.execute("""
+            EXEC GetPreventiveOrders
+                @FilterEquipment = ?, 
+                @FilterOrder = ?,
+                @FilterCostCenter = ?, 
+                @StartDate = ?, 
+                @EndDate = ?, 
+                @PageSize = ?, 
+                @Page = ?
+        """, filter_equipment, filter_order, filter_cost_center, start_date, end_date, orders_page_size, orders_page)
 
-        return render_template('preventive/notifications.html', 
-                               maintenance="Preventive Maintenance", 
-                               preventive=preventive_data, 
-                               total_records=total_records, 
-                               page_size=page_size,
-                               current_page=page)
+        orders_total = cursor.fetchone()[0]
+        cursor.nextset()
+        orders_data = cursor.fetchall()
+
+        return render_template(
+            'preventive/notifications.html',
+            maintenance="Manutenção Preventiva",
+            preventive=preventive_data,
+            preventive_total=preventive_total,
+            preventive_page_size=preventive_page_size,
+            preventive_current_page=preventive_page,
+            orders=orders_data,
+            orders_total=orders_total,
+            orders_page_size=orders_page_size,
+            orders_current_page=orders_page
+        )
 
     except Exception as e:
         print(e)
         flash(f'Ocorreu um erro: {str(e)}', category='error')
     finally:
         cursor.close()
-        conn.close
+        conn.close()
     return redirect(url_for('preventive'))
+
+@app.route('/start-preventive', methods=['POST'])
+def start_preventive():
+    try:
+        data = request.get_json()
+        order_number = data.get('order_number')
+
+        if not order_number:
+            return jsonify({'error': 'Número da ordem é obrigatório!'}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("EXEC StartPreventiveOrder @OrderNumber = ?", order_number)
+        conn.commit()
+
+        return jsonify({'message': 'Preventiva iniciada com sucesso!'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/end-preventive', methods=['POST'])
+def end_preventive():
+    try:
+        data = request.get_json()
+        id = data.get('id')
+
+        if not id:
+            return jsonify({'error': 'Número da ordem é obrigatório!'}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE preventive_orders SET id_estado = 3, data_fim = GETDATE() WHERE id = ?", id)
+        conn.commit()
+
+        return jsonify({'message': 'Preventiva finalizada com sucesso!'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 #Daily
 def empty_to_none(value):
@@ -838,7 +901,7 @@ def settings():
         cursor = conn.cursor()
 
 
-        return render_template('configs/settings.html', 
+        return render_template('configs/first_page.html', 
                                maintenance="Settings", 
                                username=username)
 
@@ -939,6 +1002,8 @@ def admin_avarias():
         for linha in linhas:
             areas[linha.area_nome]["linhas"].append(linha.prod_line)
 
+        areas = dict(sorted(areas.items(), key=lambda x: x[0]))
+        
         return render_template(
             'configs/avarias.html',
             maintenance="Settings",
@@ -1080,6 +1145,9 @@ def delete_tl(id):
     conn = pyodbc.connect(conexao_mms)
     cursor = conn.cursor()
     try:
+        
+        cursor.execute("DELETE FROM [dbo].[daily] WHERE id_tl = ?", id)
+        
         cursor.execute("""
            DELETE FROM [dbo].[teamleaders] WHERE id = ?
         """, id)
@@ -1230,7 +1298,9 @@ def delete_mt(id):
     cursor = conn.cursor()
     try:
         cursor.execute("""
-           DELETE FROM [dbo].[tecnicos] WHERE id = ?
+           UPDATE [dbo].[tecnicos] 
+           SET ativo = 0
+           WHERE id = ?
         """, id)
 
         conn.commit()
@@ -1313,6 +1383,26 @@ def add_contact():
     except Exception as e:
         print(f"Error adding contact: {e}")
         return "Error adding contact", 500
+
+@app.route('/contacts/remove', methods=['POST'])
+def remove_contact():
+    data = request.get_json()
+    id = data.get('id')
+    try:
+        conn = pyodbc.connect(conexao_sms)
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            DELETE FROM [SMS].[dbo].[Contacts] where id = ?
+        """, id)
+
+        conn.commit()
+        flash('Contacto removido com sucesso!', category='success')
+        return redirect(url_for('contacts'))
+    except Exception as e:
+        print(f"Error removing contact: {e}")
+        return "Error removing contact", 500
 
 @app.route('/contacts/edit/<int:id>', methods=['POST'])
 def edit_contact(id):
