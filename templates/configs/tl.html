@@ -9,21 +9,25 @@
     <div class="row">
       <div class="col-md-2">
         <label for="area">Área:</label>
-        <input
-          type="text"
-          name="area"
-          id="area"
-          class="form-control"
-          value="{{ filtro_area or '' }}" />
+        <select name="area" id="area" class="form-control">
+          <option value="">Selecione</option>
+        </select>
       </div>
+
       <div class="col-md-2">
         <label for="turno">Turno:</label>
-        <input
-          type="text"
+        <select
           name="turno"
           id="turno"
           class="form-control"
-          value="{{ filtro_turno or '' }}" />
+          value="{{ filtro_turno }}">
+          <option value="">Selecione</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+        </select>
       </div>
       <div class="col-md-2">
         <label for="num">Nº Colaborador:</label>
@@ -68,7 +72,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for tl in teamleaders %}
+      {% if teamleaders %} {% for tl in teamleaders %}
       <tr>
         <td>{{ tl.id }}</td>
         <td>{{ tl.username }}</td>
@@ -95,7 +99,13 @@
           </button>
         </td>
       </tr>
-      {% endfor %}
+      {% endfor %} {% else %}
+      <tr>
+        <td colspan="7" class="text-center">
+          Não existem Team Leaders registados
+        </td>
+      </tr>
+      {% endif %}
     </tbody>
   </table>
   {% include "configs/components/pagination.html" %}
@@ -162,6 +172,7 @@
         alert("Erro inesperado ao tentar remover o Team Leader!");
       });
   }
+  {% include "configs/js/areas.js" %}
 </script>
 
 {% endblock %}

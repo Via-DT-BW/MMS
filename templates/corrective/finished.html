@@ -12,25 +12,12 @@
       action="/finished"
       class="form-row justify-content-center">
       <div class="form-group col-md-4 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Filtrar por equipamento</small>
-        <input
-          type="text"
-          name="filter"
-          class="form-control"
-          placeholder="Equipamento"
-          value="{{ request.args.get('filter', '') }}" />
-      </div>
-
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
         <small class="form-text text-muted"
           >Filtrar por linha de produção</small
         >
-        <input
-          type="text"
-          name="filter_prod_line"
-          class="form-control"
-          placeholder="Linha de Produção"
-          value="{{ request.args.get('filter_prod_line', '') }}" />
+        <select name="filter_prod_line" class="form-control">
+          <option value="">Selecione a linha</option>
+        </select>
       </div>
 
       <div class="form-group col-md-4 col-sm-6 col-12 text-center">
@@ -192,6 +179,7 @@
 <script>
   {% include "corrective/js/openModal.js" %}
   {% include "corrective/js/toggleComments.js" %}
+  {% include "corrective/js/loadLines.js" %}
 </script>
 
 {% endblock %}

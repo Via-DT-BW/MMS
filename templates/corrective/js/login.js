@@ -54,7 +54,7 @@ $(document).ready(function () {
       data: JSON.stringify(formData),
       success: function (response) {
         if (response.success) {
-          location.reload();
+          window.location.href = "/notifications";
         } else {
           alert("Erro: " + response.error);
         }
