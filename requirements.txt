@@ -3,3 +3,4 @@ pyodbc
 flask_mail
 flask_toastr
 fpdf
+flask_cors

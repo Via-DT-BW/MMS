@@ -6,7 +6,7 @@ import pyodbc
 import settings
 #email
 from flask_mail import Mail
-
+from flask_cors import CORS
 from flask_toastr import Toastr
 
 try:
@@ -34,6 +34,8 @@ app = Flask(__name__)
 app_name = os.getenv("APP_NAME")
 app.config.from_object(Config)
 
+CORS(app)
+
 mail = Mail(app)
 toastr = Toastr(app)
 app.secret_key = 'secret_key_mms'
@@ -60,6 +62,79 @@ def index():
     return render_template('index.html', year=year)
 
 #Corrective
+@app.route('/corrective_notification', methods=['POST', 'GET'])
+def corrective_notification():
+    print("oi")
+    print(request)
+    if request.method == 'POST':
+        print("entrei")
+        prod_line = request.form.get('production_line')
+        var_descricao = request.form.get('var_descricao')
+        equipament_var = request.form.get('equipament_var')
+        var_numero_operador = request.form.get('var_numero_operador')
+        paragem_producao = request.form.get('paragem_producao')
+        try:
+            conn = pyodbc.connect(conexao_mms)
+            cursor = conn.cursor()
+
+            storeproc_add_fiori_notification = """
+                Exec dbo.add_fiori_notification 
+                @descricao=?, @equipamento=?, @n_operador=?, @paragem=?, @prod_line=?, @nome_app=?
+            """
+            cursor.execute(
+                storeproc_add_fiori_notification,
+                var_descricao, equipament_var, var_numero_operador, paragem_producao, prod_line, app_name
+            )
+            conn.commit()
+
+            flash('Notificação enviada com sucesso', category='success')
+            return redirect(url_for('corrective'))
+        except Exception as e:
+          print(e)
+          flash(f'Ocorreu um erro: {str(e)}', category='error')
+        finally:
+            cursor.close()
+            conn.close()
+
+        return redirect(url_for('corrective'))
+
+@app.route('/corrective_notification_capture', methods=['POST', 'GET'])
+def corrective_notification_capture():
+    if request.method == 'POST':
+        try:
+            data = request.json  
+            prod_line = data.get('production_line')
+            var_descricao = data.get('var_descricao')
+            equipament_var = data.get('equipament_var')
+            var_numero_operador = data.get('var_numero_operador')
+            paragem_producao = data.get('paragem_producao')
+
+            print("Request:", data)
+
+            conn = pyodbc.connect(conexao_mms)
+            cursor = conn.cursor()
+
+            storeproc_add_fiori_notification = """
+                Exec dbo.add_fiori_notification 
+                @descricao=?, @equipamento=?, @n_operador=?, @paragem=?, @prod_line=?, @nome_app=?
+            """
+            cursor.execute(
+                storeproc_add_fiori_notification,
+                var_descricao, equipament_var, var_numero_operador, paragem_producao, prod_line, app_name
+            )
+            conn.commit()
+            print("Notificação enviada com sucesso.")
+            flash('Notificação enviada com sucesso', category='success')
+            return {"message": "Notificação enviada com sucesso"}, 200
+        except Exception as e:
+            print(e)
+            return {"error": f"Ocorreu um erro: {str(e)}"}, 400
+        finally:
+            cursor.close()
+            conn.close()
+
+    return {"error": "Método não permitido."}, 405
+
 @app.route('/login_corrective', methods=['POST'])
 def login_corrective():
     data = request.get_json()
@@ -110,7 +185,6 @@ def notifications():
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
-        filter_equipment = request.args.get('filter', '', type=str)
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
@@ -120,25 +194,23 @@ def notifications():
         cursor.execute("""
             EXEC GetFioriNotifications 
                 @PageNumber = ?, 
-                @PageSize = ?, 
-                @FilterEquipment = ?, 
+                @PageSize = ?,  
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @FilterProdLine = ?
             """,
-            page, page_size, filter_equipment, start_date, end_date, filter_prod_line
+            page, page_size, start_date, end_date, filter_prod_line
         )
         notifications = cursor.fetchall()
         count_query = f"""
             SELECT COUNT(*) 
             FROM [{app_name}].[dbo].[corretiva] 
             WHERE 
-                (ISNULL(?, '') = '' OR [equipament] LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR [prod_line] LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR [data_pedido] >= ?) AND
                 (ISNULL(?, '') = '' OR [data_pedido] <= ?) and id_estado=1
         """
-        cursor.execute(count_query, filter_equipment, filter_equipment, filter_prod_line, filter_prod_line, start_date, start_date, end_date, end_date)
+        cursor.execute(count_query, filter_prod_line, filter_prod_line, start_date, start_date, end_date, end_date)
         total_records = cursor.fetchone()[0]
         total_pages = (total_records + page_size - 1) // page_size
         start_page = max(1, page - 3)
@@ -162,40 +234,6 @@ def notifications():
         conn.close()
 
     return redirect(url_for('notifications'))
-
-@app.route('/corrective_notification', methods=['POST', 'GET'])
-def corrective_notification():
-    if request.method == 'POST':
-        prod_line = request.form.get('production_line')
-        var_descricao = request.form.get('var_descricao')
-        equipament_var = request.form.get('equipament_var')
-        var_numero_operador = request.form.get('var_numero_operador')
-        paragem_producao = request.form.get('paragem_producao')
-
-        try:
-            conn = pyodbc.connect(conexao_mms)
-            cursor = conn.cursor()
-
-            storeproc_add_fiori_notification = """
-                Exec dbo.add_fiori_notification 
-                @descricao=?, @equipamento=?, @n_operador=?, @paragem=?, @prod_line=?, @nome_app=?
-            """
-            cursor.execute(
-                storeproc_add_fiori_notification,
-                var_descricao, equipament_var, var_numero_operador, paragem_producao, prod_line, app_name
-            )
-            conn.commit()
-
-            flash('Notificação enviada com sucesso', category='success')
-            return redirect(url_for('corrective'))
-        except Exception as e:
-          print(e)
-          flash(f'Ocorreu um erro: {str(e)}', category='error')
-        finally:
-            cursor.close()
-            conn.close()
-
-        return redirect(url_for('corrective'))
 
 @app.route('/corrective_order_by_mt', methods=['POST', 'GET'])
 def corrective_order_by_mt():
@@ -319,7 +357,6 @@ def inwork():
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
-        filter_equipment = request.args.get('filter', '', type=str)
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
@@ -330,13 +367,12 @@ def inwork():
             EXEC GetCorretivaInWorks
                 @PageNumber = ?, 
                 @PageSize = ?, 
-                @FilterEquipment = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @FilterProdLine = ?,
                 @FilterNumber = ?
             """,
-            page, page_size, filter_equipment, start_date, end_date, filter_prod_line, filter_number
+            page, page_size, start_date, end_date, filter_prod_line, filter_number
         )
         ongoing = cursor.fetchall()
         if ongoing:
@@ -487,7 +523,8 @@ def corrective_comments():
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
-        
+        print(f"Params: page={page}, page_size={page_size}, start_date={start_date}, end_date={end_date}, filter_prod_line={filter_prod_line}")
+
         cursor.execute("""
             EXEC GetCorretivaCommentsFiltered
                 @PageNumber = ?, 
@@ -509,6 +546,7 @@ def corrective_comments():
 
         start_page = max(1, page - 3)
         end_page = min(total_pages, page + 3)
+        
         print(total_records, total_pages)
 
         return render_template('corrective/comments.html', 
@@ -1146,10 +1184,8 @@ def delete_tl(id):
     cursor = conn.cursor()
     try:
         
-        cursor.execute("DELETE FROM [dbo].[daily] WHERE id_tl = ?", id)
-        
         cursor.execute("""
-           DELETE FROM [dbo].[teamleaders] WHERE id = ?
+           UPDATE [dbo].[teamleaders] SET ativo = 0 WHERE id = ?
         """, id)
 
         conn.commit()
@@ -1931,6 +1967,33 @@ def lines():
   except Exception as e:
     print(e)
     return jsonify({'error'}), 500
+
+@app.route('/api/get_areas', methods=['GET'])
+def areas():
+  try:
+    conn = pyodbc.connect(conexao_capture)
+    cursor = conn.cursor()
+    
+    query = "Select DISTINCT area from [dbo].[ProdLineAreaPL] order by area ASC"
+    cursor.execute(query)
+
+    rows = cursor.fetchall()
+
+    result = []
+    for row in rows:
+        result.append({
+            "area": row[0]
+        })
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(result)
+
+  except Exception as e:
+    print(e)
+    return jsonify({'error'}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

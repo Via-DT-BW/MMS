@@ -9,12 +9,9 @@
     <div class="row">
       <div class="col-md-3">
         <label for="area">Área:</label>
-        <input
-          type="text"
-          name="area"
-          id="area"
-          class="form-control"
-          value="{{ filtro_area or '' }}" />
+        <select name="area" id="area" class="form-control">
+          <option value="">Selecione</option>
+        </select>
       </div>
       <div class="col-md-3">
         <label for="num">Nº Colaborador:</label>
@@ -59,7 +56,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for mt in mts %}
+      {% if mts %} {% for mt in mts %}
       <tr>
         <td>{{ mt.id }}</td>
         <td>{{ mt.username }}</td>
@@ -85,7 +82,13 @@
           </button>
         </td>
       </tr>
-      {% endfor %}
+      {% endfor %} {% else %}
+      <tr>
+        <td colspan="7" class="text-center">
+          Não existem Técnios Registados registados
+        </td>
+      </tr>
+      {% endif %}
     </tbody>
   </table>
   {% include "configs/components/pagination.html" %}
@@ -150,6 +153,8 @@
         alert("Erro inesperado ao tentar remover o técnico!");
       });
   }
+
+  {% include "configs/js/areas.js" %}
 </script>
 
 {% endblock %}
