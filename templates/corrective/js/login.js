@@ -1,7 +1,7 @@
 $(document).ready(function () {
   $("#card_num").on("keypress", function (event) {
     if (event.key === "Enter") {
-      event.preventDefault(); // Impedir o comportamento padrão (mudar de campo)
+      event.preventDefault();
 
       const cardNum = $(this).val().trim();
       if (cardNum) {

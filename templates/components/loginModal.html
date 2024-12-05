@@ -40,6 +40,11 @@
               required />
           </div>
         </form>
+        <p class="text-center mt-3">
+          <a href="#" data-toggle="modal" data-target="#modalForgotPassword">
+            Esqueceu-se da sua palavra-passe?
+          </a>
+        </p>
       </div>
       <div class="modal-footer d-flex justify-content-center">
         <button
@@ -56,3 +61,5 @@
     </div>
   </div>
 </div>
+
+{% include 'components/recoverPassModal.html' %}

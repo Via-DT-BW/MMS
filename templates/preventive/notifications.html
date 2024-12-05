@@ -10,33 +10,25 @@
 
 <div class="container mt-4">
   <form class="form-inline">
-    <div class="form-group mb-2">
-      <label for="filter_order" class="mr-2">Ordem</label>
+    <div class="form-group mb-2 mr-2">
       <input
         type="text"
         class="form-control form-control-sm"
         id="filter_order"
         name="filter_order"
+        placeholder="Ordem"
         value="{{ request.args.get('filter_order', '') }}" />
     </div>
-    <div class="form-group mb-2 ml-3">
-      <label for="filter_equipment" class="mr-2">Equipamento</label>
+    <div class="form-group mb-2">
       <input
         type="text"
         class="form-control form-control-sm"
-        id="filter_equipment"
-        name="filter"
-        value="{{ request.args.get('filter', '') }}" />
-    </div>
-    <div class="form-group mb-2 ml-3">
-      <label for="filter_cost_center" class="mr-2">Centro de Custo</label>
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        id="filter_cost_center"
+        id="filter_cost"
         name="filter_cost"
+        placeholder="Centro de Custo"
         value="{{ request.args.get('filter_cost', '') }}" />
     </div>
+
     <div class="form-group mb-2 ml-3">
       <label for="start_date" class="mr-2">Data Inicial</label>
       <input
@@ -62,9 +54,7 @@
 
 <div class="card mt-4 mb-4">
   <div class="card-header">
-    <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Em Curso</h5>
-    </div>
+    <h5 class="m-0 text-center">Em Curso</h5>
   </div>
 
   <div class="card-body">
@@ -74,12 +64,11 @@
           <tr>
             <th>ID</th>
             <th>Ordem</th>
+            <th>Técnico</th>
             <th>Equipamento</th>
             <th>Descrição</th>
             <th>Local Funcional</th>
             <th>Denominação</th>
-            <th>Data Inicial</th>
-            <th>Data Final</th>
             <th>Plano de Manutenção</th>
             <th>Finalizar</th>
           </tr>
@@ -93,12 +82,11 @@
           <tr>
             <td>{{ order.id }}</td>
             <td>{{ order.order_number }}</td>
+            <td>{{ order.mt_name }} - {{order.mt_num}}</td>
             <td>{{ order.equipament }}</td>
             <td>{{ order.description }}</td>
             <td>{{ order.functional_location }}</td>
             <td>{{ order.denomination }}</td>
-            <td>{{ order.start_date }}</td>
-            <td>{{ order.end_date }}</td>
             <td>{{ order.maintenance_plan }}</td>
             <td>
               <button
@@ -129,13 +117,11 @@
         <thead>
           <tr>
             <th>Ordem</th>
-            <th>Linha</th>
+            <th>Centro de Custo</th>
             <th>Equipamento</th>
             <th>Descrição</th>
             <th>Local Funcional</th>
             <th>Denominação</th>
-            <th>Data Inicial</th>
-            <th>Data Final</th>
             <th>Plano de Manutenção</th>
             <th>Iniciar</th>
           </tr>
@@ -151,15 +137,15 @@
             <td>{{ prev.cost_center }}</td>
             <td>{{ prev.equipament }}</td>
             <td>{{ prev.description }}</td>
-            <td>{{ prev.funtional_location }}</td>
+            <td>{{ prev.functional_location }}</td>
             <td>{{ prev.denomination }}</td>
-            <td>{{ prev.start_date }}</td>
-            <td>{{ prev.end_date }}</td>
             <td>{{ prev.maintenance_plan }}</td>
             <td>
               <button
                 class="btn btn-success"
-                onclick="confirmStartPreventive('{{ prev.order }}')">
+                data-toggle="modal"
+                data-target="#loginPreventive"
+                data-order="{{ prev.order }}">
                 <i class="fa-solid fa-play"></i>
               </button>
             </td>
@@ -172,6 +158,8 @@
     </div>
   </div>
 </div>
+
+{% include "preventive/components/login.html" %}
 
 <script>
   {% include "preventive/js/preventive.js" %}

@@ -1,6 +1,6 @@
 <div
   class="modal fade"
-  id="modalLogin"
+  id="loginPreventive"
   tabindex="-1"
   role="dialog"
   aria-labelledby="modalLoginLabel"
@@ -8,7 +8,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalLoginLabel">Login Técnico</h5>
+        <h5 class="modal-title" id="modalLoginLabel">Começar Preventiva</h5>
         <button
           type="button"
           class="close"
@@ -19,25 +19,25 @@
       </div>
       <div class="modal-body">
         <form id="loginForm">
+          <input type="hidden" id="orderNumber" name="orderNumber" />
           <p class="text-muted">
-            Preencha apenas uma das opções abaixo para fazer login.
+            Preencha apenas uma das opções abaixo para fazer se associar à
+            preventiva.
           </p>
 
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label for="card_num" style="color: black"
-                  >Login com cartão</label
-                >
+                <label for="cardNum" style="color: black">Com cartão</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="card_num"
-                  name="card_num" />
+                  id="cardNum"
+                  name="cardNum" />
               </div>
             </div>
           </div>
-          <p class="text-left" style="color: black">Login com crendenciais</p>
+          <p class="text-left" style="color: black">Com crendenciais</p>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
