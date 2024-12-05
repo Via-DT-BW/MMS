@@ -1433,7 +1433,8 @@ def contacts():
             number_bw=number_bw,
             area=area,
             shift=turno,
-            nome=nome
+            nome=nome, 
+            maintenance="Settings"
         )
     except Exception as e:
         print(f"Error fetching contacts: {e}")
@@ -2001,6 +2002,8 @@ def add_daily_record():
 def edit_daily_record():
     if 'username' not in session:
         return jsonify({'status': 'error', 'message': 'Usuário não autenticado.'}), 403
+    conn = pyodbc.connect(conexao_mms)
+    cursor = conn.cursor()
     
     try:
         record_id = request.form.get('id')
@@ -2008,12 +2011,6 @@ def edit_daily_record():
         quality_comment = request.form.get('quality_comment')
         volume_comment = request.form.get('volume_comment')
         people_comment = request.form.get('people_comment')
-
-        if not record_id or not safety_comment or not quality_comment or not volume_comment or not people_comment:
-            return jsonify({'status': 'error', 'message': 'Todos os campos são obrigatórios.'}), 400
-
-        conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
 
         today = datetime.today().strftime('%Y-%m-%d')
         cursor.execute("""
