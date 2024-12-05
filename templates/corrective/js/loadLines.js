@@ -18,8 +18,6 @@ function loadLines() {
       if (filterProdLineValue) {
         lineSelect.val(filterProdLineValue);
       }
-
-      disableFields(true);
     },
     error: function () {
       alert("Erro ao carregar as linhas.");

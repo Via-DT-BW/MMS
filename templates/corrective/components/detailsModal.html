@@ -63,16 +63,41 @@
                 disabled />
             </div>
           </div>
-          <div class="row mb-3">
-            <div class="col-lg-4">
-              <label for="modal-sap-state"><strong>Estado SAP:</strong></label>
+          <div class="row mb-3 d-none" id="sap">
+            <div class="col-lg-6">
+              <label for="modal-order-num"
+                ><strong>Número Pedido SAP:</strong></label
+              >
               <input
                 type="text"
-                id="modal-sap-state"
+                id="modal-order-num"
                 class="form-control"
                 disabled />
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-6">
+              <label for="modal-sap-date"
+                ><strong>Data Pedido SAP:</strong></label
+              >
+              <input
+                type="text"
+                id="modal-sap-date"
+                class="form-control"
+                disabled />
+            </div>
+
+            <div class="col-lg-4" id="tempo-row">
+              <label for="modal-tempo-man"
+                ><strong>Tempo de Manutenção (min):</strong></label
+              >
+              <input
+                type="text"
+                id="modal-tempo-man"
+                class="form-control"
+                disabled />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-6">
               <label for="modal-sms-state"><strong>Estado SMS:</strong></label>
               <input
                 type="text"
@@ -80,7 +105,7 @@
                 class="form-control"
                 disabled />
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-6">
               <label for="modal-sms-date"><strong>Data SMS:</strong></label>
               <input
                 type="text"
@@ -89,6 +114,7 @@
                 disabled />
             </div>
           </div>
+
           <div class="row mb-3 d-none" id="inicio-man-row">
             <div class="col-lg-4">
               <label for="modal-inicio-man"
@@ -118,7 +144,7 @@
                 type="text"
                 id="modal-tempo-man"
                 class="form-control"
-                disabled></input>
+                disabled />
             </div>
           </div>
           <div class="row mb-3 d-none" id="comment-row">

@@ -1,13 +1,17 @@
 from collections import defaultdict
 import os
+import random
 from flask import Config, Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from datetime import date, datetime
+import time
 import pyodbc
+from utils.generate_pass import gerar_pass
 import settings
 #email
-from flask_mail import Mail
+from flask_mail import Mail, Message
 from flask_cors import CORS
 from flask_toastr import Toastr
+from utils.mail_config import Config
 
 try:
     conexao_capture=settings.conexao_capture()
@@ -32,10 +36,10 @@ except Exception as e:
 
 app = Flask(__name__)
 app_name = os.getenv("APP_NAME")
-app.config.from_object(Config)
 
 CORS(app)
 
+app.config.from_object(Config)
 mail = Mail(app)
 toastr = Toastr(app)
 app.secret_key = 'secret_key_mms'
@@ -523,7 +527,6 @@ def corrective_comments():
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
-        print(f"Params: page={page}, page_size={page_size}, start_date={start_date}, end_date={end_date}, filter_prod_line={filter_prod_line}")
 
         cursor.execute("""
             EXEC GetCorretivaCommentsFiltered
@@ -546,8 +549,6 @@ def corrective_comments():
 
         start_page = max(1, page - 3)
         end_page = min(total_pages, page + 3)
-        
-        print(total_records, total_pages)
 
         return render_template('corrective/comments.html', 
                                maintenance="Manutenção", 
@@ -616,6 +617,45 @@ def pending_comments():
         cursor.close()
         conn.close()
 
+@app.route('/pedido_spares/<int:id>', methods=['POST'])
+def pedido_spares(id):
+    time.sleep(10)
+        
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+        
+        query = "SELECT * from corretiva where id = ?"
+        cursor.execute(query, id)
+        row = cursor.fetchone()
+        
+        columns = [column[0] for column in cursor.description]
+        
+        if row:
+            data = dict(zip(columns, row))
+            print(data)
+        else:
+            return jsonify({"error": "Registo não encontrado"}), 404
+        
+        #SCRIPT SAP
+        
+        random_number = random.randint(1, 10000)
+        hoje = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        cursor.execute(
+            "UPDATE corretiva SET sap_order_number = ?, sap_order = ? WHERE id = ?",
+            (random_number, hoje, id)
+        )
+        conn.commit()
+        
+        return jsonify({"message": f"Ordem {random_number} criada com sucesso!"}), 200
+
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+    
 #Autonomous
 @app.route('/autonomous', methods=['GET'])
 def autonomous():
@@ -644,8 +684,7 @@ def preventive():
         cursor = conn.cursor()
 
         filter_order = request.args.get('filter_order', '', type=str)
-        filter_equipment = request.args.get('filter', '', type=str)
-        filter_cost_center = request.args.get('filter_cost', '', type=str)
+        filter_cost = request.args.get('filter_cost', '', type=str)
         start_date = request.args.get('start_date', '', type=str)
         end_date = request.args.get('end_date', '', type=str)
 
@@ -656,36 +695,32 @@ def preventive():
         orders_page = request.args.get('orders_page', 1, type=int)
 
         filter_order = None if filter_order == "" else filter_order
-        filter_equipment = None if filter_equipment == "" else filter_equipment
-        filter_cost_center = None if filter_cost_center == "" else filter_cost_center
         start_date = None if start_date == "" else start_date
         end_date = None if end_date == "" else end_date
 
         cursor.execute("""
-            EXEC GetPreventiveRecords 
-                @FilterEquipment = ?, 
+            EXEC GetPreventiveRecords  
                 @FilterOrder = ?,
-                @FilterCostCenter = ?, 
+                @FilterCost = ?,
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @PageSize = ?, 
                 @Page = ?
-        """, filter_equipment, filter_order, filter_cost_center, start_date, end_date, preventive_page_size, preventive_page)
+        """, filter_order, filter_cost, start_date, end_date, preventive_page_size, preventive_page)
 
         preventive_total = cursor.fetchone()[0]
         cursor.nextset()
         preventive_data = cursor.fetchall()
 
         cursor.execute("""
-            EXEC GetPreventiveOrders
-                @FilterEquipment = ?, 
+            EXEC GetPreventiveOrders 
                 @FilterOrder = ?,
-                @FilterCostCenter = ?, 
+                @FilterCost = ?,
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @PageSize = ?, 
                 @Page = ?
-        """, filter_equipment, filter_order, filter_cost_center, start_date, end_date, orders_page_size, orders_page)
+        """, filter_order, filter_cost, start_date, end_date, orders_page_size, orders_page)
 
         orders_total = cursor.fetchone()[0]
         cursor.nextset()
@@ -717,14 +752,15 @@ def start_preventive():
     try:
         data = request.get_json()
         order_number = data.get('order_number')
-
+        id_mt = data.get('technician_id')
+        print(order_number, id_mt)
         if not order_number:
             return jsonify({'error': 'Número da ordem é obrigatório!'}), 400
 
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("EXEC StartPreventiveOrder @OrderNumber = ?", order_number)
+        cursor.execute("EXEC StartPreventiveOrder @OrderNumber = ?, @MT_id = ?", order_number, id_mt)
         conn.commit()
 
         return jsonify({'message': 'Preventiva iniciada com sucesso!'}), 200
@@ -1154,14 +1190,15 @@ def add_teamleader():
         area = request.form['area']
         email = username + '@borgwarner.com'
         password = request.form['password']
+        card = request.form['card']
 
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO [dbo].[teamleaders] (username, password, n_colaborador, turno, area, email)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, username, password, n_colaborador, turno, area, email)
+            INSERT INTO [dbo].[teamleaders] (username, password, n_colaborador, turno, area, email, card
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, username, password, n_colaborador, turno, area, email, card)
 
         conn.commit()
         flash('Team Leader adicionado com sucesso!', category='success')
@@ -1304,14 +1341,15 @@ def add_mt():
         email = username + '@borgwarner.com'
         password = request.form['password']
         nome = request.form['nome']
+        n_card = request.form['card']
 
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO [dbo].[tecnicos] (username, nome, password, n_tecnico, area, email)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, username, nome, password, n_colaborador, area, email)
+            INSERT INTO [dbo].[tecnicos] (username, nome, password, n_tecnico, area, email, card_number)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, username, nome, password, n_colaborador, area, email, n_card)
 
         conn.commit()
         flash('Técnico adicionado com sucesso!', category='success')
@@ -1505,6 +1543,65 @@ def get_tecnicos():
             })
 
         return jsonify(tecnicos)
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': f'Ocorreu um erro: {str(e)}'}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/authenticate', methods=['POST'])
+def authenticate_tecnico():
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        data = request.get_json()
+        card_number = data.get('card_number')
+        username = data.get('username')
+        password = data.get('password')
+
+        if card_number:
+            cursor.execute("""
+                SELECT id, nome, ativo, password
+                FROM tecnicos 
+                WHERE card_number = ?
+            """, card_number)
+            tecnico = cursor.fetchone()
+            print(tecnico)
+            if not tecnico:
+                return jsonify({'success': False, 'message': 'Cartão inválido ou técnico não encontrado.'}), 404
+            if tecnico.ativo != 1:
+                return jsonify({'success': False, 'message': 'Técnico encontrado, mas não está ativo.'}), 403
+        elif username and password:
+            cursor.execute("""
+                SELECT id, nome, ativo, password
+                FROM tecnicos 
+                WHERE username = ? and password = ?
+            """, username, password)
+            tecnico = cursor.fetchone()
+
+            if not tecnico:
+                return jsonify({'success': False, 'message': 'Nome de utilizador não encontrado.'}), 404
+
+            if tecnico.password != password:
+                return jsonify({'success': False, 'message': 'Palavra-passe incorreta.'}), 401
+            if tecnico.ativo != 1:
+                return jsonify({'success': False, 'message': 'Técnico encontrado, mas não está ativo.'}), 403
+        else:
+            return jsonify({'success': False, 'message': 'Credenciais inválidas.'}), 400
+
+        if tecnico:
+            return jsonify({
+                'success': True,
+                'technician_id': tecnico.id,
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Técnico não encontrado ou inativo'}), 404
 
     except Exception as e:
         print(e)
@@ -1994,6 +2091,68 @@ def areas():
     print(e)
     return jsonify({'error'}), 500
 
+#User Related
+@app.route('/recover_password', methods=['POST'])
+def recover_password():
+    data = request.json
+    username = data.get('username')
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        user_email, query_update = get_user_info_and_update_query(cursor, username)
+
+        if user_email:
+            nova_senha = gerar_pass(10)
+            print(f"Email: {user_email}, Query Update: {query_update}")
+
+            cursor.execute(query_update, (nova_senha, username))
+            conn.commit()
+
+            msg = Message(
+                subject="Recuperação de Palavra Passe",
+                sender=app.config['MAIL_DEFAULT_SENDER'],
+                recipients=[user_email]
+            )
+            msg.body = f"Olá {username},\n\nA sua palavra passe foi redefinida.\nA nova palavra passe é: {nova_senha}\n\nPor favor, não partilhe a sua palavra passe."
+
+            try:
+                mail.send(msg)
+            except Exception as e:
+                return jsonify({"error": f"Erro ao enviar o e-mail: {str(e)}"}), 500
+
+            return jsonify({"message": "Nova palavra passe enviada com sucesso!"}), 200
+        else:
+            return jsonify({"error": "Utilizador não encontrado"}), 404
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
+
+#utils
+def get_user_info_and_update_query(cursor, username):
+    tables = [
+        ("admin", "SELECT email FROM admin WHERE username = ?", "UPDATE admin SET password = ? WHERE username = ?"),
+        ("teamleaders", "SELECT email FROM teamleaders WHERE username = ?", "UPDATE teamleaders SET password = ? WHERE username = ?"),
+        ("tecnicos", "SELECT email FROM tecnicos WHERE username = ?", "UPDATE tecnicos SET password = ? WHERE username = ?")
+    ]
+
+    user_email = None
+    query_update = None
+
+    for table, select_query, update_query in tables:
+        cursor.execute(select_query, (username,))
+        result = cursor.fetchone()
+
+        if result:
+            if user_email is not None:
+                raise ValueError(f"Usuário {username} encontrado em mais de uma tabela ({table})")
+            user_email = result[0]
+            query_update = update_query
+            break 
+
+    return user_email, query_update
 
 if __name__ == "__main__":
     app.run(debug=True)

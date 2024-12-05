@@ -84,6 +84,7 @@ endif %} {% block content %}
     <table class="table" id="inwork">
       <thead>
         <tr>
+          <th>Corretiva</th>
           <th>Linha de Produção</th>
           <th>Técnico (último)</th>
           <th>Descrição</th>
@@ -91,6 +92,9 @@ endif %} {% block content %}
           <th>Equipamento</th>
           <th>Parou Produção?</th>
           <th>Ações</th>
+          {% if session['username'] %}
+          <th>Criar Ordem</th>
+          {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -105,6 +109,7 @@ endif %} {% block content %}
           {%
           endif
           %}>
+          <td>{{ ongo.id_corretiva }}</td>
           <td>{{ ongo.prod_line }}</td>
           <td>{{ ongo.nome}} - {{ongo.n_tecnico }}</td>
           <td>{{ ongo.description }}</td>
@@ -121,6 +126,17 @@ endif %} {% block content %}
               data-equipament="{{ ongo.equipament }}"
               data-functional-location="{{ ongo.functional_location }}"
               data-sap-state="{{ ongo.SAPState }}"
+              {%
+              if
+              ongo.sap_order
+              or
+              ongo.sap_order_number
+              %}
+              data-sap-order-num="{{ ongo.sap_order_number }}"
+              data-sap-order-date="{{ ongo.sap_order }}"
+              {%
+              endif
+              %}
               data-sms-state="{{ ongo.SMSState }}"
               data-sms-date="{{ ongo.sms_date }}"
               data-main-workcenter="{{ ongo.main_workcenter }}">
@@ -149,11 +165,24 @@ endif %} {% block content %}
             {% if session['username'] %} {% if ongo.id_corretiva not in
             tecnico_in_works %}
             <button
-              class="btn btn-primary btn-md"
+              class="btn btn-success btn-md"
               data-id-corretiva="{{ ongo.id_corretiva }}"
               onclick="associateTechnician(this)">
               <i class="fa-solid fa-user-plus ml-1"></i>
             </button>
+            {% endif %}
+          </td>
+          <td>
+            {% if not ongo.sap_order or not ongo.sap_order_number %}
+            <a
+              class="custom-link"
+              onclick="criarOrdem('{{ ongo.id_corretiva }}')">
+              <img
+                src="{{ url_for('static', filename='content/sap.png') }}"
+                alt="SAP Icon"
+                style="vertical-align: top; cursor: pointer" />
+            </a>
+
             {% endif %} {% endif %}
           </td>
         </tr>
@@ -203,8 +232,37 @@ endif %} {% block content %}
     background-color: #00386c !important;
     color: white;
   }
+
+  .custom-link {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    background-color: transparent;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .custom-link:hover {
+    transform: translateY(-3px);
+  }
+
+  .custom-text {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+  }
+
+  .custom-link img {
+    width: 45px;
+    height: 45px;
+    vertical-align: middle;
+  }
 </style>
 <script>
+
+  {% include "corrective/js/sparesOrder.js" %}
+
   {% include "corrective/js/toggleComments.js" %}
   {% include "corrective/js/loadLines.js" %}
 

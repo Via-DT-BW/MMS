@@ -5,7 +5,6 @@ $(document).ready(function () {
     var description = button.data("description");
     var equipament = button.data("equipament");
     var functionalLocation = button.data("functional-location");
-    var sapState = button.data("sap-state");
     var smsState = button.data("sms-state");
     var smsDate = button.data("sms-date");
     var workCenter = button.data("main-workcenter");
@@ -14,8 +13,13 @@ $(document).ready(function () {
     var comment = button.data("comment");
     var tempo_man = button.data("tempo-man");
 
+    var sap_order_num = button.data("sap-order-num");
+    var sap_order_date = button.data("sap-order-date");
+    var sapFormattedDate = sap_order_date
+      ? formatDateTime(sap_order_date)
+      : "Data inválida";
+
     var smsStatusText = smsState === 1 ? "Enviado" : "Por Enviar";
-    var sapStatusText = sapState === 2 ? "Criado" : "Por Criar";
     var formattedSmsDate = smsDate
       ? formatDateTime(smsDate)
       : "A Aguardar Envio";
@@ -24,10 +28,17 @@ $(document).ready(function () {
     modal.find("#modal-description").val(description);
     modal.find("#modal-equipament").val(equipament);
     modal.find("#modal-functional-location").val(functionalLocation);
-    modal.find("#modal-sap-state").val(sapStatusText);
     modal.find("#modal-sms-state").val(smsStatusText);
     modal.find("#modal-sms-date").val(formattedSmsDate);
     modal.find("#modal-main-workcenter").val(workCenter);
+
+    if (sap_order_num && sap_order_date) {
+      modal.find("#modal-order-num").val(sap_order_num);
+      modal.find("#modal-sap-date").val(sapFormattedDate);
+      $("#sap").removeClass("d-none");
+    } else {
+      $("#sap").addClass("d-none");
+    }
 
     if (inicioMan) {
       modal.find("#modal-inicio-man").val(formatDateTime(inicioMan));
