@@ -5,7 +5,7 @@
 <div class="container mt-4">
   <h2>Gestão de Contactos</h2>
 
-  <form method="get" action="{{ url_for('contacts') }}" class="mb-3">
+  <form method="get" action="{{ url_for('settings.contacts') }}" class="mb-3">
     <div class="row">
       <div class="col-md-2">
         <label for="nome">Nome:</label>
@@ -42,7 +42,7 @@
       </div>
       <div class="col-md-3 align-self-end">
         <button type="submit" class="btn btn-primary">Filtrar</button>
-        <a href="{{ url_for('contacts') }}" class="btn btn-danger"
+        <a href="{{ url_for('settings.contacts') }}" class="btn btn-danger"
           >Limpar Filtros</a
         >
       </div>
@@ -123,7 +123,7 @@
         <li class="page-item">
           <a
             class="page-link"
-            href="{{ url_for('contacts', page=page-1, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
+            href="{{ url_for('settings.contacts', page=page-1, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
             &laquo;
           </a>
         </li>
@@ -135,7 +135,7 @@
         <li class="page-item {% if i == page %}active{% endif %}">
           <a
             class="page-link"
-            href="{{ url_for('contacts', page=i, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
+            href="{{ url_for('settings.contacts', page=i, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
             {{ i }}
           </a>
         </li>
@@ -143,7 +143,7 @@
         <li class="page-item">
           <a
             class="page-link"
-            href="{{ url_for('contacts', page=page+1, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
+            href="{{ url_for('settings.contacts', page=page+1, page_size=page_size, number_bw=number_bw, area=area, shift=shift, nome=nome) }}">
             &raquo;
           </a>
         </li>

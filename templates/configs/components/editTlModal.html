@@ -18,7 +18,9 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="{{ url_for('update_teamleader') }}" method="POST">
+        <form
+          action="{{ url_for('settings.update_teamleader') }}"
+          method="POST">
           <input type="hidden" id="id" name="id" />
           <div class="row">
             <div class="form-group col-md-6">

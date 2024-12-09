@@ -18,7 +18,9 @@
           aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="{{ url_for('edit_avaria', area=area) }}">
+        <form
+          method="POST"
+          action="{{ url_for('settings.edit_avaria', area=area) }}">
           <input
             type="hidden"
             class="tipo-id"

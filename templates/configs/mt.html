@@ -5,7 +5,7 @@
 <div class="container mt-4">
   <h2>Gestão de Técnicos de Manutenção</h2>
 
-  <form method="get" action="{{ url_for('admin_mt') }}" class="mb-3">
+  <form method="get" action="{{ url_for('settings.admin_mt') }}" class="mb-3">
     <div class="row">
       <div class="col-md-3">
         <label for="area">Área:</label>
@@ -24,7 +24,7 @@
       </div>
       <div class="col-md-3 align-self-end">
         <button type="submit" class="btn btn-primary">Filtrar</button>
-        <a href="{{ url_for('admin_mt') }}" class="btn btn-danger"
+        <a href="{{ url_for('settings.admin_mt') }}" class="btn btn-danger"
           >Limpar Filtros</a
         >
       </div>
