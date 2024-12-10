@@ -163,7 +163,6 @@ def authenticate_tecnico():
                 WHERE card_number = ?
             """, card_number)
             tecnico = cursor.fetchone()
-            print(tecnico)
             if not tecnico:
                 return jsonify({'success': False, 'message': 'Cartão inválido ou técnico não encontrado.'}), 404
             if tecnico.ativo != 1:
@@ -191,6 +190,7 @@ def authenticate_tecnico():
                 'success': True,
                 'technician_id': tecnico.id,
             })
+        
         else:
             return jsonify({'success': False, 'message': 'Técnico não encontrado ou inativo'}), 404
 
@@ -691,7 +691,6 @@ def recover_password():
 
         if user_email:
             nova_senha = gerar_pass(10)
-            print(f"Email: {user_email}, Query Update: {query_update}")
 
             cursor.execute(query_update, (nova_senha, username))
             conn.commit()

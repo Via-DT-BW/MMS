@@ -15,17 +15,14 @@
     <link rel="stylesheet" href="static/initial_page/css/bootstrap.min.css" />
 
     <link rel="stylesheet" href="static/initial_page/css/tooplate-style.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <link
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous" />
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
     <style type="text/css">
       .modal {
         z-index: 10000;
@@ -37,36 +34,50 @@
       body {
         font-family: "Montserrat";
       }
+
+      .logo-img {
+        height: 33px;
+        margin-top: 20px;
+        margin-right: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .logo-img {
+          height: 25px;
+          margin-top: 15px;
+          margin-right: 10px;
+        }
+      }
     </style>
   </head>
 
   <body>
     <!-- page header -->
-    <div class="container" id="home">
-      <div class="col-12 text-center">
-        <div class="tm-page-header">
-          <div class="row justify-content-center">
-            <img
-              style="
-                transition: 0.3s transform
-                    cubic-bezier(0.155, 1.105, 0.295, 1.12),
-                  0.3s box-shadow,
-                  0.3s -webkit-transform cubic-bezier(0.155, 1.105, 0.295, 1.12);
-                border-radius: 2px;
-                height: 95px;
-              "
-              src="static/initial_page/img/app_logo.png"
-              alt="Image"
-              class="tm-activity-img" />
-            <h5 class="col-lg-12">Maintenance Management System</h5>
-          </div>
-          <div class="row justify-content-center"></div>
+    <div class="container mt-3" id="home">
+      <div
+        class="row justify-content-center text-center flex-column flex-md-row">
+        <div class="col-12 text-center">
+          <img
+            src="static/initial_page/img/app_logo.png"
+            alt="App Logo"
+            class="tm-activity-img img-fluid"
+            style="
+              transition: 0.3s transform cubic-bezier(0.155, 1.105, 0.295, 1.12),
+                0.3s box-shadow,
+                0.3s -webkit-transform cubic-bezier(0.155, 1.105, 0.295, 1.12);
+              border-radius: 2px;
+              height: 95px;
+            " />
+        </div>
+
+        <div class="col-12 mt-3">
+          <h5 class="tm-activity-title">Maintenance Management System</h5>
         </div>
       </div>
     </div>
 
     <!-- navbar -->
-    <div class="tm-nav-section mt-4">
+    <div class="tm-nav-section mt-3">
       <div class="container">
         <div class="row">
           <div class="col-12">
@@ -85,10 +96,9 @@
                 <ul class="navbar-nav">
                   <li class="nav-item">
                     <img
-                      style="height: 35px; margin-top: 20px; margin-right: 20px"
+                      class="logo-img"
                       src="static/initial_page/img/borgwarner_blue.png"
-                      alt="Image"
-                      class="tm-activity-img" />
+                      alt="Image" />
                   </li>
                   <li class="nav-item">
                     <a
@@ -188,7 +198,6 @@
 
     <script src="static/initial_page/js/jquery-1.9.1.min.js"></script>
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
-    <script src="static/initial_page/js/bootstrap.min.js"></script>
 
     <script>
       {% include "utils/javascript/login.js" %}

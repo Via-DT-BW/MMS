@@ -302,7 +302,7 @@ endif %} {% block content %}
             success: function (response) {
               if (response.status === "success") {
                 $("#commentsModal").modal("hide");
-                window.location.href = "/corrective";
+                window.location.href = "/inwork";
               } else {
                 alert(response.message);
               }
