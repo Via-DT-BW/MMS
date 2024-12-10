@@ -1,0 +1,115 @@
+{% extends 'daily/daily.html' %} {% block content %}
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header text-white" style="background-color: #00386c">
+      <h4 class="mb-0">Perfil do Team Leader</h4>
+    </div>
+    <div class="card-body">
+      <form id="profile-form" method="POST" action="/update_profile_tl">
+        <div class="form-group row">
+          <div class="col-md-6">
+            <label for="username" class="col-form-label font-weight-bold"
+              >Username</label
+            >
+
+            <input type="text" class="form-control" id="username"
+            name="username" value="{{ tl['username'] }}" {% if tl['username'] %}
+            readonly {% endif %} />
+          </div>
+
+          <div class="col-md-6">
+            <label for="password" class="col-form-label font-weight-bold"
+              >Password</label
+            >
+            <div class="input-group">
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                value="{{ tl['password'] }}"
+                required
+                minlength="6" />
+
+              <div class="input-group-append">
+                <button
+                  type="button"
+                  id="toggle-password"
+                  class="btn btn-outline-secondary">
+                  <i class="fa fa-eye" id="eye-icon"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <div class="col-md-6">
+            <label for="email" class="col-form-label font-weight-bold"
+              >E-mail</label
+            >
+
+            <input type="email" class="form-control" id="email" name="email"
+            value="{{ tl['email'] }}" {% if tl['email'] %} readonly {% endif %}
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="n_colaborador" class="col-form-label font-weight-bold"
+              >Número de Colaborador</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="n_colaborador"
+              name="n_colaborador"
+              value="{{ tl['n_colaborador'] }}"
+              readonly />
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-6">
+            <label for="card_number" class="col-form-label font-weight-bold"
+              >Número do Cartão</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="card_number"
+              name="card_number"
+              value="{{ tl['card_number'] }}"
+              readonly />
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-warning mt-3">
+            Editar <i class="fa-solid fa-user-pen"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document
+    .getElementById("toggle-password")
+    .addEventListener("click", function () {
+      var passwordField = document.getElementById("password");
+      var eyeIcon = document.getElementById("eye-icon");
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
+      } else {
+        passwordField.type = "password";
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
+      }
+    });
+</script>
+
+{% endblock %}

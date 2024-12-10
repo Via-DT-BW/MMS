@@ -26,6 +26,9 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet" />
   </head>
 
   <style>
@@ -43,13 +46,11 @@
       {% include 'corrective/components/sidebar_links.html' %}
 
       <div id="content-wrapper" class="d-flex flex-column">
-        <nav
-          class="navbar navbar-expand navbar-light topbar mb-2 static-top shadow"
-          style="background-color: #051729">
+        <nav class="navbar navbar-expand navbar-light topbar static-top">
           <button
             id="sidebarToggleTop"
-            class="btn btn-link d-md-none rounded-circle mr-3">
-            <i class="fa fa-bars" style="color: #2efad9"></i>
+            class="btn d-md-none rounded-circle mr-1">
+            <i class="fa fa-bars" style="color: #051729"></i>
           </button>
         </nav>
         <div id="content">
@@ -83,6 +84,18 @@
             inputCard.focus();
           });
         }
+
+        function toggleSidebarClass() {
+          const body = document.body;
+          if (window.innerWidth <= 768) {
+            body.classList.add('sidebar-toggled');
+          } else {
+            body.classList.remove('sidebar-toggled');
+          }
+        }
+        toggleSidebarClass();
+
+        window.addEventListener('resize', toggleSidebarClass);
       });
 
       document.getElementById('sidebarToggleTop').addEventListener('click', function () {

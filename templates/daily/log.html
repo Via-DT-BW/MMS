@@ -151,7 +151,7 @@
           <li class="page-item">
             <a
               class="page-link"
-              href="{{ url_for('daily', page=page-1, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
+              href="{{ url_for('daily.daily', page=page-1, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
               >«</a
             >
           </li>
@@ -159,7 +159,7 @@
           <li class="page-item {% if p == page %}active{% endif %}">
             <a
               class="page-link"
-              href="{{ url_for('daily', page=p, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
+              href="{{ url_for('daily.daily', page=p, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
               >{{ p }}</a
             >
           </li>
@@ -167,7 +167,7 @@
           <li class="page-item">
             <a
               class="page-link"
-              href="{{ url_for('daily', page=page+1, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
+              href="{{ url_for('daily.daily', page=page+1, page_size=page_size, filter_turno=filter_turno, filter_tl=filter_tl, start_date=start_date, end_date=end_date) }}"
               >»</a
             >
           </li>

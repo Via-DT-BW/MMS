@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ? { card_number: cardNum }
         : { username: username, password: password };
 
+      console.log(loginData);
       fetch("/api/authenticate", {
         method: "POST",
         headers: {
@@ -43,14 +44,11 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify(loginData),
       })
-        .then((response) => {
-          response.json();
-        })
+        .then((response) => response.json())
         .then((data) => {
           if (data.success) {
             const technicianId = data.technician_id;
             startPreventive(orderNumber, technicianId);
-            window.location.reload();
           } else {
             alert(data.message || "Erro na autenticação. Tente novamente.");
           }

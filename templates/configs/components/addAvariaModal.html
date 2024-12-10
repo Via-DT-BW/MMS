@@ -17,7 +17,9 @@
           aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="{{ url_for('add_avaria', area=area) }}">
+        <form
+          method="POST"
+          action="{{ url_for('settings.add_avaria', area=area) }}">
           <div class="mb-3">
             <label for="tipo" class="form-label">Tipo de Avaria</label>
             <input

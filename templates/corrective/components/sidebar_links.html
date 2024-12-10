@@ -3,7 +3,21 @@ session['username'] %}
 <div class="justify-content-center d-flex text-center" style="color: #2cedd4">
   Bem-vindo, {{ session['nome'] }}!
 </div>
+<a
+  class="btn nav-link collapsed"
+  data-toggle="modal"
+  data-target="#modalCorrective">
+  <i class="fas fa-tools" style="color: #2cedd4"></i>
+  <span>Pedir Manutenção</span>
+</a>
 
+<li class="nav-item">
+  <a href="/mt_profile" class="btn nav-link collapsed">
+    <i class="fa-solid fa-user" style="color: #2cedd4"></i>
+    <span>Perfil</span>
+  </a>
+</li>
+<br />
 <div class="sidebar-heading mt-2" style="color: #2cedd4">
   Pedidos de Manutenção
 </div>
