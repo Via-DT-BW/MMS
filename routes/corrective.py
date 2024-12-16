@@ -133,6 +133,8 @@ def notifications():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        mt_id = session.get('id_mt')
+        
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
         start_date = request.args.get('start_date', type=str)
@@ -147,11 +149,13 @@ def notifications():
                 @PageSize = ?,  
                 @StartDate = ?, 
                 @EndDate = ?, 
-                @FilterProdLine = ?
+                @FilterProdLine = ?, 
+                @TecnicoId = ?
             """,
-            page, page_size, start_date, end_date, filter_prod_line
+            page, page_size, start_date, end_date, filter_prod_line, mt_id
         )
         notifications = cursor.fetchall()
+
         count_query = f"""
             SELECT COUNT(*) 
             FROM [{app_name}].[dbo].[corretiva] 
@@ -304,6 +308,8 @@ def inwork():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        mt_id = session.get('id_mt')
+        
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
         start_date = request.args.get('start_date', type=str)
@@ -313,15 +319,16 @@ def inwork():
         sidebar = request.args.get('sidebar', 'True').lower() == 'true'
         
         cursor.execute("""
-            EXEC GetCorretivaInWorks
+            EXEC GetCorretivaInWorks 
                 @PageNumber = ?, 
                 @PageSize = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @FilterProdLine = ?,
-                @FilterNumber = ?
+                @FilterNumber = ?,
+                @TecnicoId = ?
             """,
-            page, page_size, start_date, end_date, filter_prod_line, filter_number
+            page, page_size, start_date, end_date, filter_prod_line, filter_number, mt_id
         )
         ongoing = cursor.fetchall()
         if ongoing:
@@ -410,6 +417,8 @@ def finished():
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+        
+        mt_id = session.get('id_mt')
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
@@ -570,30 +579,16 @@ def pedido_spares(id):
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
         
-        query = "SELECT * from corretiva where id = ?"
-        cursor.execute(query, id)
-        row = cursor.fetchone()
+        query = "INSERT INTO rpa_corretiva (id_tecnico, id_corretiva) values (?, ?)"
+        cursor.execute(query, (session['id_mt'], id))
+        cursor.commit()
         
-        columns = [column[0] for column in cursor.description]
-        
-        if row:
-            data = dict(zip(columns, row))
-            print(data)
+        sap_order_number = aguardar_sap_order(cursor, id)
+
+        if sap_order_number:
+            return jsonify({"message": f"Ordem {sap_order_number} criada com sucesso!"}), 200
         else:
-            return jsonify({"error": "Registo não encontrado"}), 404
-        
-        #SCRIPT SAP
-        
-        random_number = random.randint(1, 10000)
-        hoje = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
-        cursor.execute(
-            "UPDATE corretiva SET sap_order_number = ?, sap_order = ? WHERE id = ?",
-            (random_number, hoje, id)
-        )
-        conn.commit()
-        
-        return jsonify({"message": f"Ordem {random_number} criada com sucesso!"}), 200
+            return jsonify({"error": "Tempo limite atingido, por favor verifique o número da ordem mais tarde."}), 408
 
     except Exception as e:
         print(e)
@@ -664,3 +659,21 @@ def update_profile_mt():
     except Exception as e:
         print(e)
         return jsonify({"error": "Erro ao salvar alterações"}), 500
+
+def aguardar_sap_order(cursor, id, max_attempts=30, sleep_interval=5):
+    
+    attempts = 0
+    while attempts < max_attempts:
+        cursor.execute(
+            "SELECT sap_order_number FROM corretiva WHERE id = ?",
+            (id,)
+        )
+        row = cursor.fetchone()
+
+        if row and row.sap_order_number:
+            return row.sap_order_number
+        
+        attempts += 1
+        time.sleep(sleep_interval)
+    
+    return None

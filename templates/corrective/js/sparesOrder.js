@@ -1,10 +1,13 @@
-function criarOrdem(id) {
+function criarOrdem(element, id) {
   console.log("Criando ordem para o ID: " + id);
 
-  const button = document.querySelector(".custom-link");
+  const button = element;
   const originalContent = button.innerHTML;
+
   button.innerHTML =
-    'A criar ordem...<br><img src="{{ url_for("static", filename="content/loader.gif") }}" alt="Carregando" />';
+    'A criar ordem...<br><img src="' +
+    "{{ url_for('static', filename='content/loader.gif') }}" +
+    '" alt="Carregando" />';
 
   $.ajax({
     url: "/pedido_spares/" + id,
