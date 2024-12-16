@@ -94,6 +94,7 @@ $(document).ready(function () {
           $("#corretiva-description").text(response.manutencao.description);
           $("#corretiva-equipament").text(response.manutencao.equipament);
           $("#corretiva-prod-line").text(response.manutencao.prod_line);
+          fetchTipoAvarias(response.manutencao.prod_line, "#select-avaria");
           $("#corretiva-pedido-date").text(
             formatDateTime(response.manutencao.data_pedido)
           );

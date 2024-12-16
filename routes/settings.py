@@ -1,9 +1,11 @@
 from collections import defaultdict
+import re
+import unicodedata
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash, render_template
 import pyodbc
 from datetime import datetime
 import pyodbc
-from utils.call_conn import conexao_mms, conexao_sms
+from utils.call_conn import conexao_mms, conexao_sms, conexao_capture
 
 settings_sec = Blueprint("settings", __name__, static_folder="static", static_url_path='/Main/static', template_folder="templates")
 
@@ -534,3 +536,134 @@ def edit_contact(id):
     except Exception as e:
         print(f"Error editing contact: {e}")
         return "Error editing contact", 500
+    
+@settings_sec.route('/mes_descriptions', methods=['GET'])
+def mes_descriptions():
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 20))
+    linha = request.args.get('filter_prod_line', None)
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("EXEC GetDescriptions @PageNumber=?, @PageSize=?, @ProdLine=?", page, page_size, linha)
+        rows = cursor.fetchall()
+        descs = []
+        total_count = 0
+        for row in rows:
+            desc = {
+                "id": row.id,
+                "desc": row.description,
+                "prod_line": row.prod_line,
+            }
+            descs.append(desc)
+            total_count = row.TotalCount
+
+        total_pages = (total_count + page_size - 1) // page_size
+
+        return render_template(
+            'configs/descriptions.html',
+            descs=descs,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+            linha=linha,
+            maintenance="Settings"
+        )
+    except Exception as e:
+        print(f"Error fetching descriptions: {e}")
+        return "Error loading descriptions", 500
+
+def normalize_text(text):
+    normalized = unicodedata.normalize('NFKD', text)
+    text_without_accent = "".join(c for c in normalized if not unicodedata.combining(c))
+    text_cleaned = re.sub(r'[^\w\s-]', '', text_without_accent)
+    return text_cleaned.strip()
+
+@settings_sec.route('/add_desc', methods=['POST'])
+def add_desc():
+    try:
+        prod_line = request.form.get('filter_prod_line')
+        description = request.form.get('desc')
+
+        if not prod_line or not description:
+            return "Campos obrigatórios não preenchidos.", 400
+
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+        description_normalized = normalize_text(description)
+        cursor.execute("""
+            INSERT INTO aux_fiori (prod_line, description)
+            VALUES (?, ?)
+        """, (prod_line, description_normalized))
+        conn.commit()
+
+        flash("Descrição adicionada com sucesso!", "success")
+        return redirect(url_for('settings.mes_descriptions'))
+    except Exception as e:
+        print(f"Erro ao adicionar descrição: {e}")
+        flash("Erro ao adicionar descrição.", "danger")
+        return redirect(url_for('settings.mes_descriptions'))
+
+@settings_sec.route('/get_desc/<int:id>', methods=['GET'])
+def get_desc(id):
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, prod_line, description FROM aux_fiori WHERE id = ?", id)
+        row = cursor.fetchone()
+        if row:
+            desc = {
+                "id": row.id,
+                "prod_line": row.prod_line,
+                "description": row.description,
+            }
+            return jsonify(desc), 200
+        else:
+            return "Descrição não encontrada.", 404
+    except Exception as e:
+        print(f"Erro ao buscar descrição: {e}")
+        return "Erro ao buscar descrição.", 500
+
+@settings_sec.route('/edit_desc', methods=['POST'])
+def edit_desc():
+    try:
+        id = request.form.get('editId')
+        prod_line = request.form.get('editProdLine')
+        description = request.form.get('editDescription')
+        description_normalized = normalize_text(description)
+        if not id or not prod_line or not description:
+            return "Campos obrigatórios não preenchidos.", 400
+
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE aux_fiori
+            SET prod_line = ?, description = ?
+            WHERE id = ?
+        """, (prod_line, description_normalized, id))
+        conn.commit()
+
+        flash("Registo atualizado com sucesso!", "success")
+        return redirect(url_for('settings.mes_descriptions'))
+    except Exception as e:
+        print(f"Erro ao atualizar descrição: {e}")
+        flash("Erro ao atualizar registo.", "danger")
+        return redirect(url_for('settings.mes_descriptions'))
+
+@settings_sec.route('/delete_desc/<int:id>', methods=['POST'])
+def delete_desc(id):
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM aux_fiori WHERE id = ?", id)
+        conn.commit()
+
+        return "Registo removido com sucesso.", 200
+    except Exception as e:
+        print(f"Erro ao remover descrição: {e}")
+        return "Erro ao remover registo.", 500

@@ -4,7 +4,6 @@ $(document).ready(function () {
     var idCorretiva = button.data("id-corretiva");
     var id = button.data("id");
     var prodLine = button.data("prod-line");
-    console.log(prodLine);
 
     fetchTipoAvarias(prodLine, "#select-avaria");
 

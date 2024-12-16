@@ -1,5 +1,3 @@
-from collections import defaultdict
-import os
 from flask import Config, Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from datetime import date, datetime
 import pyodbc
@@ -206,7 +204,7 @@ def authenticate_tecnico():
 
 @app.route('/api/tipo_avarias', methods=['GET'])
 def get_tipo_avarias():
-    try:
+    #try:
         prod_line = request.args.get('prod_line')
         
         if not prod_line:
@@ -214,12 +212,11 @@ def get_tipo_avarias():
         
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
-
         cursor.execute("EXEC GetTipoAvariasByProdLine @prod_line = ?", (prod_line,))
         
         avarias = []
         rows = cursor.fetchall()
-        
+        print(rows)
         if not rows:
             return jsonify({'error': 'Nenhum tipo de avaria encontrado para esta linha de produção.'}), 404
 
@@ -228,14 +225,14 @@ def get_tipo_avarias():
                 'id': row.id,
                 'tipo': row.tipo,
             })
-
+        print(avarias)
         return jsonify(avarias)
 
-    except Exception as e:
+    #except Exception as e:
         print(e)
         return jsonify({'error': f'Ocorreu um erro: {str(e)}'}), 500
 
-    finally:
+    #finally:
         if 'cursor' in locals():
             cursor.close()
         if 'conn' in locals():

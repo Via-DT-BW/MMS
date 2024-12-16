@@ -12,14 +12,14 @@ endif %} {% block content %}
       method="GET"
       action="/notifications"
       class="form-row justify-content-center">
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Linha de Produção</small>
         <select name="filter_prod_line" class="form-control">
           <option value="">Selecione a linha</option>
         </select>
       </div>
 
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Número do Técnico</small>
         <input
           type="text"
@@ -29,7 +29,7 @@ endif %} {% block content %}
           value="{{ request.args.get('filter_number', '') }}" />
       </div>
 
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Por página</small>
         <input
           type="number"
@@ -41,7 +41,7 @@ endif %} {% block content %}
           placeholder="Itens por página" />
       </div>
 
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data inicial</small>
         <input
           type="date"
@@ -50,7 +50,7 @@ endif %} {% block content %}
           value="{{ request.args.get('start_date', '') }}" />
       </div>
 
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data final</small>
         <input
           type="date"
