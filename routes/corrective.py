@@ -143,30 +143,27 @@ def notifications():
         
         sidebar = request.args.get('sidebar', 'True').lower() == 'true'
         
+        total_records = 0
+
         cursor.execute("""
+            DECLARE @TotalRecords INT;
             EXEC GetFioriNotifications 
                 @PageNumber = ?, 
                 @PageSize = ?,  
                 @StartDate = ?, 
                 @EndDate = ?, 
                 @FilterProdLine = ?, 
-                @TecnicoId = ?
+                @TecnicoId = ?, 
+                @TotalRecords = @TotalRecords OUTPUT;
+            SELECT @TotalRecords;
             """,
             page, page_size, start_date, end_date, filter_prod_line, mt_id
         )
         notifications = cursor.fetchall()
 
-        count_query = f"""
-            SELECT COUNT(*) 
-            FROM [{app_name}].[dbo].[corretiva] 
-            WHERE 
-                (ISNULL(?, '') = '' OR [prod_line] LIKE '%' + ? + '%') AND
-                (ISNULL(?, '') = '' OR [data_pedido] >= ?) AND
-                (ISNULL(?, '') = '' OR [data_pedido] <= ?) and id_estado=1
-        """
-        cursor.execute(count_query, filter_prod_line, filter_prod_line, start_date, start_date, end_date, end_date)
-        total_records = cursor.fetchone()[0]
-        total_pages = (total_records + page_size - 1) // page_size
+        total_records = cursor.nextset() and cursor.fetchone()[0]
+
+        total_pages = max(1, (total_records + page_size - 1) // page_size)
         start_page = max(1, page - 3)
         end_page = min(total_pages, page + 3)
 
@@ -187,7 +184,7 @@ def notifications():
         cursor.close()
         conn.close()
 
-    return redirect(url_for('notifications'))
+    return redirect(url_for('corrective.notifications'))
 
 @corrective.route('/corrective_order_by_mt', methods=['POST', 'GET'])
 def corrective_order_by_mt():

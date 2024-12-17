@@ -1,7 +1,7 @@
 {% extends 'corrective/corrective.html' %} {% block content %}
 
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
-
+{% if session['username'] %}
 <div class="row">
   <div class="col-md-12">
     <div id="notifications-container"></div>
@@ -12,6 +12,11 @@
     <div id="inwork-container"></div>
   </div>
 </div>
+{% else %}
+<div class="alert alert-warning text-center">
+  Por favor, faça login para aceder as manutenções.
+</div>
+{% endif %}
 
 <script>
   $(document).ready(function () {
