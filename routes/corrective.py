@@ -467,58 +467,6 @@ def finished():
 def corrective_analytics():
     return render_template('corrective/analytics.html', maintenance="Manutenção")
 
-@corrective.route('/corrective_comments', methods=['GET'])
-def corrective_comments():
-    try:
-        conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
-
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 10, type=int)
-        start_date = request.args.get('start_date', type=str)
-        end_date = request.args.get('end_date', type=str)
-        filter_prod_line = request.args.get('filter_prod_line', '', type=str)
-
-        cursor.execute("""
-            EXEC GetCorretivaCommentsFiltered
-                @PageNumber = ?, 
-                @PageSize = ?, 
-                @StartDate = ?, 
-                @EndDate = ?, 
-                @FilterProdLine = ?
-            """,
-            page, page_size, start_date, end_date, filter_prod_line
-        )
-        comments = cursor.fetchall()
-
-        if comments:
-            total_records = comments[0].total_count
-            total_pages = (total_records + page_size - 1) // page_size
-        else:
-            total_records = 0
-            total_pages = 1
-
-        start_page = max(1, page - 3)
-        end_page = min(total_pages, page + 3)
-
-        return render_template('corrective/comments.html', 
-                               maintenance="Manutenção", 
-                               year=year, 
-                               comments=comments, 
-                               page=page, 
-                               total_pages=total_pages,
-                               start_page=start_page,
-                               end_page=end_page)
-
-    except Exception as e:
-        print(e)
-        flash(f'Ocorreu um erro: {str(e)}', category='error')
-    finally:
-        cursor.close()
-        conn.close()
-
-    return redirect(url_for('corrective.corrective_comments'))
-
 @corrective.route('/pending_comments', methods=['GET'])
 def pending_comments():
     try:
@@ -657,7 +605,7 @@ def update_profile_mt():
         print(e)
         return jsonify({"error": "Erro ao salvar alterações"}), 500
 
-def aguardar_sap_order(cursor, id, max_attempts=30, sleep_interval=5):
+def aguardar_sap_order(cursor, id, max_attempts=20, sleep_interval=15):
     
     attempts = 0
     while attempts < max_attempts:
