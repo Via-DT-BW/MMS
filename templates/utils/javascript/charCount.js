@@ -6,7 +6,7 @@ function updateCharCount(textareaId, countId, buttonId, n) {
 
   countDisplay.textContent = `${charCount}/${n}`;
 
-  if (charCount >= n) {
+  if (charCount > n) {
     countDisplay.style.color = "red";
     submitButton.disabled = true;
   } else {
