@@ -393,6 +393,22 @@ def finish_maintenance():
             WHERE id = ?
         ''', (data_atual, 3, id_corretiva))
 
+        cursor.execute('''
+            SELECT sap_order_number FROM [dbo].[corretiva]
+            WHERE id = ?
+        ''', (id_corretiva,))
+        sap_order_number = cursor.fetchone()
+        
+        if sap_order_number and sap_order_number[0] is not None:
+            cursor.execute('''
+                UPDATE [dbo].[rpa_corretiva]
+                SET done = 0, in_queue = 0
+                WHERE id_corretiva = ?
+            ''', (id_corretiva,))
+            print("Corretiva pronta para ser finalizada em SAP.")
+        else:
+            print(f"Não existe sap_order_number para a corretiva {id_corretiva}.")
+        
         conn.commit()
 
         cursor.close()
