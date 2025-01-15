@@ -210,7 +210,7 @@ def corrective_order_by_mt():
             conn.commit()
 
             flash('Notificação enviada com sucesso', category='success')
-            return redirect(url_for('inwork'))
+            return redirect(url_for('corrective.inwork'))
         except Exception as e:
           print(e)
           flash(f'Ocorreu um erro: {str(e)}', category='error')
@@ -218,7 +218,7 @@ def corrective_order_by_mt():
             cursor.close()
             conn.close()
 
-        return redirect(url_for('inwork'))
+        return redirect(url_for('corrective.inwork'))
 
 @corrective.route('/reject_corrective_notification', methods=['POST'])
 def reject_notification():
@@ -363,7 +363,7 @@ def inwork():
         cursor.close()
         conn.close()
 
-    return redirect(url_for('inwork'))
+    return redirect(url_for('corrective.inwork'))
 
 @corrective.route('/finish_maintenance', methods=['POST'])
 def finish_maintenance():
@@ -461,7 +461,7 @@ def finished():
         cursor.close()
         conn.close()
 
-    return redirect(url_for('finished'))
+    return redirect(url_for('corrective.finished'))
 
 @corrective.route('/corrective_analytics')
 def corrective_analytics():
@@ -472,7 +472,7 @@ def pending_comments():
     try:
         if 'id_mt' not in session:
             flash('Usuário não autenticado!', category='error')
-            return redirect(url_for('login'))
+            return redirect(url_for('corrective.login'))
         
         tecnico_id = session['id_mt']
         
@@ -511,7 +511,7 @@ def pending_comments():
     except Exception as e:
         print(e)
         flash(f'Ocorreu um erro: {str(e)}', category='error')
-        return redirect(url_for('pending_comments'))
+        return redirect(url_for('corrective.pending_comments'))
     finally:
         cursor.close()
         conn.close()
@@ -599,7 +599,7 @@ def update_profile_mt():
         conn.commit()
         flash('Perfil atualizado com sucesso!', category='success')
 
-        return redirect(url_for('mt_profile_page'))
+        return redirect(url_for('corrective.mt_profile_page'))
 
     except Exception as e:
         print(e)
