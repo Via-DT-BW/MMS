@@ -350,15 +350,16 @@ def update_mt():
     try:
         id = request.form['id']
         area = request.form['area']
+        n_card = request.form['n_card']
         
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
         cursor.execute("""
             UPDATE [dbo].[tecnicos]
-            SET area = ?
+            SET area = ?, card_number = ?
             WHERE id = ?
-        """, area, id)
+        """, area, n_card,id)
         
         conn.commit()
         flash('Dados atualizados com sucesso!', category='success')
