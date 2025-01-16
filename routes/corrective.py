@@ -97,7 +97,7 @@ def login_corrective():
         cursor = conn.cursor()
 
         if card:
-            cursor.execute("SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE card_number=?", (card,))
+            cursor.execute(f"SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE card_number LIKE ?", ('%' + card + '%',))
         elif username and password:
             cursor.execute("SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE username=? AND password=?", (username, password,))
         else:
