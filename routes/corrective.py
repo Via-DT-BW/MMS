@@ -143,6 +143,7 @@ def notifications():
         
         sidebar = request.args.get('sidebar', 'True').lower() == 'true'
         
+        print(start_date, end_date, filter_prod_line, mt_id)
         total_records = 0
 
         cursor.execute("""
@@ -160,7 +161,7 @@ def notifications():
             page, page_size, start_date, end_date, filter_prod_line, mt_id
         )
         notifications = cursor.fetchall()
-
+        print(notifications)
         total_records = cursor.nextset() and cursor.fetchone()[0]
 
         total_pages = max(1, (total_records + page_size - 1) // page_size)
