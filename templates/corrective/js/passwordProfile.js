@@ -1,4 +1,4 @@
-document
+/*document
   .getElementById("toggle-sap-password")
   .addEventListener("click", function () {
     var sapPasswordField = document.getElementById("sap_pass");
@@ -13,7 +13,7 @@ document
       eyeIconSap.classList.remove("fa-eye-slash");
       eyeIconSap.classList.add("fa-eye");
     }
-  });
+  });*/
 
 document
   .getElementById("toggle-password")
