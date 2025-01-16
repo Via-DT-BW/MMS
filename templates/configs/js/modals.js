@@ -20,10 +20,12 @@ $("#editMTModal").on("show.bs.modal", function (event) {
   var username = button.data("username");
   var area = button.data("area");
   var n_colaborador = button.data("n-colaborador");
+  var n_card = button.data("card");
 
   var modal = $(this);
   modal.find("#id").val(id);
   modal.find("#username").val(username);
   modal.find("#area").val(area);
   modal.find("#n_colaborador").val(n_colaborador);
+  modal.find("#n_card").val(n_card);
 });
