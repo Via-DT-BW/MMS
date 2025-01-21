@@ -1,10 +1,15 @@
 {% extends 'corrective/corrective.html' %} {% block content %}
+<style>
+  td {
+    font-size: 14px;
+  }
+</style>
+
 <div class="container mt-4">
   <div class="row">
     <div class="col-md-12">
       <h2>Comentários Pendentes</h2>
 
-      <!-- Filtros de Pesquisa -->
       <form id="filterForm" method="GET" class="mb-4">
         <div class="row">
           <div class="col-md-3">
@@ -57,6 +62,7 @@
             <tr>
               <th>ID Corretiva</th>
               <th>Linha</th>
+              <th>Técnico</th>
               <th>Descrição</th>
               <th>Equipamento</th>
               <th>Data Início</th>
@@ -67,12 +73,13 @@
           <tbody>
             {% if pending|length == 0 %}
             <tr>
-              <td colspan="7" class="text-center">Sem comentários pendentes</td>
+              <td colspan="8" class="text-center">Sem comentários pendentes</td>
             </tr>
             {% else %} {% for comentario in pending %}
             <tr>
               <td>{{ comentario.id_corretiva }}</td>
               <td>{{ comentario.prod_line }}</td>
+              <td>{{ comentario.nome }} - {{comentario.n_tecnico}}</td>
               <td>{{ comentario.description }}</td>
               <td>{{ comentario.equipament }}</td>
               <td class="data">{{ comentario.data_inicio }}</td>
