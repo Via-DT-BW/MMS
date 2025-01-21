@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon" type="image/ico" href="static/initial_page/img/icon.PNG" />
+    <title>MMS</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+        margin: 0;
+        overflow-x: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 250px;
+        background: #333;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 10px;
+      }
+
+      .sidebar img {
+        height: 80px;
+        margin-bottom: 30px;
+      }
+
+      .sidebar ul {
+        list-style: none;
+        padding: 0;
+        width: 100%;
+      }
+
+      .sidebar ul li {
+        width: 100%;
+      }
+
+      .sidebar ul li a {
+        display: block;
+        padding: 15px 20px;
+        color: white;
+        text-decoration: none;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      .sidebar ul li a:hover {
+        background: #007bff;
+        color: white;
+      }
+
+      .video-bg {
+        margin-left: 250px;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .video-bg video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1;
+      }
+
+      .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+      }
+
+      .video-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+        text-align: center;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        background: #333;
+        color: white;
+        padding: 15px;
+        margin-left: 250px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <img src="static/initial_page/img/app_logo.png" alt="Logo" />
+      <ul>
+        <li><a href="/autonomous">Autonomous Maintenance</a></li>
+        <li><a href="/preventive">Preventive Maintenance</a></li>
+        <li><a href="/corrective">Corrective Maintenance</a></li>
+        <li><a href="/monotoring">Planning & Monitoring</a></li>
+        <li>
+          <a href="#" data-toggle="modal" data-target="#loginModal">Settings</a>
+        </li>
+      </ul>
+    </div>
+    {% include "components/loginModal.html" %}
+    <div class="video-bg">
+      <video autoplay muted loop>
+        <source
+          src="static/initial_page/videos/shutterstock.mp4"
+          type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="video-overlay"></div>
+      <div class="video-content">
+        <h1>Maintenance Management System</h1>
+        <p>Gerencie suas operações de manutenção com eficiência.</p>
+      </div>
+    </div>
+
+    <footer>
+      <p>Copyright &copy; {{year}} Digital Transformation - Viana do Castelo</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
+
+    <script src="static/initial_page/js/jquery-1.9.1.min.js"></script>
+    <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
+    <script>
+      {% include "utils/javascript/login.js" %}
+    </script>
+  </body>
+</html>

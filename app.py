@@ -1,4 +1,4 @@
-from flask import Config, Flask, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Config, Flask, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from datetime import date, datetime
 import pyodbc
 from utils.generate_pass import gerar_pass
@@ -42,10 +42,23 @@ def logout():
    session.clear()
    return redirect(url_for('index'))
 
+@app.route('/manual')
+def serve_pdf():
+    return send_from_directory(
+        directory='static/content',  # Diretório onde o PDF está localizado
+        path='manual.pdf',           # Nome do arquivo no diretório
+        mimetype='application/pdf',  # Define o tipo de arquivo
+    )
+
 @app.route('/')
 def index():
     logout()
     return render_template('index.html', year=year)
+
+@app.route('/2')
+def index2():
+    logout()
+    return render_template('index2.html', year=year)
 
 #Autonomous
 @app.route('/autonomous', methods=['GET'])
