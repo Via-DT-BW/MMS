@@ -16,10 +16,8 @@ def preventive():
         filter_cost = request.args.get('filter_cost', '', type=str)
         start_date = request.args.get('start_date', '', type=str)
         end_date = request.args.get('end_date', '', type=str)
-        print(start_date, end_date)
         start_date = str(start_date)
         end_date = str(end_date)
-        print("Converted Dates:", start_date, end_date)
 
         preventive_page_size = request.args.get('preventive_page_size', 10, type=int)
         preventive_page = request.args.get('preventive_page', 1, type=int)
