@@ -11,6 +11,7 @@
         <h5 class="modal-title" id="addDailyModalLabel">
           Adicionar Comentário
         </h5>
+
         <button
           type="button"
           class="close"
@@ -19,9 +20,20 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+
       <div class="modal-body">
         <form id="addDailyForm">
           <div class="row">
+            <div
+              class="col-md-12 alert-section mt-1 mb-1 d-flex justify-content-center align-items-center"
+              style="gap: 10px">
+              <img
+                src="{{ url_for('static', filename='content/comment_format.png') }}"
+                alt="Formatação do Comentário"
+                style="max-height: 12rem; width: auto; display: inline-block" />
+            </div>
+          </div>
+          <div class="row mt-1">
             <div class="form-group col-md-6">
               <label for="id_tl">Team Leader</label>
               <input
@@ -56,7 +68,7 @@
                 class="form-control"
                 id="safety_comment"
                 name="safety_comment"
-                rows="5"
+                rows="7"
                 maxlength="600"
                 oninput="updateCharCount('safety_comment', 'safetyCount', 'saveDailyRecord', 600)"></textarea>
             </div>
@@ -67,7 +79,7 @@
                 class="form-control"
                 id="quality_comment"
                 name="quality_comment"
-                rows="5"
+                rows="7"
                 maxlength="600"
                 oninput="updateCharCount('quality_comment', 'qualityCount', 'saveDailyRecord', 600)"></textarea>
             </div>
@@ -80,7 +92,7 @@
                 class="form-control"
                 id="volume_comment"
                 name="volume_comment"
-                rows="5"
+                rows="7"
                 maxlength="600"
                 oninput="updateCharCount('volume_comment', 'volumeCount', 'saveDailyRecord', 600)"></textarea>
             </div>
@@ -91,7 +103,7 @@
                 class="form-control"
                 id="people_comment"
                 name="people_comment"
-                rows="5"
+                rows="7"
                 maxlength="600"
                 oninput="updateCharCount('people_comment', 'peopleCount', 'saveDailyRecord', 600)"></textarea>
             </div>
