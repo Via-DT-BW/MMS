@@ -21,6 +21,7 @@ def daily():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
         area = session.get('area')
+        role = session.get('role')
         id_tl = session.get('id_tl')
 
         today = datetime.today().strftime('%Y-%m-%d')
@@ -47,9 +48,10 @@ def daily():
                 @EndDate = ?, 
                 @PageSize = ?, 
                 @Page = ?,
-                @area = ?
+                @area = ?,
+                @Role = ?
             """,
-            filter_turno, filter_tl, start_date, end_date, page_size, page, area
+            filter_turno, filter_tl, start_date, end_date, page_size, page, area, role
         )
         daily_data = cursor.fetchall()
         
@@ -62,10 +64,11 @@ def daily():
                 (ISNULL(?, '') = '' OR tl.username LIKE '%' + ? + '%') AND
                 (ISNULL(?, '') = '' OR d.data >= ?) AND
                 (ISNULL(?, '') = '' OR d.data <= ?) AND
-                (tl.area = ?)
+                (tl.area = ?) AND
+                (tl.role = ?)
                 
         """
-        cursor.execute(count_query, filter_turno, filter_turno, filter_tl, filter_tl, start_date, start_date, end_date, end_date, area)
+        cursor.execute(count_query, filter_turno, filter_turno, filter_tl, filter_tl, start_date, start_date, end_date, end_date, area, role)
         total_records = cursor.fetchone()[0]
         
         total_pages = (total_records + page_size - 1) // page_size
@@ -106,7 +109,7 @@ def login_daily():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("SELECT id, username, area, turno FROM teamleaders WHERE username=? AND password=?", (username, password))
+        cursor.execute("SELECT id, username, area, role, turno FROM teamleaders WHERE username=? AND password=?", (username, password))
         user = cursor.fetchone()
 
         if user:
@@ -114,6 +117,7 @@ def login_daily():
             session['id_tl'] = user.id
             session['turno'] = user.turno
             session['area'] = user.area
+            session['role'] = user.role
             return jsonify({'success': True})
         else:
             return jsonify({'success': False, 'error': 'Credenciais inválidas'}), 401

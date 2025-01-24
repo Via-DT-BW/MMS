@@ -615,7 +615,10 @@ def update_profile_mt():
         #sap_user = request.form.get('sap_user')
         #sap_pass = request.form.get('sap_pass')
 
-        print(mt_id, nome, n_tecnico, card_number, username, email)
+        if not password or len(password) < 6:
+            flash('A password deve ter pelo menos 6 caracteres.', category='error')
+            return redirect(url_for('corrective.mt_profile_page'))
+        
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
