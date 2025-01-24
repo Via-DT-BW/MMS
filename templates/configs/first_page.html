@@ -1,3 +1,57 @@
 {% extends 'configs/settings.html' %} {% block content %}
-<h3>Bem vindo, {{session['username']}}</h3>
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="mt-2">
+  <h3 class="card-title">Bem-vindo, {{ session['username'] }}</h3>
+
+  <div class="row">
+    <div class="col-lg-6 mb-4"></div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div
+          class="card-header text-white text-center rounded-top-4"
+          style="background-color: #051729">
+          <h4 class="card-title mb-0">Manual Atual</h4>
+        </div>
+        <div class="card-body text-center">
+          <form
+            action="{{ url_for('settings.update_manual') }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="mb-3">
+            <label for="manual_pdf" class="form-label"
+              >Atualizar Manual (PDF):</label
+            >
+            <div class="row align-items-center">
+              <div class="col">
+                <input
+                  type="file"
+                  class="form-control"
+                  id="manual_pdf"
+                  name="manual_pdf"
+                  accept="application/pdf"
+                  required />
+              </div>
+
+              <div class="col-auto">
+                <button type="submit" class="btn btn-success">
+                  Atualizar <i class="fa-solid fa-pen-clip ml-1"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="pdf-viewer rounded-3 overflow-hidden">
+            <iframe
+              src="{{ url_for('static', filename='content/manual.pdf') }}"
+              class="w-100"
+              style="height: 350px; border: none">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

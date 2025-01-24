@@ -1,4 +1,5 @@
 from collections import defaultdict
+import os
 import re
 import unicodedata
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash, render_template
@@ -8,6 +9,9 @@ import pyodbc
 from utils.call_conn import conexao_mms, conexao_sms, conexao_capture
 
 settings_sec = Blueprint("settings", __name__, static_folder="static", static_url_path='/Main/static', template_folder="templates")
+
+UPLOAD_FOLDER = os.path.join('static', 'content')
+ALLOWED_EXTENSIONS = {'pdf'}
 
 @settings_sec.route('/login_settings', methods=['POST'])
 def login_settings():
@@ -668,3 +672,35 @@ def delete_desc(id):
     except Exception as e:
         print(f"Erro ao remover descrição: {e}")
         return "Erro ao remover registo.", 500
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@settings_sec.route('/update_manual', methods=['POST'])
+def update_manual():
+    try:
+        if 'manual_pdf' not in request.files:
+            flash('Nenhum ficheiro enviado.', 'error')
+            return redirect(url_for('settings.settings'))
+
+        file = request.files['manual_pdf']
+
+        if file.filename == '':
+            flash('Nenhum ficheiro selecionado.', 'error')
+            return redirect(url_for('settings.settings'))
+
+        if file and allowed_file(file.filename):
+            if not os.path.exists(UPLOAD_FOLDER):
+                os.makedirs(UPLOAD_FOLDER)
+
+            filepath = os.path.join(UPLOAD_FOLDER, 'manual.pdf')
+            file.save(filepath)
+            flash('Manual atualizado com sucesso!', 'success')
+        else:
+            flash('Ficheiro inválido. Apenas ficheiros em formato PDF são permitidos.', 'error')
+
+    except Exception as e:
+        flash(f'Ocorreu um erro ao atualizar o manual: {str(e)}', 'error')
+        return redirect(url_for('settings.settings'))
+
+    return redirect(url_for('settings.settings'))
