@@ -105,9 +105,14 @@
           <li class="page-item {% if i == page %}active{% endif %}">
             <a
               class="page-link"
-              href="{{ url_for('corrective.pending_comments', page=i, filter=request.args.get('filter', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), filter_prod_line=request.args.get('filter_prod_line', '')) }}"
-              >{{ i }}</a
-            >
+              href="{{ url_for('corrective.pending_comments', 
+                   page=i, 
+                   filter=request.args.get('filter', ''), 
+                   start_date=request.args.get('start_date') if request.args.get('start_date') else None, 
+                   end_date=request.args.get('end_date') if request.args.get('end_date') else None, 
+                   filter_prod_line=request.args.get('filter_prod_line', '')) }}">
+              {{ i }}
+            </a>
           </li>
           {% endfor %}
         </ul>

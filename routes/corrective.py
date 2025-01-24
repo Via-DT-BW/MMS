@@ -1,5 +1,7 @@
 import os
 import random
+import re
+import unicodedata
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash, render_template
 import pyodbc
 from datetime import date, datetime
@@ -13,6 +15,13 @@ year = today.strftime("%Y")
 sidebar = True
 app_name = os.getenv("APP_NAME")
 #app_name = "MMS"
+
+def sanitize_text(text):
+    if text is None:
+        return None
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    return text
 
 corrective = Blueprint("corrective", __name__, static_folder="static", static_url_path='/Main/static', template_folder="templates")
 
@@ -28,7 +37,7 @@ def corrective_notification():
         try:
             conn = pyodbc.connect(conexao_mms)
             cursor = conn.cursor()
-
+            var_descricao = sanitize_text(var_descricao)
             storeproc_add_fiori_notification = """
                 Exec dbo.add_fiori_notification 
                 @descricao=?, @equipamento=?, @n_operador=?, @paragem=?, @prod_line=?, @nome_app=?
@@ -63,6 +72,8 @@ def corrective_notification_capture():
 
             conn = pyodbc.connect(conexao_mms)
             cursor = conn.cursor()
+            
+            var_descricao = sanitize_text(var_descricao)
 
             storeproc_add_fiori_notification = """
                 Exec dbo.add_fiori_notification 
@@ -499,10 +510,10 @@ def pending_comments():
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
         filter_equipment = request.args.get('filter', '', type=str)
-        start_date = request.args.get('start_date', type=str)
-        end_date = request.args.get('end_date', type=str)
+        start_date = request.args.get('start_date', type=str) or None
+        end_date = request.args.get('end_date', type=str) or None
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
-
+        
         cursor.execute("""
             EXEC GetPendingComments ?, ?, ?, ?, ?, ?, ?
         """, tecnico_id, filter_equipment, start_date, end_date, filter_prod_line, page, page_size)
@@ -600,19 +611,20 @@ def update_profile_mt():
         card_number = request.form.get('card_number')
         username = request.form.get('username')
         email = request.form.get('email')
-        sap_user = request.form.get('sap_user')
-        sap_pass = request.form.get('sap_pass')
+        password = request.form.get('password')
+        #sap_user = request.form.get('sap_user')
+        #sap_pass = request.form.get('sap_pass')
 
+        print(mt_id, nome, n_tecnico, card_number, username, email)
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
         query = """
             UPDATE tecnicos
-            SET nome = ?, n_tecnico = ?, card_number = ?, username = ?, email = ?, 
-                sap_user = ?, sap_pass = ?
+            SET nome = ?, n_tecnico = ?, card_number = ?, username = ?, email = ?, password = ?
             WHERE id = ?
         """
-        cursor.execute(query, (nome, n_tecnico, card_number, username, email, sap_user, sap_pass, mt_id))
+        cursor.execute(query, (nome, n_tecnico, card_number, username, email, password, mt_id))
         conn.commit()
         flash('Perfil atualizado com sucesso!', category='success')
 
