@@ -64,6 +64,31 @@ def settings():
 
     return redirect(url_for('settings.settings'))
 
+@settings_sec.route('/preventive_pdf', methods=['GET'])
+def preventive_pdf():
+    if 'username' not in session:
+        flash('É necessário fazer login para aceder a esta página.', category='error')
+        return redirect(url_for('index'))
+
+    try:
+        username = session.get('username')
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+
+        return render_template('configs/preventive_pdf.html', 
+                               maintenance="Settings", 
+                               username=username)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('settings.settings'))
+
 @settings_sec.route('/admin_tl', methods=['GET'])
 def admin_tl():
 

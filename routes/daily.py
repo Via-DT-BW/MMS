@@ -25,7 +25,7 @@ def daily():
         id_tl = session.get('id_tl')
 
         today = datetime.today().strftime('%Y-%m-%d')
-        print(today)
+        
         cursor.execute("""
             SELECT id
             FROM daily
