@@ -64,6 +64,31 @@ def settings():
 
     return redirect(url_for('settings.settings'))
 
+@settings_sec.route('/preventive_pdf', methods=['GET'])
+def preventive_pdf():
+    if 'username' not in session:
+        flash('É necessário fazer login para aceder a esta página.', category='error')
+        return redirect(url_for('index'))
+
+    try:
+        username = session.get('username')
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+
+        return render_template('configs/preventive_pdf.html', 
+                               maintenance="Settings", 
+                               username=username)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('settings.settings'))
+
 @settings_sec.route('/admin_tl', methods=['GET'])
 def admin_tl():
 
@@ -72,6 +97,7 @@ def admin_tl():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        role="TL"
         filtro_area = request.args.get('area')
         filtro_turno = request.args.get('turno')
         filtro_num = request.args.get('num')
@@ -82,10 +108,11 @@ def admin_tl():
             EXEC [dbo].[GetTeamLeaders] 
                 @PageNumber = ?, 
                 @PageSize = ?, 
-                @FilterArea = ?, 
+                @FilterArea = ?,
                 @FilterTurno = ?,
-                @FilterNum = ?
-        """, page, page_size, filtro_area, filtro_turno, filtro_num)
+                @FilterNum = ?,
+                @Role = ?
+        """, page, page_size, filtro_area, filtro_turno, filtro_num, role)
         
         teamleaders = cursor.fetchall()
         if teamleaders:
@@ -120,6 +147,65 @@ def admin_tl():
         conn.close()
 
     return redirect(url_for('settings.admin_tl'))
+
+@settings_sec.route('/admin_mtl', methods=['GET'])
+def admin_mtl():
+
+    try:
+        username = session.get('username')
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        role="MTL"
+        filtro_area = request.args.get('area')
+        filtro_turno = request.args.get('turno')
+        filtro_num = request.args.get('num')
+        page = int(request.args.get('page', 1))
+        page_size = 10
+
+        cursor.execute("""
+            EXEC [dbo].[GetTeamLeaders] 
+                @PageNumber = ?, 
+                @PageSize = ?, 
+                @FilterArea = ?, 
+                @FilterTurno = ?,
+                @FilterNum = ?,
+                @Role = ?
+        """, page, page_size, filtro_area, filtro_turno, filtro_num, role)
+        
+        mtls = cursor.fetchall()
+        if mtls:
+            total_records = mtls[0].total_count
+            total_pages = (total_records + page_size - 1) // page_size
+        else:
+            total_records = 0
+            total_pages = 1
+
+        start_page = max(1, page - 3)
+        end_page = min(total_pages, page + 3)
+
+        return render_template(
+            'configs/mtl.html',
+            maintenance="Settings",
+            username=username,
+            mtls=mtls,
+            page=page,
+            total_pages=total_pages,
+            start_page=start_page,
+            end_page=end_page,
+            filtro_area=filtro_area,
+            filtro_turno=filtro_turno,
+            filtro_num=filtro_num
+        )
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('settings.admin_mtl'))
 
 @settings_sec.route('/admin_avarias', methods=['GET', 'POST'])
 def admin_avarias():
@@ -248,14 +334,15 @@ def add_teamleader():
         email = username + '@borgwarner.com'
         password = request.form['password']
         card = request.form['card']
+        role = request.form['role']
 
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
-
+        print(username, n_colaborador, turno, area, email, password, card, role)
         cursor.execute("""
-            INSERT INTO [dbo].[teamleaders] (username, password, n_colaborador, turno, area, email, card
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, username, password, n_colaborador, turno, area, email, card)
+            INSERT INTO [dbo].[teamleaders] (username, password, n_colaborador, turno, area, email, card_number, role)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, username, password, n_colaborador, turno, area, email, card, role)
 
         conn.commit()
         flash('Team Leader adicionado com sucesso!', category='success')
@@ -266,7 +353,7 @@ def add_teamleader():
         cursor.close()
         conn.close()
 
-    return redirect(url_for('settings.admin_tl'))
+    return redirect(request.referrer)
 
 @settings_sec.route('/delete_tl/<int:id>', methods=['POST'])
 def delete_tl(id):

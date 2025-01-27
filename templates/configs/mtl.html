@@ -1,0 +1,178 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container mt-4">
+  <h2>Gestão de Team Leaders de Manutenção</h2>
+
+  <form method="get" action="{{ url_for('settings.admin_mtl') }}" class="mb-3">
+    <div class="row">
+      <div class="col-md-2">
+        <label for="area">Área:</label>
+        <select name="area" id="area" class="form-control">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label for="turno">Turno:</label>
+        <select
+          name="turno"
+          id="turno"
+          class="form-control"
+          value="{{ filtro_turno }}">
+          <option value="">Selecione</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="num">Nº Colaborador:</label>
+        <input
+          type="text"
+          name="num"
+          id="num"
+          class="form-control"
+          value="{{ filtro_num or '' }}" />
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('settings.admin_mtl') }}" class="btn btn-danger"
+          >Limpar Filtros</a
+        >
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button
+          class="btn btn-success"
+          type="button"
+          id="toggleAddMtForm"
+          aria-expanded="false"
+          aria-controls="addMTeamLeaderForm">
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  {% include "configs/components/dropdownAddMtl.html" %}
+
+  <table class="table table-striped" id="tabela">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Nº Colaborador</th>
+        <th>Turno</th>
+        <th>Área</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if mtls %} {% for mtl in mtls %}
+      <tr>
+        <td>{{ mtl.id }}</td>
+        <td>{{ mtl.username }}</td>
+        <td>{{ mtl.email }}</td>
+        <td>{{ mtl.n_colaborador }}</td>
+        <td>{{ mtl.turno }}</td>
+        <td>{{ mtl.area }}</td>
+        <td>
+          <button
+            class="btn btn-warning btn-md"
+            data-toggle="modal"
+            data-target="#editTlModal"
+            data-id="{{ mtl.id }}"
+            data-username="{{ mtl.username }}"
+            data-turno="{{ mtl.turno }}"
+            data-area="{{ mtl.area }}"
+            data-n-colaborador="{{ mtl.n_colaborador }}">
+            <i class="fa-solid fa-user-pen"></i>
+          </button>
+          <button
+            class="btn btn-danger btn-md"
+            onclick="confirmDelete({{ mtl.id }})">
+            <i class="fa-solid fa-user-slash"></i>
+          </button>
+        </td>
+      </tr>
+      {% endfor %} {% else %}
+      <tr>
+        <td colspan="7" class="text-center">
+          Não existem Team Leaders de Manutenção registados
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% include "configs/components/pagination.html" %}
+</div>
+
+{% include "configs/components/editTlModal.html" %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggleAddMtFormBtn = document.getElementById("toggleAddMtForm");
+    const form = document.getElementById("addMTeamLeaderForm");
+    const tabela = document.getElementById("tabela");
+    const nav = document.getElementById("nav");
+    const closeAddFormBtn = document.getElementById("closeAddForm");
+
+    toggleAddMtFormBtn.addEventListener("click", function () {
+      const isVisible = form.classList.contains("show");
+
+      if (isVisible) {
+        form.classList.remove("show");
+        tabela.style.display = "table";
+        nav.style.display = "block";
+      } else {
+        form.classList.add("show");
+        tabela.style.display = "none";
+        nav.style.display = "none";
+      }
+    });
+
+    closeAddFormBtn.addEventListener("click", function () {
+      form.classList.remove("show");
+      tabela.style.display = "table";
+      nav.style.display = "block";
+    });
+  });
+
+  function confirmDelete(mtlId) {
+    const isConfirmed = confirm(
+      "Tem certeza que deseja remover este Team Leader?"
+    );
+
+    if (isConfirmed) {
+      deleteTechnician(mtlId);
+    }
+  }
+
+  function deleteTechnician(mtlId) {
+    fetch(`/delete_tl/${mtlId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("Team Leader removido com sucesso!");
+          window.location.reload();
+        } else {
+          alert("Erro ao remover técnico!");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
+        alert("Erro inesperado ao tentar remover o Team Leader!");
+      });
+  }
+  {% include "configs/js/areas.js" %}
+</script>
+
+{% endblock %}
