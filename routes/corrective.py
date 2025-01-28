@@ -7,7 +7,7 @@ import pyodbc
 from datetime import date, datetime
 import time
 import pyodbc
-from utils.call_conn import conexao_mms
+from utils.call_conn import conexao_mms, conexao_sms
 
 
 today = date.today()
@@ -571,6 +571,14 @@ def pedido_spares(id):
 
 @corrective.route('/mt_profile', methods=['GET'])
 def mt_profile_page():
+    turnos = [
+        ("A", "Manhã"),
+        ("B", "Tarde"),
+        ("C", "Noite"),
+        ("D", "Intermédio"),
+        ("E", "Fim de semana (6h-18h)"),
+        ("F", "Fim de semana (18h-6h)"),
+    ]
     try:
         mt_id = session.get('id_mt')
         conn = pyodbc.connect(conexao_mms)
@@ -594,7 +602,9 @@ def mt_profile_page():
                 "sap_pass": row.sap_pass,
             }
             
-            return render_template('corrective/mt_profile.html',maintenance="Perfil", tecnico=tecnico)
+            shift = get_mt_shift(row.n_tecnico)
+
+            return render_template('corrective/mt_profile.html',maintenance="Perfil", tecnico=tecnico, shift=shift, turnos=turnos)
         else:
             return render_template('corrective/mt_profile.html',maintenance="Perfil", error="Técnico não encontrado")
     except Exception as e:
@@ -614,7 +624,12 @@ def update_profile_mt():
         password = request.form.get('password')
         #sap_user = request.form.get('sap_user')
         #sap_pass = request.form.get('sap_pass')
-
+        turno = request.form.get('turno')
+        actual_shift = get_mt_shift(n_tecnico)
+        print(f"Turno: ", turno + " Atual: ", actual_shift)
+        if actual_shift != turno:
+            update_shift(n_tecnico, turno)
+        
         if not password or len(password) < 6:
             flash('A password deve ter pelo menos 6 caracteres.', category='error')
             return redirect(url_for('corrective.mt_profile_page'))
@@ -654,3 +669,31 @@ def aguardar_sap_order(cursor, id, max_attempts=20, sleep_interval=15):
         time.sleep(sleep_interval)
     
     return None
+
+def get_mt_shift(n_tecnico):
+    conn = pyodbc.connect(conexao_sms)
+    cursor = conn.cursor()
+
+    query = "SELECT Shift FROM [Contacts] WHERE numberBW = ?"
+    cursor.execute(query, (n_tecnico,))
+    row = cursor.fetchone()
+    
+    return row.Shift if row else None
+
+def update_shift(n_tecnico, turno):
+    try:
+        conn = pyodbc.connect(conexao_sms)
+        cursor = conn.cursor()
+
+        query = "UPDATE [Contacts] SET Shift = ? WHERE numberBW = ?"
+        cursor.execute(query, (turno, n_tecnico))
+        conn.commit()
+        cursor.close()
+        
+        return {"success": True, "message": "Turno atualizado com sucesso."}
+    
+    except pyodbc.Error as e:
+        print(e)
+        return {"success": False, "message": f"Erro ao atualizar turno: {e}"}
+
+    
