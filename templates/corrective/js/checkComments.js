@@ -1,13 +1,9 @@
 function checkComments() {
   var tecnicoId = "{{ session['id_mt'] }}";
 
-  var formData = {
-    id_tecnico: tecnicoId,
-  };
-
   $.ajax({
-    url: "/api/check_comments",
-    type: "POST",
+    url: "/api/check_comments" + encodeURIComponent(tecnicoId),
+    type: "GET",
     contentType: "application/json",
     data: JSON.stringify(formData),
     success: function (response) {
@@ -34,6 +30,6 @@ function checkComments() {
   });
 }
 
-setInterval(checkComments, 600000);
+setInterval(checkComments, 1800000);
 
 checkComments();
