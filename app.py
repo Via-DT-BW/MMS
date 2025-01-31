@@ -45,9 +45,9 @@ def logout():
 @app.route('/manual')
 def serve_pdf():
     return send_from_directory(
-        directory='static/content',  # Diretório onde o PDF está localizado
-        path='manual.pdf',           # Nome do arquivo no diretório
-        mimetype='application/pdf',  # Define o tipo de arquivo
+        directory='static/content', 
+        path='manual.pdf',           
+        mimetype='application/pdf',
     )
 
 @app.route('/')
@@ -449,12 +449,12 @@ def get_corretiva_comments():
     
     return jsonify(comments)
 
-@app.route('/api/check_comments', methods=['POST'])
+@app.route('/api/check_comments', methods=['GET'])
 def check_comments():
     if 'id_mt' not in session:
         return jsonify({'status': 'error', 'message': 'Usuário não autenticado!'}), 403
 
-    id_tecnico = request.json.get('id_tecnico')
+    id_tecnico = request.args.get('id_tecnico')
     
     if not id_tecnico:
         return jsonify({'status': 'error', 'message': 'ID do técnico não fornecido!'}), 400
@@ -480,7 +480,7 @@ def check_comments():
             return jsonify({'status': 'success', 'has_pending_comments': 'NAO'}), 200
         
     except Exception as e:
-        print(f"Erro ao verificar comentários: {e}")
+        print("Erro ao verificar os comentários... - ",e)
         return jsonify({'status': 'error', 'message': 'Erro ao verificar comentários'}), 500
     
     finally:
