@@ -168,4 +168,4 @@ cython_debug/
 connections/
 docs/
 
-static/content/manual.pdf
+*.pdf
