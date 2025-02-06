@@ -64,8 +64,8 @@ def settings():
 
     return redirect(url_for('settings.settings'))
 
-@settings_sec.route('/preventive_pdf', methods=['GET'])
-def preventive_pdf():
+@settings_sec.route('/cost_center_gamas', methods=['GET'])
+def cost_center_gamas():
     if 'username' not in session:
         flash('É necessário fazer login para aceder a esta página.', category='error')
         return redirect(url_for('index'))
@@ -75,10 +75,13 @@ def preventive_pdf():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        cursor.execute("SELECT DISTINCT cost_center FROM equipments")
+        centros_custo = cursor.fetchall()
 
-        return render_template('configs/preventive_pdf.html', 
+        return render_template('configs/cost_center_gamas.html', 
                                maintenance="Settings", 
-                               username=username)
+                               username=username,
+                               centros_custo=centros_custo)
 
     except Exception as e:
         print(e)
@@ -88,6 +91,211 @@ def preventive_pdf():
         conn.close()
 
     return redirect(url_for('settings.settings'))
+
+@settings_sec.route('/gamas/<cost_center>', methods=['GET'])
+def gamas(cost_center):
+    if 'username' not in session:
+        flash('É necessário fazer login para aceder a esta página.', category='error')
+        return redirect(url_for('index'))
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT DISTINCT e.id, e.equipment
+            FROM equipments e
+            WHERE e.cost_center = ?
+        """, (cost_center,))
+        equipamentos = cursor.fetchall()
+
+        return render_template('configs/components/_equipments_content.html', 
+                               equipamentos=equipamentos,
+                               cost_center=cost_center)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('settings.cost_center_gamas'))
+
+@settings_sec.route('/gamas_do_equipamento/<equipamento_id>', methods=['GET'])
+def gamas_do_equipamento(equipamento_id):
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT g.id as gama_id, g.[desc] as gama_desc, p.id as periocity_id, p.periocity
+            FROM equipment_gama eg
+            JOIN gama g ON eg.id_gama = g.id
+            JOIN periocity p ON eg.id_periocity = p.id
+            WHERE eg.id_equipment = ?
+        """, (equipamento_id,))
+        gamas = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify([
+            {
+                'gama_id': g.gama_id,
+                'gama_desc': g.gama_desc,
+                'periocity_id': g.periocity_id,
+                'periocity': g.periocity
+            } for g in gamas
+        ])
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@settings_sec.route('/get_periocities', methods=['GET'])
+def get_periocities():
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, periocity FROM periocity")
+        periocities = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify([
+            {'id': p.id, 'periocity': p.periocity} for p in periocities
+        ])
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@settings_sec.route('/add_gama_to_equipment', methods=['POST'])
+def add_gama_to_equipment():
+    try:
+        descricao_gama = request.form['descricao']
+        periodicidade = request.form['periodicidade']
+        equipamento_id = request.form['equipamento']
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO gama ([desc]) 
+            OUTPUT INSERTED.id
+            VALUES (?)
+        """, descricao_gama)
+        
+        gama_id = cursor.fetchone()[0]
+        
+        print(equipamento_id, gama_id, periodicidade)
+
+        cursor.execute("""
+            INSERT INTO equipment_gama (id_equipment, id_gama, id_periocity)
+            VALUES (?, ?, ?)
+        """, equipamento_id, gama_id, periodicidade)
+        cursor.commit()
+        cursor.close()  
+        
+        flash('Gama associada ao equipamento com sucesso!', category='success')
+    except Exception as e:
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+
+    return redirect(request.referrer)
+
+@settings_sec.route('/adicionar_equipamento', methods=['POST'])
+def adicionar_equipamento():
+    data = request.get_json()
+    cost_center = data['costCenter']
+    equipment = data['equipment']
+    descricao = data['descricao']
+
+    print(cost_center, equipment, descricao)
+    
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO equipments (equipment, [desc], cost_center)
+            VALUES (?, ?, ?)
+        """, (equipment, descricao, cost_center))
+
+        conn.commit()
+        flash('Equipamento adicionado com sucesso!', category='success')
+        return jsonify({'success': True})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@settings_sec.route('/get_gama_e_periocidade/<int:gama_id>', methods=['GET'])
+def get_gama_e_periocidade(gama_id):
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT e.equipment, g.id, g.[desc] AS gama_desc, p.id AS periocity_id, p.periocity, e.id
+            FROM equipments e
+            JOIN equipment_gama eg ON e.id = eg.id_equipment
+            JOIN gama g ON eg.id_gama = g.id
+            JOIN periocity p ON eg.id_periocity = p.id
+            WHERE g.id = ?
+        """, (gama_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({'error': 'Gama não encontrada.'}), 404
+
+        return jsonify({
+            'equipamento': result[0],
+            'id_gama': result[1],
+            'gama_desc': result[2],
+            'periocity_id': result[3],
+            'periocity': result[4],
+            'equipamento_id': result[5]
+        })
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@settings_sec.route('/update_gama_e_periocidade', methods=['POST'])
+def update_gama_e_periocidade():
+    data = request.get_json()
+    equipamento_id = data['equipamentoId']
+    gama_desc = data['gamaDesc']
+    periocity_id = data['periocityId']
+    id_gama = data['idGama']
+    old_periocity_id = data['oldPeriocityId']
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE gama
+            SET [desc] = ?
+            WHERE id = ?
+        """, (gama_desc, id_gama))
+
+        if periocity_id != old_periocity_id:
+            cursor.execute("""
+                UPDATE equipment_gama
+                SET id_periocity = ?
+                WHERE id_equipment = ? AND id_gama = ?
+            """, (periocity_id, equipamento_id, id_gama))
+
+        conn.commit()
+        flash('Gama atualizada com sucesso!', category='success')
+        return jsonify({'success': True})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
 @settings_sec.route('/admin_tl', methods=['GET'])
 def admin_tl():

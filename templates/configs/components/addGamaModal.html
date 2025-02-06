@@ -1,0 +1,68 @@
+<div
+  class="modal fade"
+  id="modalAdicionarGama"
+  tabindex="-1"
+  aria-labelledby="modalAdicionarGamaLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdicionarGamaLabel">Adicionar Gama</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form
+          id="formAdicionarGama"
+          method="POST"
+          action="{{ url_for('settings.add_gama_to_equipment') }}">
+          <div class="mb-3">
+            <label for="gamaDescricao" class="form-label"
+              >Descrição da Gama</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="gamaDescricao"
+              placeholder="Descrição da gama"
+              name="descricao"
+              required />
+          </div>
+          <div class="mb-3">
+            <label for="gamaPeriodicidade" class="form-label"
+              >Periodicidade</label
+            >
+            <select
+              class="form-control"
+              id="gamaPeriodicidade"
+              name="periodicidade"
+              required>
+              <option value="">Selecione uma periodicidade</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="equipamento" class="form-label"
+              >Escolher Equipamento</label
+            >
+            <select
+              class="form-control"
+              id="equipamento"
+              name="equipamento"
+              required>
+              {% for equipamento in equipamentos %}
+              <option value="{{ equipamento.id }}">
+                {{ equipamento.equipment }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="mt-2">
+  <h2>Gestão de Gamas</h2>
+
+  <div class="row mt-4" id="centros_custo">
+    {% for centro in centros_custo %}
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">{{ centro.cost_center }}</h5>
+
+          <button
+            class="btn btn-primary"
+            data-cost-center="{{ centro.cost_center }}"
+            onclick="mostrarEquipamentos(this)">
+            <i class="fa-regular fa-eye mr-1"></i>
+            Equipamentos
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div id="equipamentos" class="mt-2" style="display: none">
+    <button class="btn btn-secondary mb-2" onclick="voltarCentros()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div id="equipamentos_content"></div>
+  </div>
+</div>
+
+<script>
+  function mostrarEquipamentos(button) {
+    var cost_center = $(button).data("cost-center");
+
+    sessionStorage.setItem("currentCostCenter", cost_center);
+
+    $("#centros_custo").hide();
+
+    $("#equipamentos").show();
+
+    $.ajax({
+      url: '{{ url_for("settings.gamas", cost_center="") }}' + cost_center,
+      method: "GET",
+      success: function (response) {
+        $("#equipamentos_content").html(response);
+      },
+      error: function () {
+        alert("Erro ao carregar os equipamentos.");
+      },
+    });
+  }
+
+  function voltarCentros() {
+    $("#centros_custo").show();
+    $("#equipamentos").hide();
+
+    $("#equipamentos_content").empty();
+
+    sessionStorage.removeItem("currentCostCenter");
+  }
+
+  $(document).ready(function () {
+    var currentCostCenter = sessionStorage.getItem("currentCostCenter");
+
+    if (currentCostCenter) {
+      mostrarEquipamentosByCostCenter(currentCostCenter);
+    }
+  });
+
+  function mostrarEquipamentosByCostCenter(cost_center) {
+    $("#centros_custo").hide();
+
+    $("#equipamentos").show();
+
+    $.ajax({
+      url: '{{ url_for("settings.gamas", cost_center="") }}' + cost_center,
+      method: "GET",
+      success: function (response) {
+        $("#equipamentos_content").html(response);
+      },
+      error: function () {
+        alert("Erro ao carregar os equipamentos.");
+      },
+    });
+  }
+</script>
+
+{% endblock %}

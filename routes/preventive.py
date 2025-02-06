@@ -28,7 +28,7 @@ def preventive():
         filter_order = None if filter_order == "" else filter_order
         start_date = None if start_date == "" else start_date
         end_date = None if end_date == "" else end_date
-        print(filter_order, start_date, end_date, preventive_page_size, preventive_page, orders_page_size, orders_page)
+
         cursor.execute("""
             EXEC GetPreventiveRecords  
                 @FilterOrder = ?,
@@ -84,7 +84,7 @@ def start_preventive():
         data = request.get_json()
         order_number = data.get('order_number')
         id_mt = data.get('technician_id')
-        print(order_number, id_mt)
+
         if not order_number:
             return jsonify({'error': 'Número da ordem é obrigatório!'}), 400
 
@@ -93,7 +93,7 @@ def start_preventive():
 
         cursor.execute("EXEC StartPreventiveOrder @OrderNumber = ?, @MT_id = ?", order_number, id_mt)
         conn.commit()
-
+        flash('Preventiva iniciada com sucesso!', category='success')
         return jsonify({'message': 'Preventiva iniciada com sucesso!'}), 200
 
     except Exception as e:
@@ -117,7 +117,7 @@ def end_preventive():
 
         cursor.execute("UPDATE preventive_orders SET id_estado = 3, data_fim = GETDATE() WHERE id = ?", id)
         conn.commit()
-
+        flash('Preventiva finalizada com sucesso!', category='success')
         return jsonify({'message': 'Preventiva finalizada com sucesso!'}), 200
 
     except Exception as e:
@@ -126,4 +126,58 @@ def end_preventive():
     finally:
         cursor.close()
         conn.close()
-     
+
+@preventive_sec.route('/pause_intervention/<order_id>', methods=['POST'])
+def pause_intervention(order_id):
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE preventive_orders SET id_estado = 5 WHERE id = ?", order_id)
+
+        cursor.execute("INSERT INTO preventive_pauses (order_id, start_pause) VALUES (?, GETDATE())", order_id)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({'message': 'Intervenção interrompida com sucesso!'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@preventive_sec.route('/resume_intervention/<order_id>', methods=['POST'])
+def resume_intervention(order_id):
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE preventive_orders SET id_estado = 2 WHERE id = ?", order_id)
+
+        cursor.execute("""
+            UPDATE preventive_pauses 
+            SET end_pause = GETDATE() 
+            WHERE order_id = ? AND end_pause IS NULL
+        """, order_id)
+
+        cursor.execute("""
+            SELECT SUM(DATEDIFF(MINUTE, start_pause, end_pause))
+            FROM preventive_pauses
+            WHERE order_id = ?
+        """, order_id)
+        total_pausa = cursor.fetchone()[0] or 0
+
+        cursor.execute("""
+            UPDATE preventive_orders 
+            SET tempo_pausa_min = ?
+            WHERE id = ?
+        """, total_pausa, order_id)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({'message': 'Intervenção retomada com sucesso!'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500

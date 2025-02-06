@@ -1,0 +1,39 @@
+<div
+  class="modal fade"
+  id="modalComentarioFinalizar"
+  tabindex="-1"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Finalizar Preventiva</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="comentarioFinalizar" class="form-label">Comentário:</label>
+        <textarea
+          class="form-control"
+          id="comentarioFinalizar"
+          rows="6"
+          placeholder="Escreva uma pequena descrição do que fez."
+          required></textarea>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn"
+          style="background-color: #051729; color: white"
+          onclick="submeterFinalizacao()">
+          Finalizar Preventiva
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

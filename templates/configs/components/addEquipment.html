@@ -1,0 +1,58 @@
+<div
+  class="modal fade"
+  id="adicionarEquipModal"
+  tabindex="-1"
+  aria-labelledby="adicionarEquipModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="adicionarEquipModalLabel">
+          Adicionar Equipamento
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="adicionarEquipForm">
+          <div class="mb-3">
+            <label for="costCenter" class="form-label">Centro de Custo</label>
+            <input type="text" id="costCenter" class="form-control" readonly />
+          </div>
+
+          <div class="mb-3">
+            <label for="equipamentoNome" class="form-label">Equipamento</label>
+            <input
+              type="text"
+              id="equipamentoNome"
+              class="form-control"
+              required />
+          </div>
+
+          <div class="mb-3">
+            <label for="equipamentoDesc" class="form-label">Descrição</label>
+            <input
+              type="text"
+              id="equipamentoDesc"
+              class="form-control"
+              required />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="salvarEquipamento()">
+          Guardar
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
