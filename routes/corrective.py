@@ -548,13 +548,12 @@ def pending_comments():
 def pedido_spares(id):
     time.sleep(10)
     
-    order_type = "corretiva"
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
         
-        query = "INSERT INTO rpa_corretiva (id_tecnico, id_corretiva, order_type) values (?, ?)"
-        cursor.execute(query, (session['id_mt'], id, order_type))
+        query = "INSERT INTO rpa_corretiva (id_tecnico, id_corretiva) values (?, ?)"
+        cursor.execute(query, (session['id_mt'], id))
         cursor.commit()
         
         sap_order_number = aguardar_sap_order(cursor, id)
