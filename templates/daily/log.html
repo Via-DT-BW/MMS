@@ -11,7 +11,6 @@
       method="GET"
       action="/daily"
       class="form-row justify-content-center p-3">
-      <!-- Campo de filtro por Turno -->
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Filtrar por Turno</small>
         <input
@@ -22,7 +21,6 @@
           value="{{ request.args.get('filter_turno', '') }}" />
       </div>
 
-      <!-- Campo de filtro por Team Leader -->
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Filtrar por Team Leader</small>
         <input
@@ -33,7 +31,6 @@
           value="{{ request.args.get('filter_tl', '') }}" />
       </div>
 
-      <!-- Campo para Data Inicial -->
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Data inicial</small>
         <input
@@ -43,7 +40,6 @@
           value="{{ request.args.get('start_date', '') }}" />
       </div>
 
-      <!-- Campo para Data Final -->
       <div class="form-group col-md-2 text-center">
         <small class="form-text text-muted">Data final</small>
         <input
@@ -53,7 +49,6 @@
           value="{{ request.args.get('end_date', '') }}" />
       </div>
 
-      <!-- Campo para Itens por Página -->
       <div class="form-group col-md-1 text-center">
         <small class="form-text text-muted">Itens por página</small>
         <input
@@ -66,7 +61,6 @@
           placeholder="Itens por página" />
       </div>
 
-      <!-- Botões para Filtrar e Limpar -->
       <div
         class="form-group col-md-3 d-flex align-items-end justify-content-center">
         <button type="submit" class="btn btn-primary mr-2">

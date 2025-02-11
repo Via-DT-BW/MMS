@@ -66,17 +66,16 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Ordem</th>
+            <th>Linha</th>
             <th>Técnico</th>
             <th>Equipamento</th>
             <th>Descrição</th>
-            <th>Local Funcional</th>
             <th>Denominação</th>
             <th>Data Início</th>
             <th>Data Fim</th>
             <th>Plano de Manutenção</th>
-            <th>Finalizar</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -86,22 +85,34 @@
           </tr>
           {% else %} {% for order in orders %}
           <tr>
-            <td>{{ order.id }}</td>
             <td>{{ order.order_number }}</td>
+            <td>{{ order.cost_center }}</td>
             <td>{{ order.mt_name }} - {{order.mt_num}}</td>
             <td>{{ order.equipament }}</td>
             <td>{{ order.description }}</td>
-            <td>{{ order.functional_location }}</td>
             <td>{{ order.denomination }}</td>
             <td class="data">{{ order.start_date }}</td>
             <td class="data">{{ order.end_date }}</td>
             <td>{{ order.maintenance_plan }}</td>
             <td>
+              {% if order.id_estado == 5 %}
+              <button
+                class="btn btn-success"
+                onclick="retomarIntervencao('{{ order.id }}')">
+                <i class="fa-solid fa-play"></i>
+              </button>
+              {% else %}
+              <button
+                class="btn btn-warning"
+                onclick="pausarIntervencao('{{ order.id }}')">
+                <i class="fa-solid fa-pause"></i>
+              </button>
               <button
                 class="btn btn-danger"
-                onclick="confirmEndPreventive('{{ order.id }}')">
+                onclick="abrirModalFinalizar('{{ order.id }}')">
                 <i class="fa-solid fa-stop"></i>
               </button>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}{% endif %}
@@ -171,7 +182,8 @@
   </div>
 </div>
 
-{% include "preventive/components/login.html" %}
+{% include "preventive/components/login.html" %} {% include
+"preventive/components/endPreventive.html" %}
 
 <script>
   {% include "preventive/js/preventive.js" %}

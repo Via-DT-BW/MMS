@@ -25,7 +25,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = String(date.getFullYear());
-    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year}`;
+  }
+
+  function formatDatetime(dateString) {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
   function updateRowColors() {
@@ -60,6 +76,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const dataCells = document.querySelectorAll(".data");
   dataCells.forEach((cell) => {
     cell.textContent = formatDate(cell.textContent.trim());
+  });
+
+  const datesCells = document.querySelectorAll(".datetime");
+  datesCells.forEach((cell) => {
+    cell.textContent = formatDatetime(cell.textContent.trim());
   });
 
   updateRowColors();
@@ -107,6 +128,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+let ordemIdParaFinalizar = null;
+
+function abrirModalFinalizar(id) {
+  ordemIdParaFinalizar = id;
+  $("#modalComentarioFinalizar").modal("show");
+}
+
 function startPreventive(orderNumber, technicianId) {
   fetch("/start-preventive", {
     method: "POST",
@@ -120,7 +148,6 @@ function startPreventive(orderNumber, technicianId) {
   })
     .then((response) => {
       if (response.ok) {
-        alert("Preventiva iniciada com sucesso!");
         location.reload();
       } else {
         alert("Erro ao iniciar a preventiva. Tente novamente.");
@@ -132,29 +159,64 @@ function startPreventive(orderNumber, technicianId) {
     });
 }
 
-function confirmEndPreventive(id) {
-  const userConfirmed = confirm(
-    "Tem certeza que deseja finalizar a preventiva?"
-  );
-  if (userConfirmed) {
-    fetch(`/end-preventive`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id }),
+function submeterFinalizacao() {
+  const comentario = document
+    .getElementById("comentarioFinalizar")
+    .value.trim();
+
+  if (!comentario) {
+    alert("É necessário inserir um comentário para finalizar a preventiva.");
+    return;
+  }
+
+  $("#modalComentarioFinalizar").modal("hide");
+
+  fetch(`/end-preventive`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: ordemIdParaFinalizar, comentario: comentario }),
+  })
+    .then((response) => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        alert("Erro ao finalizar a preventiva.");
+      }
     })
-      .then((response) => {
-        if (response.ok) {
-          alert("Preventiva finalizada com sucesso!");
-          location.reload();
-        } else {
-          alert("Erro ao finalizar a preventiva. Tente novamente.");
-        }
-      })
-      .catch((error) => {
-        console.error("Erro:", error);
-        alert("Ocorreu um erro ao finalizar a preventiva.");
-      });
+    .catch((error) => {
+      console.error("Erro:", error);
+      alert("Ocorreu um erro ao finalizar a preventiva.");
+    });
+}
+
+function pausarIntervencao(orderId) {
+  if (confirm("Tem certeza de que deseja interromper esta intervenção?")) {
+    $.ajax({
+      url: "/pause_intervention/" + orderId,
+      method: "POST",
+      success: function (response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function () {
+        alert("Erro ao pausar a intervenção.");
+      },
+    });
+  }
+}
+
+function retomarIntervencao(orderId) {
+  if (confirm("Tem certeza de que deseja retomar esta intervenção?")) {
+    $.ajax({
+      url: "/resume_intervention/" + orderId,
+      method: "POST",
+      success: function (response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function () {
+        alert("Erro ao retomar a intervenção.");
+      },
+    });
   }
 }

@@ -546,28 +546,43 @@ def pending_comments():
 
 @corrective.route('/pedido_spares/<int:id>', methods=['POST'])
 def pedido_spares(id):
-    time.sleep(10)
-        
-    try:
-        conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
-        
-        query = "INSERT INTO rpa_corretiva (id_tecnico, id_corretiva) values (?, ?)"
-        cursor.execute(query, (session['id_mt'], id))
-        cursor.commit()
-        
-        sap_order_number = aguardar_sap_order(cursor, id)
+    
+    max_tentativas = 3
+    tentativa = 0
 
-        if sap_order_number:
-            return jsonify({"message": f"Ordem {sap_order_number} criada com sucesso!"}), 200
-        else:
-            return jsonify({"error": "Tempo limite atingido, por favor verifique o número da ordem mais tarde."}), 408
+    while tentativa < max_tentativas:
+        try:
+            conn = pyodbc.connect(conexao_mms)
+            cursor = conn.cursor()
 
-    except Exception as e:
-        print(e)
-    finally:
-        cursor.close()
-        conn.close()
+            query = "INSERT INTO rpa_corretiva (id_tecnico, id_corretiva) VALUES (?, ?)"
+            cursor.execute(query, (session['id_mt'], id))
+            cursor.commit()
+
+            sap_order_number = aguardar_sap_order(cursor, id)
+
+            if sap_order_number:
+                return jsonify({"message": f"Ordem {sap_order_number} criada com sucesso!"}), 200
+            else:
+                raise Exception("Tempo limite atingido")
+
+        except Exception as e:
+            print(f"Erro: {e}")
+            if cursor:
+                cursor.execute("DELETE FROM rpa_corretiva WHERE id_tecnico = ? AND id_corretiva = ?", 
+                               (session['id_mt'], id))
+                cursor.commit()
+
+            tentativa += 1
+
+            if tentativa == max_tentativas:
+                return jsonify({"error": "Falha ao criar a ordem após várias tentativas."}), 500
+            
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
 @corrective.route('/mt_profile', methods=['GET'])
 def mt_profile_page():
@@ -696,4 +711,3 @@ def update_shift(n_tecnico, turno):
         print(e)
         return {"success": False, "message": f"Erro ao atualizar turno: {e}"}
 
-    

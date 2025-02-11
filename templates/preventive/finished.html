@@ -1,0 +1,99 @@
+{% extends 'preventive/preventive.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container mt-4">
+  <form class="form-inline">
+    <div class="form-group mb-2 mr-2">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        id="filter_finished_order"
+        name="filter_finished_order"
+        placeholder="Ordem"
+        value="{{ request.args.get('filter_finished_order', '') }}" />
+    </div>
+    <div class="form-group mb-2">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        id="filter_finished_cost"
+        name="filter_finished_cost"
+        placeholder="Centro de Custo"
+        value="{{ request.args.get('filter_finished_cost', '') }}" />
+    </div>
+
+    <div class="form-group mb-2 ml-3">
+      <label for="start_finished_date" class="mr-2">Data Inicial</label>
+      <input
+        type="date"
+        class="form-control form-control-sm"
+        id="start_finished_date"
+        name="start_finished_date"
+        value="{{ request.args.get('start_finished_date', '') }}" />
+    </div>
+    <div class="form-group mb-2 ml-3">
+      <label for="end_finished_date" class="mr-2">Data Final</label>
+      <input
+        type="date"
+        class="form-control form-control-sm"
+        id="end_finished_date"
+        name="end_finished_date"
+        value="{{ request.args.get('end_finished_date', '') }}" />
+    </div>
+    <button type="submit" class="btn btn-primary ml-3 mb-2">Filtrar</button>
+    <a href="/finished_preventives" class="btn btn-danger ml-3 mb-2">Limpar</a>
+  </form>
+</div>
+
+<div class="card mt-4 mb-4">
+  <div class="card-header">
+    <h5 class="m-0 text-center">Finalizadas</h5>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive tableFixHead">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Ordem</th>
+            <th>Linha</th>
+            <th>Técnico</th>
+            <th>Equipamento</th>
+            <th>Descrição</th>
+            <th>Denominação</th>
+            <th>Data Início</th>
+            <th>Data Fim</th>
+            <th>Duração</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if finished_orders_data|length == 0 %}
+          <tr>
+            <td colspan="11" class="text-center">Sem preventivas em curso</td>
+          </tr>
+          {% else %} {% for fini in finished_orders_data %}
+          <tr>
+            <td>{{ fini.order_number }}</td>
+            <td>{{ fini.cost_center }}</td>
+            <td>{{ fini.mt_name }} - {{fini.mt_num}}</td>
+            <td>{{ fini.equipament }}</td>
+            <td>{{ fini.description }}</td>
+            <td>{{ fini.denomination }}</td>
+            <td class="datetime">{{ fini.data_inicio }}</td>
+            <td class="datetime">{{ fini.data_fim }}</td>
+            <td>{{ fini.duracao_min }} min</td>
+          </tr>
+          {% endfor %}{% endif %}
+        </tbody>
+      </table>
+      {% include "preventive/components/pagination.html" %}
+    </div>
+  </div>
+</div>
+
+<script>
+  {% include "preventive/js/preventive.js" %}
+</script>
+
+{% endblock %}

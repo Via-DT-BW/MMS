@@ -19,6 +19,16 @@
       </div>
       <div class="modal-body">
         <form id="editDailyForm">
+          <div class="row">
+            <div
+              class="col-md-12 alert-section mt-1 mb-1 d-flex justify-content-center align-items-center"
+              style="gap: 10px">
+              <img
+                src="{{ url_for('static', filename='content/comment_format.png') }}"
+                alt="Formatação do Comentário"
+                style="max-height: 12rem; width: auto; display: inline-block" />
+            </div>
+          </div>
           <input type="hidden" name="id" id="commentId" />
           <div class="row">
             <div class="form-group col-md-6">

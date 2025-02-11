@@ -1,0 +1,51 @@
+<div
+  class="modal fade"
+  id="editGamaModal"
+  tabindex="-1"
+  aria-labelledby="editGamaModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editGamaModalLabel">Editar Gama</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="equipamentoId" />
+        <input type="hidden" id="gamaId" />
+        <input type="hidden" id="periocidadeOldId" />
+
+        <form id="editGamaForm">
+          <div class="mb-3">
+            <label for="equipamento" class="form-label">Equipamento</label>
+            <input
+              type="text"
+              id="equipamentoEdit"
+              class="form-control"
+              readonly />
+          </div>
+          <div class="mb-3">
+            <label for="gama" class="form-label">Gama</label>
+            <input type="text" id="gama" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label for="periodicidade" class="form-label">Periodicidade</label>
+            <select id="periodicidade" class="form-control"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="salvarEdicao()">
+          Guardar
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
