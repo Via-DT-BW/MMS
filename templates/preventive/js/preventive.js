@@ -25,7 +25,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = String(date.getFullYear());
-    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year}`;
+  }
+
+  function formatDatetime(dateString) {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
   function updateRowColors() {
@@ -60,6 +76,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const dataCells = document.querySelectorAll(".data");
   dataCells.forEach((cell) => {
     cell.textContent = formatDate(cell.textContent.trim());
+  });
+
+  const datesCells = document.querySelectorAll(".datetime");
+  datesCells.forEach((cell) => {
+    cell.textContent = formatDatetime(cell.textContent.trim());
   });
 
   updateRowColors();

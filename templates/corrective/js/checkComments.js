@@ -2,10 +2,9 @@ function checkComments() {
   var tecnicoId = "{{ session['id_mt'] }}";
 
   $.ajax({
-    url: "/api/check_comments" + encodeURIComponent(tecnicoId),
+    url: "/api/check_comments?id_tecnico=" + encodeURIComponent(tecnicoId),
     type: "GET",
     contentType: "application/json",
-    data: JSON.stringify(formData),
     success: function (response) {
       const button = document.getElementById("comentariosPendentesBtn");
       const alertIcon = document.getElementById("alertIcon");
