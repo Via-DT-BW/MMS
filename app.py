@@ -31,7 +31,7 @@ app.register_blueprint(daily_sec)
 app.register_blueprint(settings_sec)
 app.register_blueprint(preventive_sec)
 
-@app.route('/logout')
+@app.route('/out')
 def logout():
 
    session.pop('username', None)
