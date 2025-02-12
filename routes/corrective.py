@@ -25,6 +25,16 @@ def sanitize_text(text):
 
 corrective = Blueprint("corrective", __name__, static_folder="static", static_url_path='/Main/static', template_folder="templates")
 
+@corrective.route('/logout')
+def logout():
+   session.pop('username', None)
+   session.pop('password', None)
+   session.pop('email', None)
+   session.pop('workernumber', None)
+   session.pop('accesslevel', None)
+   #session.clear()
+   flash('Logout realizado com sucesso', category='success')
+
 @corrective.route('/corrective_notification', methods=['POST', 'GET'])
 def corrective_notification():
 
@@ -154,7 +164,6 @@ def notifications():
         
         sidebar = request.args.get('sidebar', 'True').lower() == 'true'
         
-        print(start_date, end_date, filter_prod_line, mt_id)
         total_records = 0
 
         cursor.execute("""
@@ -172,7 +181,7 @@ def notifications():
             page, page_size, start_date, end_date, filter_prod_line, mt_id
         )
         notifications = cursor.fetchall()
-        print(notifications)
+
         total_records = cursor.nextset() and cursor.fetchone()[0]
 
         total_pages = max(1, (total_records + page_size - 1) // page_size)
@@ -301,6 +310,7 @@ def change_to_inwork():
         conn.close()
         
         flash('A manutenção encontra-se agora EM CURSO!', category='success')
+        logout()
         return jsonify({'status': 'success', 'message': 'A manutenção encontra-se agora EM CURSO!'})
 
     except Exception as e:
@@ -427,6 +437,7 @@ def finish_maintenance():
         conn.close()
         
         flash('Manutenção concluída!', category='success')
+        logout()
         return jsonify({'status': 'success', 'message': 'Manutenção concluída!'})
 
     except Exception as e:
