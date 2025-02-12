@@ -79,11 +79,11 @@
           </tr>
         </thead>
         <tbody>
-          {% if orders|length == 0 %}
+          {% if finished_orders_data|length == 0 %}
           <tr>
             <td colspan="11" class="text-center">Sem preventivas em curso</td>
           </tr>
-          {% else %} {% for order in orders %}
+          {% else %} {% for order in finished_orders_data %}
           <tr>
             <td>{{ order.order_number }}</td>
             <td>{{ order.cost_center }}</td>
@@ -95,6 +95,11 @@
             <td class="data">{{ order.end_date }}</td>
             <td>{{ order.maintenance_plan }}</td>
             <td>
+              <button
+                class="btn btn-warning"
+                onclick="showGamas('{{ order.id }}')">
+                <i class="fa-solid fa-pause"></i>
+              </button>
               {% if order.id_estado == 5 %}
               <button
                 class="btn btn-success"
