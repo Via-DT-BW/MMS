@@ -122,6 +122,51 @@ def gamas(cost_center):
 
     return redirect(url_for('settings.cost_center_gamas'))
 
+@settings_sec.route('/gama_associate/<cost_center>', methods=['GET'])
+def gama_associate(cost_center):
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT DISTINCT e.id, e.equipment
+            FROM equipments e
+            WHERE e.cost_center = ?
+        """, (cost_center,))
+        rows = cursor.fetchall()
+        equipamentos = [{'id': row[0], 'equipment': row[1]} for row in rows]
+
+        cursor.close()
+        conn.close()
+        
+        return jsonify(equipamentos)
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+
+    return redirect(url_for('settings.cost_center_gamas'))
+
+@settings_sec.route('/get_all_gamas', methods=['GET'])
+def get_all_gamas():
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, [desc] FROM gama ORDER BY [desc] ASC")
+        gamas = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify([{'id': g[0], 'descricao': g[1]} for g in gamas])
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+
 @settings_sec.route('/gamas_do_equipamento/<equipamento_id>', methods=['GET'])
 def gamas_do_equipamento(equipamento_id):
     try:
@@ -190,8 +235,6 @@ def add_gama_to_equipment():
         """, descricao_gama)
         
         gama_id = cursor.fetchone()[0]
-        
-        print(equipamento_id, gama_id, periodicidade)
 
         cursor.execute("""
             INSERT INTO equipment_gama (id_equipment, id_gama, id_periocity)
@@ -205,6 +248,43 @@ def add_gama_to_equipment():
         flash(f'Ocorreu um erro: {str(e)}', category='error')
 
     return redirect(request.referrer)
+
+@settings_sec.route('/associate_gama_to_equipment', methods=['POST'])
+def associate_gama_to_equipment():
+    try:
+        descricao_gama = request.form['descricao']
+        periodicidade = request.form['periodicidade']
+        equipamento_id = request.form['equipamento']
+        nova_gama = request.form['novaGama']
+        
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        if descricao_gama == 'outra' and nova_gama:
+            cursor.execute("""
+                INSERT INTO gama ([desc]) 
+                OUTPUT INSERTED.id
+                VALUES (?)
+            """, (nova_gama,))
+            gama_id = cursor.fetchone()[0]
+        else:
+            gama_id = descricao_gama
+
+        cursor.execute("""
+            INSERT INTO equipment_gama (id_equipment, id_gama, id_periocity)
+            VALUES (?, ?, ?)
+        """, (equipamento_id, gama_id, periodicidade))
+
+        conn.commit()
+        cursor.close()
+
+        flash('Gama associada ao equipamento com sucesso!', category='success')
+        return jsonify({'success': True})
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+        return jsonify({'error': str(e)}), 500
 
 @settings_sec.route('/adicionar_equipamento', methods=['POST'])
 def adicionar_equipamento():
@@ -650,15 +730,16 @@ def update_mt():
         id = request.form['id']
         area = request.form['area']
         n_card = request.form['n_card']
+        nome = request.form['nome']
         
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
         cursor.execute("""
             UPDATE [dbo].[tecnicos]
-            SET area = ?, card_number = ?
+            SET area = ?, card_number = ?, nome = ? 
             WHERE id = ?
-        """, area, n_card,id)
+        """, area, n_card, nome, id)
         
         conn.commit()
         flash('Dados atualizados com sucesso!', category='success')

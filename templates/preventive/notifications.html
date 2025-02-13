@@ -6,7 +6,7 @@
   }
 
   td {
-    font-size: 0.95rem;
+    font-size: 0.91rem;
   }
 </style>
 
@@ -51,8 +51,12 @@
         name="end_date"
         value="{{ request.args.get('end_date', '') }}" />
     </div>
-    <button type="submit" class="btn btn-primary ml-3 mb-2">Filtrar</button>
-    <a href="/preventive" class="btn btn-danger ml-3 mb-2">Limpar</a>
+    <button type="submit" class="btn btn-primary ml-3 mb-2">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+    <a href="/preventive" class="btn btn-danger ml-3 mb-2"
+      ><i class="fa-solid fa-broom mr-1"></i>Limpar</a
+    >
   </form>
 </div>
 
@@ -73,7 +77,6 @@
             <th>Descrição</th>
             <th>Denominação</th>
             <th>Data Início</th>
-            <th>Data Fim</th>
             <th>Plano de Manutenção</th>
             <th>Ações</th>
           </tr>
@@ -91,14 +94,13 @@
             <td>{{ order.equipament }}</td>
             <td>{{ order.description }}</td>
             <td>{{ order.denomination }}</td>
-            <td class="data">{{ order.start_date }}</td>
-            <td class="data">{{ order.end_date }}</td>
+            <td class="data">{{ order.data_inicio }}</td>
             <td>{{ order.maintenance_plan }}</td>
             <td>
               <button
-                class="btn btn-warning"
-                onclick="showGamas('{{ order.id }}')">
-                <i class="fa-solid fa-pause"></i>
+                class="btn btn-secondary"
+                onclick="showGamas('{{ order.equipament }}')">
+                <i class="fa-regular fa-rectangle-list"></i>
               </button>
               {% if order.id_estado == 5 %}
               <button
@@ -188,9 +190,47 @@
 </div>
 
 {% include "preventive/components/login.html" %} {% include
-"preventive/components/endPreventive.html" %}
+"preventive/components/endPreventive.html" %} {% include
+"preventive/components/showGamas.html" %}
 
 <script>
   {% include "preventive/js/preventive.js" %}
+
+  function showGamas(equipment) {
+    $.ajax({
+      url: '/api/get_gamas',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ equipment: equipment }),
+      beforeSend: function() {
+        $('#modalContent').html('Carregando...');
+      },
+      success: function(response) {
+        let html = '';
+        if (response.length > 0) {
+          html += '<table class="table table-striped">';
+          html += '<thead><tr><th>ID</th><th>Descrição</th><th>Periodicidade</th></tr></thead>';
+          html += '<tbody>';
+          response.forEach(function(item) {
+            html += '<tr>';
+            html += '<td>' + item.gama_id + '</td>';
+            html += '<td>' + item.gama_descricao + '</td>';
+            html += '<td>' + item.periodicidade + '</td>';
+            html += '</tr>';
+          });
+          html += '</tbody></table>';
+        } else {
+          html = 'Nenhuma gama encontrada para este equipamento.';
+        }
+        $('#modalContent').html(html);
+        $('#gamasModal').modal('show');
+      },
+      error: function(xhr, status, error) {
+        console.error("Erro na requisição:", error);
+        $('#modalContent').html('Erro ao carregar dados.');
+        $('#gamasModal').modal('show');
+      }
+    });
+  }
 </script>
 {% endblock %}

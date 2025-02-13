@@ -53,6 +53,11 @@
             <i class="fa fa-bars" style="color: #051729"></i>
           </button>
         </nav>
+        {% if not session['username'] %}
+        <div class="alert alert-warning text-center">
+          Por favor, faça login para realizar manutenções.
+        </div>
+        {% endif %}
         <div id="content">
           <div class="container-fluid">{% block content %} {% endblock %}</div>
         </div>

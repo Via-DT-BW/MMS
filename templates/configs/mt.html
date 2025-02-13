@@ -68,10 +68,11 @@
         <td>{{ mt.area }}</td>
         <td>
           <button
-            class="btn btn-warning btn-md"
+            class="btn btn-warning btn-sm"
             data-toggle="modal"
             data-target="#editMTModal"
             data-id="{{ mt.id }}"
+            data-nome="{{ mt.nome }}"
             data-username="{{ mt.username }}"
             data-area="{{ mt.area }}"
             data-card="{{ mt.n_card }}"
@@ -79,7 +80,7 @@
             <i class="fa-solid fa-user-pen"></i>
           </button>
           <button
-            class="btn btn-danger btn-md"
+            class="btn btn-danger btn-sm"
             onclick="confirmDelete({{ mt.id }})">
             <i class="fa-solid fa-user-slash"></i>
           </button>
