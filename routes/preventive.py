@@ -87,10 +87,20 @@ def start_preventive():
 
         if not order_number:
             return jsonify({'error': 'Número da ordem é obrigatório!'}), 400
-
+        
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        cursor.execute("""
+            SELECT COUNT(*) FROM preventive_orders 
+            WHERE id_tecnico = ? AND id_estado = 2
+        """, id_mt)
+        existing_preventives = cursor.fetchone()[0]
+
+        if existing_preventives > 0:
+            flash('Já está a executar uma preventiva e não pode iniciar outra.', category='error')
+            return jsonify({'error': 'Já está a executar uma preventiva e não pode iniciar outra.'}), 400
+        
         cursor.execute("EXEC StartPreventiveOrder @OrderNumber = ?, @MT_id = ?", order_number, id_mt)
         conn.commit()
         flash('Preventiva iniciada com sucesso!', category='success')
@@ -108,6 +118,7 @@ def end_preventive():
     try:
         data = request.get_json()
         id = data.get('id')
+        comment = data.get('comentario')
 
         if not id:
             return jsonify({'error': 'Número da ordem é obrigatório!'}), 400
@@ -115,7 +126,7 @@ def end_preventive():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("UPDATE preventive_orders SET id_estado = 3, data_fim = GETDATE() WHERE id = ?", id)
+        cursor.execute("UPDATE preventive_orders SET id_estado = 3, data_fim = GETDATE(), comment= ? WHERE id = ?", (comment, id))
         conn.commit()
         flash('Preventiva finalizada com sucesso!', category='success')
         return jsonify({'message': 'Preventiva finalizada com sucesso!'}), 200
@@ -129,6 +140,7 @@ def end_preventive():
 
 @preventive_sec.route('/pause_intervention/<order_id>', methods=['POST'])
 def pause_intervention(order_id):
+
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
@@ -230,8 +242,14 @@ def finished_preventives():
 
 @preventive_sec.route('/mapa_por_equipamento', methods=['GET'])
 def mapa_por_equipamento():
-    line_filter = request.args.get('line_filter', '', type=str)
-
+    line_filter = request.args.get('linha', '', type=str)
+    print(line_filter)
+    if not line_filter:
+        return render_template(
+            'preventive/mapa.html',
+            equipamentos=[]
+        )
+    
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
@@ -241,7 +259,7 @@ def mapa_por_equipamento():
         """, line_filter)
 
         equipamentos = [
-            {"equipament": row[0], "ultima_preventiva": row[1], "tecnico": row[2], "n_tecnico": row[3]} 
+            {"equipament": row[0],"ultima_preventiva": row[1], "tecnico": row[2], "n_tecnico": row[3], "duracao": row[4], "comment": row[5]} 
             for row in cursor.fetchall()
         ]
 

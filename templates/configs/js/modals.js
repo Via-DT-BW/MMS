@@ -19,6 +19,7 @@ $("#editMTModal").on("show.bs.modal", function (event) {
   var id = button.data("id");
   var username = button.data("username");
   var area = button.data("area");
+  var nome = button.data("nome");
   var n_colaborador = button.data("n-colaborador");
   var n_card = button.data("card");
 
@@ -26,6 +27,7 @@ $("#editMTModal").on("show.bs.modal", function (event) {
   modal.find("#id").val(id);
   modal.find("#username").val(username);
   modal.find("#area").val(area);
+  modal.find("#nome").val(nome);
   modal.find("#n_colaborador").val(n_colaborador);
   modal.find("#n_card").val(n_card);
 });

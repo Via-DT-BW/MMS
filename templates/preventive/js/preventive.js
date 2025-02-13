@@ -146,11 +146,21 @@ function startPreventive(orderNumber, technicianId) {
       technician_id: technicianId,
     }),
   })
-    .then((response) => {
+    .then(async (response) => {
+      const data = await response.json();
       if (response.ok) {
+        $("#preventiveModal").modal("hide");
         location.reload();
       } else {
-        alert("Erro ao iniciar a preventiva. Tente novamente.");
+        if (
+          data.error &&
+          data.error.includes("Já está a executar uma preventiva")
+        ) {
+          $("#preventiveModal").modal("hide");
+          location.reload();
+        } else {
+          alert("Erro ao iniciar a preventiva: " + data.error);
+        }
       }
     })
     .catch((error) => {

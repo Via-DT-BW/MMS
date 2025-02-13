@@ -1,16 +1,23 @@
 <div class="mt-2">
   <div class="row">
-    <h2 class="col-md-10">Equipamentos - {{ cost_center }}</h2>
+    <h2 class="col-md-9">Equipamentos - {{ cost_center }}</h2>
 
-    <div class="col-md-2">
+    <div class="col-md-3">
       <button
-        class="btn btn-success"
+        class="btn btn-sm btn-success"
         onclick="mostrarAdicionarEquip('{{ cost_center }}')">
         <i class="fa-solid fa-plus mr-1"></i>
         Equipamento
       </button>
 
-      <button class="btn btn-success" onclick="mostrarAdicionarGama()">
+      <button
+        class="btn btn-sm btn-warning"
+        onclick="mostrarAssociateGama('{{ cost_center }}')">
+        <i class="fa-solid fa-link mr-1"></i>
+        Associar Gama
+      </button>
+
+      <button class="btn btn-sm btn-success" onclick="mostrarAdicionarGama()">
         <i class="fa-solid fa-plus mr-1"></i>
         Gama
       </button>
@@ -49,7 +56,8 @@
 
 {% include "configs/components/addGamaModal.html" %} {% include
 "configs/components/editGamaModal.html" %} {% include
-"configs/components/addEquipment.html" %}
+"configs/components/addEquipment.html" %} {% include
+"configs/components/associateGama.html" %}
 
 <style>
   .cursor-pointer {
@@ -62,180 +70,117 @@
 </style>
 
 <script>
-  function carregarPeriocities() {
-    $.ajax({
-      url: "/get_periocities",
-      method: "GET",
-      success: function (response) {
-        var select = document.getElementById("gamaPeriodicidade");
-        select.innerHTML =
-          '<option value="">Selecione uma periodicidade</option>';
 
-        response.forEach(function (p) {
-          var option = document.createElement("option");
-          option.value = p.id;
-          option.textContent = p.periocity;
-          select.appendChild(option);
-        });
-      },
-      error: function () {
-        alert("Erro ao carregar as periodicidades.");
-      },
-    });
-  }
+    {% include "configs/js/functions.js" %}
 
-  function mostrarGamas(equipamentoId) {
-    var gamasContainer = document.getElementById("gamas-" + equipamentoId);
+    function carregarPeriocities() {
+      $.ajax({
+        url: "/get_periocities",
+        method: "GET",
+        success: function (response) {
+          var select = document.getElementById("gamaPeriodicidade");
+          select.innerHTML =
+            '<option value="">Selecione uma periodicidade</option>';
 
-    if (gamasContainer.style.display === "block") {
-      gamasContainer.style.display = "none";
-      return;
+          response.forEach(function (p) {
+            var option = document.createElement("option");
+            option.value = p.id;
+            option.textContent = p.periocity;
+            select.appendChild(option);
+          });
+        },
+        error: function () {
+          alert("Erro ao carregar as periodicidades.");
+        },
+      });
     }
 
-    gamasContainer.style.display = "block";
+
+  function mostrarAssociateGama(cost_center) {
+    $('#associateGamaModal').modal('show');
 
     $.ajax({
-      url: "/gamas_do_equipamento/" + equipamentoId,
-      method: "GET",
-      success: function (response) {
-        var gamasBody = document.getElementById("gamas-body-" + equipamentoId);
-        gamasBody.innerHTML = "";
-
-        response.forEach(function (gama) {
-          var row = `
-          <tr>
-            <td>${gama.gama_desc}</td>
-            <td>${gama.periocity}</td>
-            <td>
-              <button class="btn btn-warning btn-sm" onclick="editarGama(${equipamentoId}, ${gama.gama_id}, event)">
-                Editar Gama
-              </button>
-            </td>
-          </tr>
-        `;
-          gamasBody.innerHTML += row;
+      url: '/gama_associate/' + cost_center,
+      type: 'GET',
+      dataType: 'json',
+      success: function(response) {
+        var options = '';
+        $.each(response, function(index, equipamento) {
+          options += '<option value="'+ equipamento.id +'">'+ equipamento.equipment +'</option>';
         });
+        $('#equipamentoAssociateSelect').html(options);
       },
-      error: function () {
-        alert("Erro ao carregar as gamas.");
+      error: function(xhr, status, error) {
+        console.error('Erro ao carregar equipamentos: ' + error);
+        $('#equipamentoAssociateSelect').html('<option value="">Erro ao carregar</option>');
+      }
+    });
+
+    $.ajax({
+      url: '/get_all_gamas',
+      type: 'GET',
+      dataType: 'json',
+      success: function(response) {
+        var options = '<option value="">Selecione uma gama</option>';
+        $.each(response, function(index, gama) {
+          options += '<option value="'+ gama.id +'">'+ gama.descricao +'</option>';
+        });
+        options += '<option value="outra">Outra (escreva abaixo)</option>';
+        $('#descricaoGama').html(options);
       },
+      error: function(xhr, status, error) {
+        console.error('Erro ao carregar gamas: ' + error);
+        $('#descricaoGama').html('<option value="">Erro ao carregar</option>');
+      }
+    });
+
+    $.ajax({
+      url: '/get_periocities',
+      type: 'GET',
+      success: function(response) {
+        var options = '';
+        $.each(response, function(index, periocity) {
+          options += '<option value="'+ periocity.id +'">'+ periocity.periocity +'</option>';
+        });
+        $('#periocitySelect').html(options);
+      },
+      error: function(xhr, status, error) {
+        console.error('Erro ao carregar periodicidades: ' + error);
+        $('#periocitySelect').html('<option value="">Erro ao carregar</option>');
+      }
     });
   }
 
-  function editarGama(equipamentoId, gamaId, event) {
-    event.stopPropagation();
+  $(document).ready(function() {
+    $('#descricaoGama').change(function() {
+      if ($(this).val() === 'outra') {
+        $('#descricaoGamaInput').show().prop('required', true);
+      } else {
+        $('#descricaoGamaInput').hide().prop('required', false);
+      }
+    });
+  });
 
-    $.ajax({
-      url: "/get_gama_e_periocidade/" + gamaId,
-      method: "GET",
-      success: function (response) {
-        console.log(response);
-        document.getElementById("equipamentoEdit").value = response.equipamento;
-        document.getElementById("gama").value = response.gama_desc;
-        document.getElementById("periodicidade").value = response.periocity_id;
 
-        document.getElementById("equipamentoId").value =
-          response.equipamento_id;
-        document.getElementById("gamaId").value = response.id_gama;
-        document.getElementById("periocidadeOldId").value =
-          response.periocity_id;
+  $('#associateGamaForm').submit(function(e) {
+        e.preventDefault();
+
+        var descricaoGama = $('#descricaoGama').val();
+        var novaGama = descricaoGama === 'outra' ? $('#novaDescricaoGama').val() : '';
+
+        var formData = $(this).serialize() + '&novaGama=' + encodeURIComponent(novaGama);
 
         $.ajax({
-          url: "/get_periocities",
-          method: "GET",
-          success: function (periocidadesResponse) {
-            console.log(periocidadesResponse);
-
-            var selectPeriodicity = document.getElementById("periodicidade");
-
-            selectPeriodicity.innerHTML = "";
-
-            periocidadesResponse.forEach(function (periocity) {
-              var option = document.createElement("option");
-              option.value = periocity.id;
-              option.textContent = periocity.periocity;
-              selectPeriodicity.appendChild(option);
-            });
-            selectPeriodicity.value = response.periocity_id;
-            $("#editGamaModal").modal("show");
-          },
-          error: function () {
-            alert("Erro ao carregar as periocidades.");
-          },
+            url: '/associate_gama_to_equipment',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#associateGamaModal').modal('hide');
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('Erro ao associar gama: ' + error);
+            }
         });
-      },
-      error: function () {
-        alert("Erro ao carregar os dados da gama.");
-      },
     });
-  }
-
-  function salvarEdicao() {
-    var equipamentoId = document.getElementById("equipamentoId").value;
-    var gamaDesc = document.getElementById("gama").value;
-    var periocityId = document.getElementById("periodicidade").value;
-    var gamaId = document.getElementById("gamaId").value;
-    var oldPeriocityId = document.getElementById("periocidadeOldId").value;
-
-    $.ajax({
-      url: "/update_gama_e_periocidade",
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({
-        equipamentoId: equipamentoId,
-        gamaDesc: gamaDesc,
-        periocityId: periocityId,
-        idGama: gamaId,
-        oldPeriocityId: oldPeriocityId,
-      }),
-      success: function (response) {
-        if (response.success) {
-          location.reload();
-        } else {
-          alert("Erro ao atualizar a gama.");
-        }
-      },
-      error: function () {
-        alert("Erro ao salvar as alterações.");
-      },
-    });
-  }
-
-  function mostrarAdicionarGama() {
-    carregarPeriocities();
-    $("#modalAdicionarGama").modal("show");
-  }
-
-  function mostrarAdicionarEquip(cost_center) {
-    document.getElementById("costCenter").value = cost_center;
-
-    $("#adicionarEquipModal").modal("show");
-  }
-
-  function salvarEquipamento() {
-    var costCenter = document.getElementById("costCenter").value;
-    var equipamentoNome = document.getElementById("equipamentoNome").value;
-    var equipamentoDesc = document.getElementById("equipamentoDesc").value;
-
-    $.ajax({
-      url: "/adicionar_equipamento",
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({
-        costCenter: costCenter,
-        equipment: equipamentoNome,
-        descricao: equipamentoDesc,
-      }),
-      success: function (response) {
-        if (response.success) {
-          location.reload();
-        } else {
-          alert("Erro ao salvar o equipamento.");
-        }
-      },
-      error: function () {
-        alert("Erro ao salvar o equipamento.");
-      },
-    });
-  }
 </script>

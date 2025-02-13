@@ -31,6 +31,14 @@ app.register_blueprint(daily_sec)
 app.register_blueprint(settings_sec)
 app.register_blueprint(preventive_sec)
 
+
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 @app.route('/out')
 def logout():
 
@@ -684,6 +692,49 @@ def areas():
   except Exception as e:
     print(e)
     return jsonify({'error'}), 500
+
+@app.route('/api/get_gamas', methods=['POST'])
+def get_gamas():
+    try:
+        data = request.get_json()
+        equipment = data.get('equipment')
+        if not equipment:
+            return jsonify({"error": "Parâmetro 'equipment' não informado."}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        query = """
+          SELECT 
+              g.id AS gama_id,
+              g.[desc] AS gama_descricao,
+              p.periocity AS periodicidade
+          FROM [dbo].[equipment_gama] eg
+          INNER JOIN [dbo].[gama] g ON eg.id_gama = g.id
+          INNER JOIN [dbo].[periocity] p ON eg.id_periocity = p.id
+          INNER JOIN [dbo].[equipments] e ON eg.id_equipment = e.id
+          WHERE e.[equipment] = ?
+        """
+
+        cursor.execute(query, equipment)
+        rows = cursor.fetchall()
+
+        result = []
+        for row in rows:
+            result.append({
+                "gama_id": row[0],
+                "gama_descricao": row[1],
+                "periodicidade": row[2]
+            })
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
 
 #User Related
 @app.route('/recover_password', methods=['POST'])

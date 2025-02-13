@@ -3,6 +3,24 @@ session['username'] %}
 <div class="justify-content-center d-flex text-center" style="color: #2cedd4">
   Bem-vindo, {{ session['nome'] }}!
 </div>
+
+<li class="nav-item">
+  <a href="/mt_profile" class="btn nav-link collapsed">
+    <i class="fa-solid fa-user" style="color: #2cedd4"></i>
+    <span>Perfil</span>
+  </a>
+</li>
+{% endif %} {% if not session['username'] %}
+<li class="nav-item">
+  <a
+    class="btn nav-link collapsed"
+    data-toggle="modal"
+    data-target="#modalLogin">
+    <i class="fas fa-sign-in-alt" style="color: #2cedd4"></i>
+    <span>Login</span>
+  </a>
+</li>
+{% endif %}
 <!--
 <a
   class="btn nav-link collapsed"
@@ -12,12 +30,6 @@ session['username'] %}
   <span>Pedir Manutenção</span>
 </a>-->
 
-<li class="nav-item">
-  <a href="/mt_profile" class="btn nav-link collapsed">
-    <i class="fa-solid fa-user" style="color: #2cedd4"></i>
-    <span>Perfil</span>
-  </a>
-</li>
 <br />
 <div class="sidebar-heading mt-2" style="color: #2cedd4">
   Pedidos de Manutenção
@@ -39,7 +51,7 @@ session['username'] %}
     <span>Concluídos</span>
   </a>
 </li>
-
+{% if session['username'] %}
 <div class="sidebar-heading mt-2" style="color: #2cedd4">Comentários</div>
 
 <li class="nav-item">
@@ -63,7 +75,7 @@ session['username'] %}
     <span>Criar ordem</span>
   </a>
 </li>
-
+{% endif %}
 <div class="sidebar-heading mt-2" style="color: #2cedd4">Analytics</div>
 <li class="nav-item">
   <a class="btn nav-link collapsed" href="/corrective_analytics">
@@ -77,23 +89,4 @@ session['username'] %}
     <span>Sair</span>
   </a>
 </li>
-{% else %}
-<!--<li class="nav-item">
-  <a
-    class="btn nav-link collapsed"
-    data-toggle="modal"
-    data-target="#modalCorrective">
-    <i class="fas fa-tools" style="color: #2cedd4"></i>
-    <span>Pedir Manutenção</span>
-  </a>
-</li>-->
-<li class="nav-item">
-  <a
-    class="btn nav-link collapsed"
-    data-toggle="modal"
-    data-target="#modalLogin">
-    <i class="fas fa-sign-in-alt" style="color: #2cedd4"></i>
-    <span>Login</span>
-  </a>
-</li>
-{% endif %} {% endblock %}
+{% endblock %}

@@ -17,7 +17,20 @@
     <button type="submit" class="btn btn-primary btn-sm">
       <i class="fa-solid fa-magnifying-glass"></i>
     </button>
+
+    <a
+      class="btn btn-danger btn-sm ml-1"
+      href="{{ url_for('preventive.mapa_por_equipamento') }}"
+      ><i class="fa-solid fa-broom mr-1"></i>Limpar Filtros</a
+    >
   </form>
+
+  {% if not request.args.get('linha') %}
+  <div class="alert alert-warning mt-3" role="alert">
+    Preencha o campo "Procure pela linha" para visualizar as preventivas mais
+    antigas realizadas na linha, por equipamento.
+  </div>
+  {% endif %}
 
   <div class="card">
     <div class="card-header">
@@ -31,6 +44,8 @@
               <th>Equipamento</th>
               <th>Última Preventiva</th>
               <th>Técnico</th>
+              <th>Duração</th>
+              <th>Comentário</th>
             </tr>
           </thead>
           <tbody>
@@ -45,6 +60,8 @@
               <td>{{ equip.equipament }}</td>
               <td class="datetime">{{ equip.ultima_preventiva }}</td>
               <td>{{ equip.tecnico }} - {{ equip.n_tecnico }}</td>
+              <td>{{ equip.duracao }}</td>
+              <td>{{ equip.comment }}</td>
             </tr>
             {% endfor %} {% endif %}
           </tbody>

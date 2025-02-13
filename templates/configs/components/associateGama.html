@@ -1,0 +1,73 @@
+<div
+  class="modal fade"
+  id="associateGamaModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="associateGamaModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="associateGamaForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="associateGamaModalLabel">
+            Associar Gama
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Fechar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="equipamentoAssociateSelect">Equipamento</label>
+            <select
+              class="form-control"
+              id="equipamentoAssociateSelect"
+              name="equipamento"
+              required></select>
+          </div>
+          <div class="form-group">
+            <label for="descricaoGama">Gama</label>
+            <select
+              class="form-control"
+              id="descricaoGama"
+              name="descricao"
+              required>
+              <option value="">Selecione uma gama</option>
+            </select>
+          </div>
+          <div class="form-group" id="descricaoGamaInput" style="display: none">
+            <label for="novaDescricaoGama">Escreva a nova Gama</label>
+            <input
+              type="text"
+              class="form-control"
+              id="novaDescricaoGama"
+              name="novaDescricaoGama"
+              placeholder="Nova gama" />
+          </div>
+
+          <div class="form-group">
+            <label for="periocitySelect">Periodicidade</label>
+            <select
+              class="form-control"
+              id="periocitySelect"
+              name="periodicidade"
+              required></select>
+          </div>
+          <input type="hidden" name="cost_center" value="{{ cost_center }}" />
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-link mr-1"></i>Associar
+          </button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">
+            Fechar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
