@@ -520,6 +520,73 @@ def get_intervention_stats():
         if 'conn' in locals():
             conn.close()
 
+@app.route('/api/avarias_por_tempo', methods=['GET'])
+def get_avarias_por_tempo():
+    filter_prod_line = request.args.get('filter_line', '')
+    filter_area = request.args.get('filter_area', '')
+    start_date = request.args.get('start_datetime', '')
+    end_date = request.args.get('end_datetime', '')
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        query = """
+            SELECT
+                ta.tipo AS TipoAvaria,
+                c.prod_line AS LinhaProducao,
+                YEAR(c.data_pedido) AS Ano,
+                MONTH(c.data_pedido) AS Mes,
+                COUNT(*) AS NumeroOcorrencias
+            FROM corretiva c
+            JOIN corretiva_tecnicos ct ON c.id = ct.id_corretiva
+            JOIN tipo_avaria ta ON ct.id_tipo_avaria = ta.id
+            WHERE 1=1
+        """
+        params = []
+
+        if filter_prod_line:
+            query += " AND c.prod_line = ?"
+            params.append(filter_prod_line)
+
+        if filter_area:
+            query += " AND ta.area = ?"
+            params.append(filter_area)
+
+        if start_date:
+            query += " AND c.data_pedido >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND c.data_pedido <= ?"
+            params.append(end_date)
+
+        query += " GROUP BY ta.tipo, c.prod_line, YEAR(c.data_pedido), MONTH(c.data_pedido)"
+        query += " ORDER BY ta.tipo, c.prod_line, Ano, Mes"
+
+        cursor.execute(query, params)
+        records = cursor.fetchall()
+
+        data = [
+            {
+                "TipoAvaria": row[0],
+                "LinhaProducao": row[1],
+                "Ano": row[2],
+                "Mes": row[3],
+                "NumeroOcorrencias": row[4]
+            }
+            for row in records
+        ]
+
+        return jsonify(data)
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.route('/api/export_corrective_records')
 def export_corrective_records():
     start_date = request.args.get('start_date')
@@ -535,7 +602,7 @@ def export_corrective_records():
                 c.id, c.id_estado, c.prod_line, c.description, c.equipament, c.stopped_production,
                 c.n_operador, c.functional_location, c.main_workcenter, c.data_pedido, c.data_inicio_man,
                 c.data_fim_man, c.sap_order, c.sms_date, c.tempo_manutencao, c.SMSState, c.sap_order_number,
-                t.nome, ct.id_tipo_avaria, ct.maintenance_comment, ct.data_inicio, ct.data_fim, ct.duracao,
+                t.nome, ct.maintenance_comment, ct.data_inicio, ct.data_fim, ct.duracao,
                 ta.tipo as tipo_avaria, ta.area
             FROM [dbo].[corretiva] c
             LEFT JOIN [dbo].[corretiva_tecnicos] ct ON c.id = ct.id_corretiva

@@ -115,8 +115,14 @@ def login_corrective():
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+        
+        if card: 
+            if not card.isdigit():  
+                return jsonify({'success': False, 'error': 'O cartão deve conter apenas números.'}), 400
+            
+            if len(card) < 9:  
+                return jsonify({'success': False, 'error': 'O cartão tem de ter pelo menos 9 dígitos.'}), 400
 
-        if card:
             cursor.execute(f"SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE card_number LIKE ?", ('%' + card,))
         elif username and password:
             cursor.execute("SELECT id, nome, username, n_tecnico, area FROM tecnicos WHERE username=? AND password=?", (username, password,))
