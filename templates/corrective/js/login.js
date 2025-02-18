@@ -14,13 +14,17 @@ $(document).ready(function () {
           data: JSON.stringify(formData),
           success: function (response) {
             if (response.success) {
-              location.reload();
+              window.location.href = "/notifications";
             } else {
               alert("Erro: " + response.error);
             }
           },
-          error: function () {
-            alert("Erro ao fazer login.");
+          error: function (xhr) {
+            let errorMessage = "Erro ao fazer login.";
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+              errorMessage = xhr.responseJSON.error;
+            }
+            alert(errorMessage);
           },
         });
       } else {
@@ -59,8 +63,12 @@ $(document).ready(function () {
           alert("Erro: " + response.error);
         }
       },
-      error: function () {
-        alert("Erro ao fazer login.");
+      error: function (xhr) {
+        let errorMessage = "Erro ao fazer login.";
+        if (xhr.responseJSON && xhr.responseJSON.error) {
+          errorMessage = xhr.responseJSON.error;
+        }
+        alert(errorMessage);
       },
     });
   });
