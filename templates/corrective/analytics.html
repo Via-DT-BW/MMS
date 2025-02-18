@@ -4,7 +4,7 @@
 <div class="card mt-4 mb-4">
   <div class="card-header">
     <form id="filterForm" class="form-row justify-content-center">
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted"
           >Filtrar por linha de produção</small
         >
@@ -17,7 +17,18 @@
           value="{{ filter_prod_line }}" />
       </div>
 
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
+        <small class="form-text text-muted">Área</small>
+        <input
+          type="text"
+          id="filter_area"
+          name="filter_area"
+          class="form-control"
+          placeholder="Área"
+          value="{{ filter_area_intervention }}" />
+      </div>
+
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data inicial</small>
         <input
           type="date"
@@ -27,7 +38,7 @@
           value="{{ start_date }}" />
       </div>
 
-      <div class="form-group col-md-4 col-sm-6 col-12 text-center">
+      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
         <small class="form-text text-muted">Data final</small>
         <input
           type="date"
@@ -38,11 +49,8 @@
       </div>
 
       <div
-        class="form-group col-md-4 col-sm-6 d-flex align-items-end justify-content-center">
-        <button
-          type="button"
-          onclick="loadChartData()"
-          class="btn btn-primary mr-2">
+        class="form-group col-md-3 col-sm-6 d-flex align-items-end justify-content-center">
+        <button type="submit" class="btn btn-primary mr-2">
           <i class="fas fa-filter"></i> Filtrar
         </button>
         <button type="button" onclick="clearFilters()" class="btn btn-danger">
@@ -64,8 +72,104 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card mt-4 mb-4 shadow-lg">
+      <div class="card-header">Downtime vs Tempo de Intervenção por Linha</div>
+      <div class="card-body">
+        <div id="interventionChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card mt-4 mb-4 shadow-lg">
+      <div
+        class="card-header d-flex justify-content-between align-items-center">
+        <span>Registos de Manutenção</span>
+        <button class="btn btn-success" onclick="exportToExcel()">
+          <i class="fa-solid fa-file-csv mr-1"></i>Exportar para Excel
+        </button>
+      </div>
+      <div class="card-body table-responsive">
+        <table id="correctiveTable" class="table table-striped">
+          <thead>
+            <tr>
+              <th>Linha de Produção</th>
+              <th>Descrição</th>
+              <th>Equipamento</th>
+              <th>Data Pedido</th>
+              <th>Data Início</th>
+              <th>Data Fim</th>
+              <th>Técnico</th>
+              <th>Tipo de Avaria</th>
+              <th>Duração</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in records %}
+            <tr>
+              <td>{{ record.prod_line }}</td>
+              <td>{{ record.description }}</td>
+              <td>{{ record.equipament }}</td>
+              <td>{{ record.data_pedido }}</td>
+              <td>{{ record.data_inicio_man }}</td>
+              <td>{{ record.data_fim_man }}</td>
+              <td>{{ record.id_tecnico or 'N/A' }}</td>
+              <td>{{ record.tipo or 'N/A' }}</td>
+              <td>{{ record.duracao or 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% include "corrective/components/pages_analytics.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://code.highcharts.com/highcharts.js"></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 <script>
   {% include "corrective/js/graphicTotal.js" %}
+
+  {% include "corrective/js/graphicIntervention.js" %}
+
+  document.addEventListener("DOMContentLoaded", function() {
+    updateCharts();
+  });
+
+  function updateCharts() {
+    loadChartData();
+    loadInterventionChartData();
+  }
+
+  function clearFilters() {
+    document.getElementById("filter_prod_line").value = "";
+    document.getElementById("start_date").value = "";
+    document.getElementById("end_date").value = "";
+    window.location.href = "{{ url_for('corrective.corrective_analytics') }}";
+  }
+
+  function exportToExcel() {
+    const startDate = document.getElementById("start_date").value;
+    const endDate = document.getElementById("end_date").value;
+
+    if (!startDate || !endDate) {
+      alert("Por favor, selecione uma data de início e uma data de fim.");
+      return;
+    }
+
+    const url = `/api/export_corrective_records?start_date=${startDate}&end_date=${endDate}`;
+    window.location.href = url;
+  }
 </script>
 {% endblock %}

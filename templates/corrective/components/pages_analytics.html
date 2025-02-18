@@ -1,0 +1,52 @@
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <span>Página {{ page }} de {{ total_pages }}</span>
+
+  <nav>
+    <ul class="pagination">
+      {% if page > 1 %}
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="{{ url_for('corrective.corrective_analytics', page=1, filter_prod_line=filter_prod_line, start_date=start_date, end_date=end_date) }}"
+          >Primeira</a
+        >
+      </li>
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="{{ url_for('corrective.corrective_analytics', page=page-1, filter_prod_line=filter_prod_line, start_date=start_date, end_date=end_date) }}"
+          >Anterior</a
+        >
+      </li>
+      {% endif %} {% for num in range(1, total_pages + 1) %} {% if num == page
+      %}
+      <li class="page-item active">
+        <span class="page-link">{{ num }}</span>
+      </li>
+      {% elif num >= page - 2 and num <= page + 2 %}
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="{{ url_for('corrective.corrective_analytics', page=num, filter_prod_line=filter_prod_line, start_date=start_date, end_date=end_date) }}"
+          >{{ num }}</a
+        >
+      </li>
+      {% endif %} {% endfor %} {% if page < total_pages %}
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="{{ url_for('corrective.corrective_analytics', page=page+1, filter_prod_line=filter_prod_line, start_date=start_date, end_date=end_date) }}"
+          >Próxima</a
+        >
+      </li>
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="{{ url_for('corrective.corrective_analytics', page=total_pages, filter_prod_line=filter_prod_line, start_date=start_date, end_date=end_date) }}"
+          >Última</a
+        >
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
