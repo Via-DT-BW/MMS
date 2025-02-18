@@ -206,7 +206,9 @@
         $('#modalContent').html('Carregando...');
       },
       success: function(response) {
+        $('#gamasModalLabel').text('Gamas do Equipamento - ' + equipment);
         let html = '';
+
         if (response.length > 0) {
           html += '<table class="table table-striped">';
           html += '<thead><tr><th>ID</th><th>Descrição</th><th>Periodicidade</th></tr></thead>';

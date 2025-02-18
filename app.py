@@ -1,8 +1,10 @@
-from flask import Config, Flask, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for
+import io
+from flask import Config, Flask, flash, jsonify, redirect, render_template, request, send_file, send_from_directory, session, url_for
 from datetime import date, datetime
 import pyodbc
 from utils.generate_pass import gerar_pass
 from utils.call_conn import conexao_capture, conexao_mms
+import pandas as pd
 #email
 from flask_mail import Mail, Message
 from flask_cors import CORS
@@ -403,11 +405,11 @@ def get_corrective_stats():
         end_date = request.args.get('end_date', '')
 
         if start_date:
-            start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
         else:
             start_date = None
         if end_date:
-            end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
         else:
             end_date = None
             
@@ -433,6 +435,135 @@ def get_corrective_stats():
             cursor.close()
         if 'conn' in locals():
             conn.close()
+
+@app.route('/api/get_intervention_stats')
+def get_intervention_stats():
+    try:
+        filter_line = request.args.get('filter_line', '')
+        start_date = request.args.get('start_datetime', '')
+        end_date = request.args.get('end_datetime', '')
+        filter_fault_type = request.args.get('filter_fault_type', '')
+
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        else:
+            start_date = None
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        else:
+            end_date = None
+        
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        downtime_query = """
+            SELECT id, prod_line, CAST(tempo_manutencao AS FLOAT) AS downtime
+            FROM [dbo].[corretiva]
+            WHERE 1=1 and stopped_production = 'Sim'
+        """
+        params_downtime = []
+        if filter_line:
+            downtime_query += " AND prod_line = ?"
+            params_downtime.append(filter_line)
+
+        tech_query = """
+            SELECT ct.id_corretiva, SUM(CAST(ct.duracao AS FLOAT)) AS technician_time
+            FROM [dbo].[corretiva_tecnicos] ct
+            JOIN [dbo].[tipo_avaria] ta ON ct.id_tipo_avaria = ta.id
+            JOIN [dbo].[corretiva] c ON ct.id_corretiva = c.id
+            WHERE 1=1 and c.stopped_production = 'Sim'
+        """
+        
+        params_tech = []
+        if start_date:
+            tech_query += " AND ct.data_inicio >= ?"
+            params_tech.append(start_date)
+        if end_date:
+            tech_query += " AND ct.data_inicio <= ?"
+            params_tech.append(end_date)
+        if filter_fault_type:
+            fault_ids = filter_fault_type.split(',')
+            placeholders = ','.join('?' for _ in fault_ids)
+            tech_query += f" AND ct.id_tipo_avaria IN ({placeholders})"
+            params_tech.extend(fault_ids)
+        tech_query += " GROUP BY ct.id_corretiva"
+
+        final_query = f"""
+            SELECT d.prod_line,
+                   SUM(d.downtime) AS downtime,
+                   SUM(t.technician_time) AS technician_time
+            FROM ({downtime_query}) d
+            JOIN ({tech_query}) t ON d.id = t.id_corretiva
+            GROUP BY d.prod_line
+        """
+
+        params = params_downtime + params_tech
+
+        cursor.execute(final_query, params)
+
+        data = []
+        for row in cursor.fetchall():
+            data.append({
+                'prod_line': row.prod_line,
+                'downtime': row.downtime,
+                'technician_time': row.technician_time
+            })
+
+        return jsonify(data)
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': f'Ocorreu um erro: {str(e)}'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/export_corrective_records')
+def export_corrective_records():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    if not start_date or not end_date:
+        return "Erro: Ambas as datas são necessárias.", 400
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        query = """
+            SELECT 
+                c.id, c.id_estado, c.prod_line, c.description, c.equipament, c.stopped_production,
+                c.n_operador, c.functional_location, c.main_workcenter, c.data_pedido, c.data_inicio_man,
+                c.data_fim_man, c.sap_order, c.sms_date, c.tempo_manutencao, c.SMSState, c.sap_order_number,
+                t.nome, ct.id_tipo_avaria, ct.maintenance_comment, ct.data_inicio, ct.data_fim, ct.duracao,
+                ta.tipo as tipo_avaria, ta.area
+            FROM [dbo].[corretiva] c
+            LEFT JOIN [dbo].[corretiva_tecnicos] ct ON c.id = ct.id_corretiva
+            LEFT JOIN [dbo].[tecnicos] t ON ct.id_tecnico = t.id
+            LEFT JOIN [dbo].[tipo_avaria] ta ON ct.id_tipo_avaria = ta.id
+            WHERE c.data_pedido BETWEEN ? AND ?
+        """
+        df = pd.read_sql(query, con=conn, params=[start_date, end_date])
+        conn.close()
+
+        if df.empty:
+            return "Nenhum registo encontrado para o período selecionado.", 404
+
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Histórico')
+        output.seek(0)
+
+        filename = f"historico_corretivas_{start_date}_a_{end_date}.xlsx"
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename,
+        )
+        
+    except Exception as e:
+        return f"Erro ao exportar: {str(e)}", 500
 
 @app.route('/api/get-corretiva-comments')
 def get_corretiva_comments():

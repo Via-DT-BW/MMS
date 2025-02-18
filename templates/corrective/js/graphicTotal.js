@@ -23,6 +23,12 @@ function loadChartData() {
 }
 
 function renderChart(data, filterProdLine) {
+  if (!data || data.length === 0) {
+    document.getElementById("totalState").innerHTML =
+      "<div class='text-center'>Sem registos</div>";
+    return;
+  }
+
   const titleText = filterProdLine
     ? `Pedidos de Manutenção por Estado - ${filterProdLine}`
     : "Pedidos de Manutenção por Estado";
@@ -55,12 +61,3 @@ function renderChart(data, filterProdLine) {
     ],
   });
 }
-
-function clearFilters() {
-  document.getElementById("filter_prod_line").value = "";
-  document.getElementById("start_date").value = "";
-  document.getElementById("end_date").value = "";
-  loadChartData();
-}
-
-document.addEventListener("DOMContentLoaded", loadChartData);
