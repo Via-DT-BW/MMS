@@ -463,8 +463,8 @@ def get_intervention_stats():
         """
         params_downtime = []
         if filter_line:
-            downtime_query += " AND prod_line = ?"
-            params_downtime.append(filter_line)
+            downtime_query += " AND prod_line like ?"
+            params_downtime.append(filter_line + "%")
 
         tech_query = """
             SELECT ct.id_corretiva, SUM(CAST(ct.duracao AS FLOAT)) AS technician_time
@@ -546,8 +546,8 @@ def get_avarias_por_tempo():
         params = []
 
         if filter_prod_line:
-            query += " AND c.prod_line = ?"
-            params.append(filter_prod_line)
+            query += " AND c.prod_line like ?"
+            params.append(filter_prod_line + "%")
 
         if filter_area:
             query += " AND ta.area = ?"
