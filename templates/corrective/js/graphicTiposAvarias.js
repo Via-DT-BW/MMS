@@ -13,7 +13,6 @@ function loadAvariasPorTempoChart() {
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
-      console.log("Dados do gráfico de avarias:", data);
       if (data.error) {
         alert(data.error);
       } else {
@@ -33,24 +32,52 @@ function renderAvariasPorTempoChart(data) {
   }
 
   const seriesData = {};
-
   data.forEach((item) => {
     const key = `${item.TipoAvaria} - ${item.LinhaProducao}`;
     const date = `${item.Ano}-${String(item.Mes).padStart(2, "0")}-01`;
-
     if (!seriesData[key]) {
       seriesData[key] = [];
     }
-
     seriesData[key].push([new Date(date).getTime(), item.NumeroOcorrencias]);
   });
 
-  const series = Object.keys(seriesData).map((key) => ({
+  const productionLines = new Set();
+  Object.keys(seriesData).forEach((key) => {
+    const parts = key.split(" - ");
+    if (parts.length > 1) {
+      productionLines.add(parts[1]);
+    }
+  });
+  const productionLinesArray = Array.from(productionLines);
+
+  let dropdownHTML = "";
+  if (productionLinesArray.length > 1) {
+    dropdownHTML += `<div style="margin-bottom:10px;"><label for="lineSelector">Selecione a Linha: </label>`;
+    dropdownHTML += `<select id="lineSelector" onchange="filterChartByLine()" class="form-control" style="width:200px; display:inline-block; margin-left:10px;">`;
+    dropdownHTML += `<option value="all">Todas as Linhas</option>`;
+    productionLinesArray.forEach((line) => {
+      dropdownHTML += `<option value="${line}">${line}</option>`;
+    });
+    dropdownHTML += `</select></div>`;
+  }
+
+  const container = document.getElementById("avariasPorTempo");
+  container.innerHTML =
+    dropdownHTML +
+    `<div id="chartContainerAvarias" style="min-height:400px;"></div>`;
+
+  const allAvariasSeries = Object.keys(seriesData).map((key) => ({
     name: key,
-    data: seriesData[key].sort((a, b) => a[0] - b[0]), // Ordena por data
+    data: seriesData[key].sort((a, b) => a[0] - b[0]),
   }));
 
-  Highcharts.chart("avariasPorTempo", {
+  container.dataset.allSeries = JSON.stringify(allAvariasSeries);
+
+  renderAvariasChart(allAvariasSeries);
+}
+
+function renderAvariasChart(series) {
+  Highcharts.chart("chartContainerAvarias", {
     chart: { type: "line" },
     title: { text: "Ocorrências de Avarias por Tipo ao Longo do Tempo" },
     xAxis: {
@@ -60,6 +87,23 @@ function renderAvariasPorTempoChart(data) {
     yAxis: {
       title: { text: "Número de Ocorrências" },
     },
+    tooltip: { shared: true },
     series: series,
   });
+}
+
+function filterChartByLine() {
+  const selector = document.getElementById("lineSelector");
+  const selectedLine = selector.value;
+  const container = document.getElementById("avariasPorTempo");
+  const allSeries = JSON.parse(container.dataset.allSeries || "[]");
+  let filteredSeries;
+  if (selectedLine === "all") {
+    filteredSeries = allSeries;
+  } else {
+    filteredSeries = allSeries.filter((s) =>
+      s.name.endsWith(" - " + selectedLine)
+    );
+  }
+  renderAvariasChart(filteredSeries);
 }

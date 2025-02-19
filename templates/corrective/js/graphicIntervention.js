@@ -13,7 +13,6 @@ function loadInterventionChartData() {
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
-      console.log("Dados do gráfico de intervenção:", data);
       if (data.error) {
         alert(data.error);
       } else {
