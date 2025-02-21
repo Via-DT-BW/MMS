@@ -22,9 +22,13 @@ function mostrarGamas(equipamentoId) {
             <td>${gama.periocity}</td>
             <td>
               <button class="btn btn-warning btn-sm" onclick="editarGama(${equipamentoId}, ${gama.gama_id}, event)">
-                Editar Gama
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteLink(${equipamentoId}, ${gama.gama_id}, ${gama.periocity_id}, event)">
+                <i class="fa-solid fa-link-slash"></i>
               </button>
             </td>
+            
           </tr>
         `;
         gamasBody.innerHTML += row;
@@ -32,6 +36,37 @@ function mostrarGamas(equipamentoId) {
     },
     error: function () {
       alert("Erro ao carregar as gamas.");
+    },
+  });
+}
+
+function deleteLink(equipamentoId, gamaId, periocity_id, event) {
+  event.stopPropagation();
+
+  if (
+    !confirm(
+      "Tem certeza que deseja remover este associação entre esta gama e equipamento?"
+    )
+  ) {
+    return;
+  }
+
+  $.ajax({
+    url: "/unlink_gama/",
+    method: "DELETE",
+    contentType: "application/json",
+    data: JSON.stringify({
+      id_equipment: equipamentoId,
+      id_gama: gamaId,
+      id_periocity: periocity_id,
+    }),
+    success: function (response) {
+      console.log(response);
+      alert("Vínculo removido com sucesso!");
+      location.reload();
+    },
+    error: function () {
+      alert("Erro ao remover o vínculo.");
     },
   });
 }

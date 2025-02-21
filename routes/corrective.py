@@ -93,7 +93,7 @@ def corrective_notification_capture():
                 var_descricao, equipament_var, var_numero_operador, paragem_producao, prod_line, app_name
             )
             conn.commit()
-            print("Notificação enviada com sucesso.")
+
             flash('Notificação enviada com sucesso', category='success')
             return {"message": "Notificação enviada com sucesso"}, 200
         except Exception as e:
@@ -297,13 +297,32 @@ def change_to_inwork():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
+        cursor.execute('SELECT equipament FROM corretiva WHERE id = ?', id_corretiva)
+        row = cursor.fetchone()
+        if row is None:
+            return jsonify({'error': 'Pedido não encontrado'}), 404
+        equipamento = row[0]
+
+        cursor.execute('''
+            SELECT id FROM corretiva
+            WHERE equipament = ? AND id_estado = 2 AND id <> ?
+        ''', (equipamento, id_corretiva))
+        pedido_andamento = cursor.fetchone()
+
+        if pedido_andamento:
+            id_pedido_andamento = pedido_andamento[0]
+            cursor.execute('''
+                UPDATE corretiva
+                SET id_estado = 3, data_fim_man = ?
+                WHERE id = ?
+            ''', (data_atual, id_pedido_andamento))
+        
         cursor.execute('''
             UPDATE corretiva
             SET id_estado = ?, data_inicio_man = ?
             WHERE id = ?
         ''', (2, data_atual, id_corretiva))
         
-
         cursor.execute('''
             INSERT INTO corretiva_tecnicos (id_tecnico, id_corretiva)
             VALUES (?, ?)

@@ -60,11 +60,10 @@
             <th>Linha</th>
             <th>Técnico</th>
             <th>Equipamento</th>
-            <th>Descrição</th>
-            <th>Denominação</th>
             <th>Data Início</th>
             <th>Data Fim</th>
             <th>Duração</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -78,22 +77,134 @@
             <td>{{ fini.cost_center }}</td>
             <td>{{ fini.mt_name }} - {{fini.mt_num}}</td>
             <td>{{ fini.equipament }}</td>
-            <td>{{ fini.description }}</td>
-            <td>{{ fini.denomination }}</td>
             <td class="datetime">{{ fini.data_inicio }}</td>
             <td class="datetime">{{ fini.data_fim }}</td>
             <td>{{ fini.duracao_min }} min</td>
+            <td>
+              <button
+                class="btn btn-info btn-md open-modal"
+                data-bs-toggle="modal"
+                data-bs-target="#detailsFinishPreventiveModal"
+                data-order-num="{{ fini.order_number }}"
+                data-deno="{{ fini.denomination }}"
+                data-desc="{{ fini.description }}"
+                data-comment="{{ fini.comment }}">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
           </tr>
           {% endfor %}{% endif %}
         </tbody>
       </table>
-      {% include "preventive/components/pagination.html" %}
+      <nav aria-label="Navegação Preventivos">
+        <ul class="pagination justify-content-center">
+          {% if preventive_current_page > 1 %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('preventive.finished_preventives', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=preventive_current_page - 1, orders_page=orders_current_page) }}"
+              aria-label="Anterior">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% endif %} {% set preventive_total_pages = (preventive_total //
+          preventive_page_size) + (1 if preventive_total % preventive_page_size
+          > 0 else 0) %} {% set start_page = preventive_current_page - 1 %} {%
+          set end_page = preventive_current_page + 1 %} {% if start_page < 1 %}
+          {% set start_page = 1 %} {% endif %} {% if end_page >
+          preventive_total_pages %} {% set end_page = preventive_total_pages %}
+          {% endif %} {% if start_page > 1 %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('preventive.finished_preventives', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=1, orders_page=orders_current_page) }}">
+              1
+            </a>
+          </li>
+          {% if start_page > 2 %}
+          <li class="page-item"><span class="page-link">...</span></li>
+          {% endif %} {% endif %} {% for page_num in range(start_page, end_page
+          + 1) %}
+          <li
+            class="page-item {% if page_num == preventive_current_page %}active{% endif %}">
+            <a
+              class="page-link"
+              href="{{ url_for('preventive.finished_preventives', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=page_num, orders_page=orders_current_page) }}">
+              {{ page_num }}
+            </a>
+          </li>
+          {% endfor %} {% if end_page < preventive_total_pages %} {% if end_page
+          < preventive_total_pages - 1 %}
+          <li class="page-item"><span class="page-link">...</span></li>
+          {% endif %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('preventive.finished_preventives', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=preventive_total_pages, orders_page=orders_current_page) }}">
+              {{ preventive_total_pages }}
+            </a>
+          </li>
+          {% endif %} {% if preventive_current_page < preventive_total_pages %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('preventive.finished_preventives', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=preventive_current_page + 1, orders_page=orders_current_page) }}"
+              aria-label="Próximo">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
   </div>
 </div>
 
+{% include "preventive/components/modalFinishedPrevs.html" %}
+
 <script>
-  {% include "preventive/js/preventive.js" %}
+  document.addEventListener("DOMContentLoaded", function () {
+    var detailsModal = document.getElementById("detailsFinishPreventiveModal");
+    if (detailsModal) {
+      detailsModal.addEventListener("show.bs.modal", function (event) {
+        var button = event.relatedTarget;
+        var orderNum = button.getAttribute("data-order-num");
+        var deno = button.getAttribute("data-deno");
+        var desc = button.getAttribute("data-desc");
+        var comment = button.getAttribute("data-comment");
+
+        detailsModal.querySelector("#modalOrderNumber").value = orderNum;
+        detailsModal.querySelector("#modalDeno").value = deno;
+        detailsModal.querySelector("#modalDescription").value = desc;
+        detailsModal.querySelector("#modalComment").value = comment ?? "";
+      });
+    } else {
+      console.error(
+        "Modal 'detailsFinishPreventiveModal' não encontrado no DOM."
+      );
+    }
+
+    const datesCells = document.querySelectorAll(".datetime");
+    datesCells.forEach((cell) => {
+      cell.textContent = formatDatetime(cell.textContent.trim());
+    });
+  });
+
+  function formatDatetime(dateString) {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
 </script>
 
 {% endblock %}

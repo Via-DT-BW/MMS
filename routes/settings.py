@@ -166,7 +166,6 @@ def get_all_gamas():
         print(e)
         return jsonify({'error': str(e)}), 500
 
-
 @settings_sec.route('/gamas_do_equipamento/<equipamento_id>', methods=['GET'])
 def gamas_do_equipamento(equipamento_id):
     try:
@@ -197,6 +196,30 @@ def gamas_do_equipamento(equipamento_id):
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
+
+@settings_sec.route("/unlink_gama/", methods=["DELETE"])
+def unlink_gama():
+    data = request.json
+    equipamento_id = data.get("id_equipment")
+    gama_id = data.get("id_gama")
+    periocity_id = data.get("id_periocity")
+
+    if not equipamento_id or not gama_id or not periocity_id:
+        return jsonify({"error": "Parâmetros inválidos"}), 400
+
+    conn = pyodbc.connect(conexao_mms)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM equipment_gama 
+        WHERE id_equipment = ? AND id_gama = ? AND id_periocity = ?
+    """, (equipamento_id, gama_id, periocity_id))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Gama e equipamento desassociados com sucesso"}), 200
 
 @settings_sec.route('/get_periocities', methods=['GET'])
 def get_periocities():
