@@ -33,7 +33,7 @@ function renderAvariasPorTempoChart(data) {
 
   const seriesData = {};
   data.forEach((item) => {
-    const key = `${item.TipoAvaria} - ${item.LinhaProducao}`;
+    const key = `${item.LinhaProducao} - ${item.TipoAvaria}`;
     const date = `${item.Ano}-${String(item.Mes).padStart(2, "0")}-01`;
     if (!seriesData[key]) {
       seriesData[key] = [];
@@ -44,8 +44,8 @@ function renderAvariasPorTempoChart(data) {
   const productionLines = new Set();
   Object.keys(seriesData).forEach((key) => {
     const parts = key.split(" - ");
-    if (parts.length > 1) {
-      productionLines.add(parts[1]);
+    if (parts.length > 0) {
+      productionLines.add(parts[0].trim());
     }
   });
   const productionLinesArray = Array.from(productionLines);
@@ -66,10 +66,14 @@ function renderAvariasPorTempoChart(data) {
     dropdownHTML +
     `<div id="chartContainerAvarias" style="min-height:400px;"></div>`;
 
-  const allAvariasSeries = Object.keys(seriesData).map((key) => ({
-    name: key,
-    data: seriesData[key].sort((a, b) => a[0] - b[0]),
-  }));
+  const allAvariasSeries = Object.keys(seriesData).map((key) => {
+    const parts = key.split(" - ");
+    return {
+      name: key,
+      productionLine: parts[0].trim(),
+      data: seriesData[key].sort((a, b) => a[0] - b[0]),
+    };
+  });
 
   container.dataset.allSeries = JSON.stringify(allAvariasSeries);
 
@@ -101,9 +105,7 @@ function filterChartByLine() {
   if (selectedLine === "all") {
     filteredSeries = allSeries;
   } else {
-    filteredSeries = allSeries.filter((s) =>
-      s.name.endsWith(" - " + selectedLine)
-    );
+    filteredSeries = allSeries.filter((s) => s.productionLine === selectedLine);
   }
   renderAvariasChart(filteredSeries);
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,68 +12,73 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
     <style>
+      html,
+      body {
+        overflow: hidden;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
       body {
         font-family: "Montserrat", sans-serif;
-        margin: 0;
-        overflow-x: hidden;
       }
-
-      /* Sidebar */
-      .sidebar {
-        position: fixed;
+      .navbar {
+        position: absolute;
         top: 0;
         left: 0;
-        height: 100%;
-        width: 250px;
-        background: #333;
-        color: white;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        padding: 10px 0;
+      }
+
+      .navbar-brand img {
+        height: 70px;
+      }
+
+      .navbar-nav .nav-item {
+        margin: 0 15px;
+      }
+
+      .navbar-nav {
+        margin: 0 auto;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px 10px;
-      }
-
-      .sidebar img {
-        height: 80px;
-        margin-bottom: 30px;
-      }
-
-      .sidebar ul {
-        list-style: none;
-        padding: 0;
+        justify-content: center;
         width: 100%;
       }
 
-      .sidebar ul li {
+      .navbar-nav .nav-link {
+        position: relative;
+        color: white !important;
+        font-weight: 600;
+        transition: color 0.3s ease-in-out;
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #2efad9 !important;
+      }
+
+      .navbar-nav .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -3px;
+        width: 0;
+        height: 2px;
+        background-color: #2efad9;
+        transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+      }
+
+      .navbar-nav .nav-link:hover::after {
         width: 100%;
-      }
-
-      .sidebar ul li a {
-        display: block;
-        padding: 15px 20px;
-        color: white;
-        text-decoration: none;
-        transition: background 0.3s, color 0.3s;
-      }
-
-      .sidebar ul li a:hover {
-        background: #007bff;
-        color: white;
+        left: 0;
       }
 
       .video-bg {
-        margin-left: 250px;
-        height: 100vh;
         position: relative;
+        width: 100%;
+        height: 100vh;
         overflow: hidden;
       }
 
@@ -93,7 +98,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.4);
         z-index: 1;
       }
 
@@ -106,31 +111,22 @@
         transform: translateY(-50%);
       }
 
-      /* Footer */
-      footer {
-        text-align: center;
-        background: #333;
+      .video-bg footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: transparent;
         color: white;
         padding: 15px;
-        margin-left: 250px;
+        text-align: center;
+        z-index: 3;
       }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   </head>
-
   <body>
-    <div class="sidebar">
-      <img src="static/initial_page/img/app_logo.png" alt="Logo" />
-      <ul>
-        <li><a href="/autonomous">Autonomous Maintenance</a></li>
-        <li><a href="/preventive">Preventive Maintenance</a></li>
-        <li><a href="/corrective">Corrective Maintenance</a></li>
-        <li><a href="/monotoring">Planning & Monitoring</a></li>
-        <li>
-          <a href="#" data-toggle="modal" data-target="#loginModal">Settings</a>
-        </li>
-      </ul>
-    </div>
     {% include "components/loginModal.html" %}
+
     <div class="video-bg">
       <video autoplay muted loop>
         <source
@@ -139,21 +135,75 @@
         Your browser does not support the video tag.
       </video>
       <div class="video-overlay"></div>
+
+      <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+        <div class="container-fluid">
+          <a class="navbar-brand ms-3" href="#">
+            <img src="static/initial_page/img/app_logo.png" alt="Logo" />
+            MMS
+          </a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
+            aria-expanded="false"
+            aria-label="Alterna navegação">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="/autonomous"
+                  >Autonomous Maintenance</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/preventive"
+                  >Preventive Maintenance</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/notifications"
+                  >Corrective Maintenance</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/monotoring"
+                  >Planning &amp; Monitoring</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/manual" target="_blank">Manual</a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  data-bs-toggle="modal"
+                  data-bs-target="#loginModal"
+                  data-url="/login_settings"
+                  >Settings</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
       <div class="video-content">
         <h1>Maintenance Management System</h1>
-        <p>Gerencie suas operações de manutenção com eficiência.</p>
+        <p>Plataforma de Gestão de Manutenções Borgwarner TTT Viana.</p>
       </div>
+
+      <footer>
+        <p>
+          Copyright &copy; {{year}} Digital Transformation - Viana do Castelo
+        </p>
+      </footer>
     </div>
 
-    <footer>
-      <p>Copyright &copy; {{year}} Digital Transformation - Viana do Castelo</p>
-    </footer>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
-    <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
-
-    <script src="static/initial_page/js/jquery-1.9.1.min.js"></script>
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
     <script>
       {% include "utils/javascript/login.js" %}

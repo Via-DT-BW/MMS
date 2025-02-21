@@ -1,7 +1,14 @@
 {% extends 'preventive/preventive.html' %} {% block content %}
 
+<style>
+  td,
+  th {
+    text-align: center;
+  }
+</style>
+
 <div class="mt-3">
-  <h2 class="text-center">Mapa por Equipamento</h2>
+  <h2 class="text-center">Mapa por Linha</h2>
 
   <form class="form-inline mb-3">
     <div class="form-group mr-2">
@@ -20,7 +27,7 @@
 
     <a
       class="btn btn-danger btn-sm ml-1"
-      href="{{ url_for('preventive.mapa_por_equipamento') }}"
+      href="{{ url_for('preventive.mapa_por_linha') }}"
       ><i class="fa-solid fa-broom mr-1"></i>Limpar Filtros</a
     >
   </form>
@@ -31,39 +38,56 @@
     antigas realizadas na linha, por equipamento.
   </div>
   {% endif %}
-
-  <div class="card">
-    <div class="card-header">
-      <h5 class="text-center">Equipamentos com Preventivas Mais Antigas</h5>
+  <div class="card shadow-sm">
+    <div class="card-header text-white" style="background-color: #00386c">
+      <h5 class="mb-1 text-center">
+        Linhas - Status das Tarefas por Periodicidade
+      </h5>
     </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
             <tr>
-              <th>Equipamento</th>
-              <th>Última Preventiva</th>
-              <th>Técnico</th>
-              <th>Duração</th>
-              <th>Comentário</th>
+              <th>Linha</th>
+              <th>Semanal</th>
+              <th>Mensal</th>
+              <th>Trimestral</th>
+              <th>Semestral</th>
+              <th>Anual</th>
             </tr>
           </thead>
           <tbody>
-            {% if equipamentos|length == 0 %}
-            <tr>
-              <td colspan="5" class="text-center">
-                Nenhuma preventiva encontrada
+            {% for linha in linhas %}
+            <tr
+              style="cursor: pointer"
+              onclick="window.location.href='/mapa_por_equipamento?linha={{ linha.linha }}'">
+              <td>
+                <strong>{{ linha.linha }}</strong
+                ><i class="fas fa-external-link-alt ml-1"></i>
               </td>
+
+              {% for key in
+              ['semanal','mensal','trimestral','semestral','anual'] %}
+              <td>
+                {% if linha[key] %} {% if linha[key].overdue %} {% if
+                linha[key].dias_desde_execucao == -1 %}
+                <span class="badge bg-danger">
+                  Atrasado (Nunca executado)
+                </span>
+                {% else %}
+                <span class="badge bg-danger"> Atrasado </span>
+                {% endif %} {% else %}
+                <span class="badge bg-success">
+                  Em dia ({{ linha[key].dias_desde_execucao }} dias)
+                </span>
+                {% endif %} {% else %}
+                <span class="text-muted">Sem registos</span>
+                {% endif %}
+              </td>
+              {% endfor %}
             </tr>
-            {% else %} {% for equip in equipamentos %}
-            <tr>
-              <td>{{ equip.equipament }}</td>
-              <td class="datetime">{{ equip.ultima_preventiva }}</td>
-              <td>{{ equip.tecnico }} - {{ equip.n_tecnico }}</td>
-              <td>{{ equip.duracao }}</td>
-              <td>{{ equip.comment }}</td>
-            </tr>
-            {% endfor %} {% endif %}
+            {% endfor %}
           </tbody>
         </table>
       </div>

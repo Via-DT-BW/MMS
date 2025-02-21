@@ -1,0 +1,72 @@
+<div
+  class="modal fade"
+  id="detailsFinishPreventiveModal"
+  tabindex="-1"
+  aria-labelledby="detailsFinishPreventiveModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsFinishPreventiveModalLabel">
+          Detalhes da Manutenção Preventiva
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="modalOrderNumber" class="form-label"
+                ><strong>Número do Pedido:</strong></label
+              >
+              <input
+                type="text"
+                id="modalOrderNumber"
+                class="form-control"
+                readonly />
+            </div>
+            <div class="col-md-6">
+              <label for="modalDeno" class="form-label"
+                ><strong>Denominação:</strong></label
+              >
+              <input type="text" id="modalDeno" class="form-control" readonly />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="modalDescription" class="form-label"
+                ><strong>Descrição:</strong></label
+              >
+              <input
+                type="text"
+                id="modalDescription"
+                class="form-control"
+                readonly />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <label for="modalComment" class="form-label"
+                ><strong>Comentário:</strong></label
+              >
+              <textarea
+                id="modalComment"
+                class="form-control"
+                rows="4"
+                readonly></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

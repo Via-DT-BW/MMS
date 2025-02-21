@@ -519,8 +519,8 @@ def get_intervention_stats():
             cursor.close()
         if 'conn' in locals():
             conn.close()
-
-@app.route('/api/avarias_por_tempo', methods=['GET'])
+            
+@app.route('/api/avarias_por_tempo', methods=['GET'])           
 def get_avarias_por_tempo():
     filter_prod_line = request.args.get('filter_line', '')
     filter_area = request.args.get('filter_area', '')
@@ -528,7 +528,7 @@ def get_avarias_por_tempo():
     end_date = request.args.get('end_datetime', '')
 
     try:
-        conn = pyodbc.connect(conexao_mms)
+        conn = pyodbc.connect(conexao_capture)
         cursor = conn.cursor()
 
         query = """
@@ -538,9 +538,9 @@ def get_avarias_por_tempo():
                 YEAR(c.data_pedido) AS Ano,
                 MONTH(c.data_pedido) AS Mes,
                 COUNT(*) AS NumeroOcorrencias
-            FROM corretiva c
-            JOIN corretiva_tecnicos ct ON c.id = ct.id_corretiva
-            JOIN tipo_avaria ta ON ct.id_tipo_avaria = ta.id
+            FROM MMS.[dbo].corretiva c
+            JOIN MMS.[dbo].corretiva_tecnicos ct ON c.id = ct.id_corretiva
+            JOIN MMS.[dbo].tipo_avaria ta ON ct.id_tipo_avaria = ta.id
             WHERE 1=1
         """
         params = []
@@ -903,15 +903,29 @@ def get_gamas():
         cursor = conn.cursor()
 
         query = """
-          SELECT 
-              g.id AS gama_id,
-              g.[desc] AS gama_descricao,
-              p.periocity AS periodicidade
-          FROM [dbo].[equipment_gama] eg
-          INNER JOIN [dbo].[gama] g ON eg.id_gama = g.id
-          INNER JOIN [dbo].[periocity] p ON eg.id_periocity = p.id
-          INNER JOIN [dbo].[equipments] e ON eg.id_equipment = e.id
-          WHERE e.[equipment] = ?
+            SELECT 
+                eg.id AS equipment_gama_id,
+                g.id AS gama_id,
+                g.[desc] AS gama_descricao,
+                p.periocity AS periodicidade,
+                p.n_dias AS dias_periocity,
+                MAX(hg.data_execucao) AS ultima_execucao,
+                CASE 
+                  WHEN MAX(hg.data_execucao) IS NULL THEN 9999 
+                  ELSE DATEDIFF(DAY, MAX(hg.data_execucao), GETDATE())
+                END AS dias_desde_execucao,
+                CASE 
+                  WHEN (CASE WHEN MAX(hg.data_execucao) IS NULL THEN 9999 ELSE DATEDIFF(DAY, MAX(hg.data_execucao), GETDATE()) END) >= p.n_dias 
+                       THEN 1
+                  ELSE 0
+                END AS overdue
+            FROM equipment_gama eg
+            INNER JOIN gama g ON eg.id_gama = g.id
+            INNER JOIN periocity p ON eg.id_periocity = p.id
+            INNER JOIN equipments e ON eg.id_equipment = e.id
+            LEFT JOIN history_gama hg ON hg.id_equipment_gama = eg.id
+            WHERE e.equipment = ?
+            GROUP BY eg.id, g.id, g.[desc], p.periocity, p.n_dias
         """
 
         cursor.execute(query, equipment)
@@ -920,16 +934,54 @@ def get_gamas():
         result = []
         for row in rows:
             result.append({
-                "gama_id": row[0],
-                "gama_descricao": row[1],
-                "periodicidade": row[2]
+                "equipment_gama_id": row[0],
+                "gama_id": row[1],
+                "gama_descricao": row[2],
+                "periodicidade": row[3],
+                "dias_periocity": row[4],
+                "ultima_execucao": row[5].isoformat() if row[5] is not None else None,
+                "dias_desde_execucao": row[6],
+                "overdue": bool(row[7])
             })
 
         cursor.close()
         conn.close()
-
+        
         return jsonify(result)
 
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/update_gamas', methods=['POST'])
+def update_gamas():
+    try:
+        data = request.get_json()
+        equipment_gama_ids = data.get('equipment_gama_ids')
+        if not equipment_gama_ids or not isinstance(equipment_gama_ids, list):
+            return jsonify({"error": "Parâmetro 'equipment_gama_ids' inválido."}), 400
+
+        print(equipment_gama_ids)
+        
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        for eg_id in equipment_gama_ids:
+            cursor.execute("SELECT COUNT(*) FROM history_gama WHERE id_equipment_gama = ?", eg_id)
+            existe = cursor.fetchone()[0]
+            
+            if existe > 0:
+                query = "UPDATE history_gama SET data_execucao = GETDATE() WHERE id_equipment_gama = ?"
+                cursor.execute(query, eg_id)
+            else:
+                query = "INSERT INTO history_gama (id_equipment_gama, data_execucao) VALUES (?, GETDATE())"
+                cursor.execute(query, eg_id)
+                
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash('Tarefas atualizadas com sucesso!', category='success')
+        return jsonify({"message": "Gamas atualizadas com sucesso."})
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500

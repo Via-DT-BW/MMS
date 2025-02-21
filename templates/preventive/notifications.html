@@ -173,8 +173,8 @@
             <td>
               <button
                 class="btn btn-success"
-                data-toggle="modal"
-                data-target="#loginPreventive"
+                data-bs-toggle="modal"
+                data-bs-target="#loginPreventive"
                 data-order="{{ prev.order }}">
                 <i class="fa-solid fa-play"></i>
               </button>
@@ -211,26 +211,63 @@
 
         if (response.length > 0) {
           html += '<table class="table table-striped">';
-          html += '<thead><tr><th>ID</th><th>Descrição</th><th>Periodicidade</th></tr></thead>';
+          html += '<thead><tr><th>Descrição</th><th>Periodicidade</th><th>Status</th><th>Realizado?</th></tr></thead>';
           html += '<tbody>';
           response.forEach(function(item) {
+            let statusLabel = '';
+            let acao = '';
+            if (item.overdue) {
+              statusLabel = '<span class="badge bg-danger">Atrasado (' + item.dias_desde_execucao + ' dias)</span>';
+              acao = '<input type="checkbox" class="gama-checkbox" value="'+ item.equipment_gama_id +'">';
+            } else {
+              statusLabel = '<span class="badge bg-success">Em dia (' + item.dias_desde_execucao + ' dias desde a última execução)</span>';
+              acao = '';
+            }
+
             html += '<tr>';
-            html += '<td>' + item.gama_id + '</td>';
             html += '<td>' + item.gama_descricao + '</td>';
             html += '<td>' + item.periodicidade + '</td>';
+            html += '<td>' + statusLabel + '</td>';
+            html += '<td>' + acao + '</td>';
             html += '</tr>';
           });
           html += '</tbody></table>';
+
         } else {
           html = 'Nenhuma gama encontrada para este equipamento.';
         }
         $('#modalContent').html(html);
         $('#gamasModal').modal('show');
       },
+
       error: function(xhr, status, error) {
         console.error("Erro na requisição:", error);
         $('#modalContent').html('Erro ao carregar dados.');
         $('#gamasModal').modal('show');
+      }
+    });
+  }
+
+  function editSelectedGamas(currentEquipment) {
+    let selectedIds = [];
+    $('.gama-checkbox:checked').each(function() {
+      selectedIds.push($(this).val());
+    });
+    if(selectedIds.length === 0) {
+      alert('Nenhuma tarefa selecionada para marcar como feita.');
+      return;
+    }
+    $.ajax({
+      url: '/api/update_gamas',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ equipment_gama_ids: selectedIds }),
+      success: function(response) {
+        window.location.reload()
+      },
+      error: function(xhr, status, error) {
+        console.error("Erro na atualização:", error);
+        alert('Erro ao atualizar gamas.');
       }
     });
   }

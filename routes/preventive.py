@@ -243,10 +243,10 @@ def finished_preventives():
 @preventive_sec.route('/mapa_por_equipamento', methods=['GET'])
 def mapa_por_equipamento():
     line_filter = request.args.get('linha', '', type=str)
-    print(line_filter)
+
     if not line_filter:
         return render_template(
-            'preventive/mapa.html',
+            'preventive/mapa_por_equip.html',
             equipamentos=[]
         )
     
@@ -254,24 +254,146 @@ def mapa_por_equipamento():
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
-        cursor.execute("""
-            EXEC GetOldestPreventiveByEquipment @Linha = ?
-        """, line_filter)
+        query = """
+            SELECT 
+            e.equipment,
+            p.id AS periocity_id,
+            p.periocity,
+            p.n_dias,
+            CASE 
+                WHEN MAX(hg.data_execucao) IS NULL THEN 9999
+                ELSE DATEDIFF(DAY, MAX(hg.data_execucao), GETDATE())
+            END AS dias_desde_execucao,
+            CASE 
+                WHEN (CASE WHEN MAX(hg.data_execucao) IS NULL THEN 9999 ELSE DATEDIFF(DAY, MAX(hg.data_execucao), GETDATE()) END) >= p.n_dias 
+                THEN 1
+                ELSE 0
+            END AS overdue
+            FROM equipments e
+            JOIN equipment_gama eg ON e.id = eg.id_equipment
+            JOIN periocity p ON eg.id_periocity = p.id
+            LEFT JOIN history_gama hg ON eg.id = hg.id_equipment_gama
+            WHERE e.cost_center LIKE '%' + ? + '%'
+            GROUP BY e.equipment, p.id, p.periocity, p.n_dias
+            ORDER BY e.equipment, p.id;
+        """
+        cursor.execute(query, line_filter)
+        rows = cursor.fetchall()
 
-        equipamentos = [
-            {"equipament": row[0],"ultima_preventiva": row[1], "tecnico": row[2], "n_tecnico": row[3], "duracao": row[4], "comment": row[5]} 
-            for row in cursor.fetchall()
-        ]
+        equipamentos = {}
+        for row in rows:
+            equip_name = row[0]
+            periocity_id = row[1]
+            periocity_name = row[2]
+            n_dias = row[3]
+            dias_desde_execucao = row[4]
+            overdue = bool(row[5])
+            if equip_name not in equipamentos:
+                equipamentos[equip_name] = {
+                    "equipament": equip_name,
+                    "semanal": None,
+                    "mensal": None,
+                    "trimestral": None,
+                    "semestral": None,
+                    "anual": None
+                }
+
+            key = periocity_name.lower()
+            equipamentos[equip_name][key] = {
+                "n_dias": n_dias,
+                "dias_desde_execucao": dias_desde_execucao,
+                "overdue": overdue
+            }
 
         cursor.close()
         conn.close()
-
+        equipamentos_list = list(equipamentos.values())
         return render_template(
-            'preventive/mapa.html',
-            equipamentos=equipamentos
+            'preventive/mapa_por_equip.html',
+            equipamentos=equipamentos_list
         )
     except Exception as e:
-        import logging
-        logging.error(str(e))
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@preventive_sec.route('/mapa_por_linha', methods=['GET'])
+def mapa_por_linha():
+    line_filter = request.args.get('linha', '', type=str)
+    
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        query = """
+            WITH UltimaExecucao AS (
+                SELECT 
+                    hg.id_equipment_gama,
+                    MAX(hg.data_execucao) AS ultima_data_execucao
+                FROM history_gama hg
+                GROUP BY hg.id_equipment_gama
+            )
+
+            SELECT 
+                e.cost_center AS linha,
+                p.id AS periocity_id,
+                p.periocity,
+                p.n_dias,
+                ue.ultima_data_execucao,
+                CASE 
+                    WHEN ue.ultima_data_execucao IS NULL THEN -1
+                    ELSE DATEDIFF(DAY, ue.ultima_data_execucao, GETDATE())
+                END AS dias_desde_execucao,
+                CASE 
+                    WHEN ue.ultima_data_execucao IS NULL THEN 1
+                    WHEN DATEDIFF(DAY, ue.ultima_data_execucao, GETDATE()) >= p.n_dias THEN 1
+                    ELSE 0
+                END AS overdue
+            FROM equipments e
+            JOIN equipment_gama eg ON e.id = eg.id_equipment
+            JOIN periocity p ON eg.id_periocity = p.id
+            LEFT JOIN UltimaExecucao ue ON eg.id = ue.id_equipment_gama
+            WHERE e.cost_center LIKE '%' + ? + '%'
+            ORDER BY e.cost_center, p.id;
+        """
+        
+        cursor.execute(query, line_filter)
+        rows = cursor.fetchall()
+
+        linhas = {}
+        for row in rows:
+            linha = row[0]
+            periocity_id = row[1]
+            periocity_name = row[2]
+            n_dias = row[3]
+            ultima_data_execucao = row[4]
+            dias_desde_execucao = row[5]
+            overdue = bool(row[6])
+            
+            if linha not in linhas:
+                linhas[linha] = {
+                    "linha": linha,
+                    "semanal": None,
+                    "mensal": None,
+                    "trimestral": None,
+                    "semestral": None,
+                    "anual": None
+                }
+            key = periocity_name.lower()
+            linhas[linha][key] = {
+                "n_dias": n_dias,
+                "dias_desde_execucao": dias_desde_execucao,
+                "overdue": overdue
+            }
+        
+        cursor.close()
+        conn.close()
+        
+        linhas_list = list(linhas.values())
+        return render_template(
+            'preventive/mapa_por_linha.html',
+            linhas=linhas_list
+        )
+    except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 

@@ -1,3 +1,55 @@
+function parseFormattedDate(dateStr) {
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) {
+    return new Date(dateStr);
+  }
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const year = parseInt(parts[2], 10);
+  return new Date(year, month, day);
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  if (isNaN(date)) {
+    return dateString;
+  }
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear());
+  return `${day}-${month}-${year}`;
+}
+
+function updateRowColors() {
+  const table = document.getElementById("orders");
+  if (!table) return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const rows = table.querySelectorAll("tbody tr");
+  rows.forEach((row) => {
+    const dateCells = row.querySelectorAll(".data");
+    if (dateCells.length < 2) return;
+
+    const startDateStr = dateCells[0].textContent.trim();
+    const endDateStr = dateCells[1].textContent.trim();
+
+    const startDate = parseFormattedDate(startDateStr);
+    const endDate = parseFormattedDate(endDateStr);
+
+    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+      if (endDate < today) {
+        row.style.backgroundColor = "#f8d2d2";
+      } else if (startDate <= today && endDate >= today) {
+        row.style.backgroundColor = "#f8f8d2";
+      } else if (startDate > today) {
+        row.style.backgroundColor = "#d2f8d2";
+      }
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   $("#loginPreventive").on("shown.bs.modal", function (event) {
     const form = document.getElementById("loginForm");
@@ -44,43 +96,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
-  function updateRowColors() {
-    const table = document.getElementById("orders");
-    if (!table) return;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const rows = table.querySelectorAll("tbody tr");
-    rows.forEach((row) => {
-      const startDateCell = row.querySelectorAll(".data")[0];
-      const endDateCell = row.querySelectorAll(".data")[1];
-      console.log(startDateCell, endDateCell);
-      if (startDateCell && endDateCell) {
-        const startDate = new Date(startDateCell.innerHTML.trim());
-        const endDate = new Date(endDateCell.innerHTML.trim());
-        console.log(startDate, endDate);
-        if (!isNaN(startDate) && !isNaN(endDate)) {
-          if (endDate < today) {
-            row.style.backgroundColor = "#f8d2d2";
-          } else if (startDate <= today && endDate >= today) {
-            row.style.backgroundColor = "#f8f8d2";
-          } else if (startDate > today) {
-            row.style.backgroundColor = "#d2f8d2";
-          }
-        }
-      }
-    });
-  }
-
   const dataCells = document.querySelectorAll(".data");
   dataCells.forEach((cell) => {
     cell.textContent = formatDate(cell.textContent.trim());
-  });
-
-  const datesCells = document.querySelectorAll(".datetime");
-  datesCells.forEach((cell) => {
-    cell.textContent = formatDatetime(cell.textContent.trim());
   });
 
   updateRowColors();
