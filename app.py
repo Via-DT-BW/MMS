@@ -65,11 +65,6 @@ def index():
     logout()
     return render_template('index.html', year=year)
 
-@app.route('/2')
-def index2():
-    logout()
-    return render_template('index2.html', year=year)
-
 #Autonomous
 @app.route('/autonomous', methods=['GET'])
 def autonomous():

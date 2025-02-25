@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   let loginUrl = "";
 
-  const navLinks = document.querySelectorAll('.nav-link[data-toggle="modal"]');
+  const navLinks = document.querySelectorAll(
+    '.nav-link[data-bs-toggle="modal"]'
+  );
 
   navLinks.forEach((link) => {
     link.addEventListener("click", function () {
