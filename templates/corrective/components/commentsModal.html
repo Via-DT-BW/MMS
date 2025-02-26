@@ -90,6 +90,44 @@
                 </select>
               </div>
             </div>
+            <div class="form-group row">
+              <div class="col-md-6 mt-3">
+                <label class="custom-checkbox">
+                  Elegível de ação sistémica?
+                  <input
+                    type="checkbox"
+                    name="elegivel_sistemica"
+                    id="elegivelSistemica"
+                    value="Sim" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+
+              <div class="col-md-6" id="divDefinidaAcao" style="display: none">
+                <label><strong>Está definida ação?</strong></label
+                ><br />
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definida_acao"
+                    id="definidaSim"
+                    value="Sim" />
+                  <label class="form-check-label" for="definidaSim">Sim</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="definida_acao"
+                    id="definidaNao"
+                    value="Não"
+                    checked />
+                  <label class="form-check-label" for="definidaNao">Não</label>
+                </div>
+              </div>
+            </div>
+
             <div class="form-group">
               <label for="comment"
                 ><strong>Descrição da Atividade:</strong></label
@@ -98,7 +136,7 @@
               <textarea
                 id="comment"
                 class="form-control"
-                rows="6"
+                rows="7"
                 maxlength="300"
                 oninput="updateCharCount('comment', 'conta', 'submitComment',300)"
                 required></textarea>

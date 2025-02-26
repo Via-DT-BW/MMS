@@ -355,6 +355,11 @@ def update_comment():
     comment = request.form.get('comment')
     id_tipo_avaria = request.form.get('id_tipo_avaria')
     parou = request.form.get('stopped_prod')
+    elegivel = request.form.get('elegivel_sistemica')
+    definida = request.form.get('definida_acao') 
+    
+    elegivel_bit = 1 if elegivel == "Sim" else 0
+    definida_bit = 1 if definida == "Sim" else 0
 
     if not id_corretiva or not id_tecnico or not comment:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
@@ -365,9 +370,13 @@ def update_comment():
 
         cursor.execute('''
             UPDATE corretiva_tecnicos
-            SET maintenance_comment = ?, id_tipo_avaria = ?, data_fim = GETDATE()
-            WHERE id_corretiva = ? AND id_tecnico = ?
-        ''', (comment, id_tipo_avaria, id_corretiva, id_tecnico))
+            SET maintenance_comment = ?, 
+                id_tipo_avaria = ?, 
+                data_fim = GETDATE(),
+                elegivel_sistemica = ?, 
+                definida_acao = ?
+            WHERE id_corretiva = ? AND id_tecnico = ? and data_fim IS NULL
+        ''', (comment, id_tipo_avaria, elegivel_bit, definida_bit, id_corretiva, id_tecnico))
 
         cursor.execute('''
             UPDATE corretiva

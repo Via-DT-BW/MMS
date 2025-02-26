@@ -1,4 +1,13 @@
 $(document).ready(function () {
+  $("#elegivelSistemica").change(function () {
+    if ($(this).is(":checked")) {
+      $("#divDefinidaAcao").show();
+    } else {
+      $("#divDefinidaAcao").hide();
+      $("#definidaNao").prop("checked", true);
+    }
+  });
+
   $("#commentsModal").on("show.bs.modal", function (event) {
     var button = $(event.relatedTarget);
     var idCorretiva = button.data("id-corretiva");
@@ -29,6 +38,9 @@ $(document).ready(function () {
     var option = new Option(optionText, tecnicoLogadoId);
     $("#select-new-tecnico").append(option);
     $("#select-new-tecnico").prop("disabled", true);
+
+    $("#elegivelSistemica").prop("checked", false);
+    $("#divDefinidaAcao").hide();
 
     $.ajax({
       type: "GET",
@@ -65,6 +77,13 @@ $(document).ready(function () {
       var tipoAvariaId = $("#select-avaria").val();
       var parouProducao = $("#select-stop").val();
 
+      var elegivelSistemica = $("#elegivelSistemica").is(":checked")
+        ? "Sim"
+        : "Não";
+      var definidaAcao = $("#divDefinidaAcao").is(":visible")
+        ? $("input[name='definida_acao']:checked").val()
+        : "Não";
+
       if (
         !maintenanceComment ||
         !idCorretiva ||
@@ -97,6 +116,8 @@ $(document).ready(function () {
                 maintenance_comment: maintenanceComment,
                 id_tipo_avaria: tipoAvariaId,
                 parou_producao: parouProducao,
+                elegivel_sistemica: elegivelSistemica,
+                definida_acao: definidaAcao,
               },
               success: function (response) {
                 if (response.status === "success") {
@@ -135,6 +156,13 @@ $(document).ready(function () {
     var tipoAvariaId = $("#select-avaria").val();
     var parou = $("#select-stop").val();
 
+    var elegivelSistemica = $("#elegivelSistemica").is(":checked")
+      ? "Sim"
+      : "Não";
+    var definidaAcao = $("#divDefinidaAcao").is(":visible")
+      ? $("input[name='definida_acao']:checked").val()
+      : "Não";
+
     if (!tecnicoId) {
       alert("Por favor, registe-se na manutenção para registar atividade.");
       return;
@@ -142,6 +170,15 @@ $(document).ready(function () {
 
     if (!comentario) {
       alert("Por favor, faça um comentário.");
+      return;
+    }
+
+    if (!tipoAvariaId) {
+      alert("Por favor, selecione um tipo de avaria.");
+      return;
+    }
+    if (!parou) {
+      alert("Por favor, selecione se impactou ou não a produção.");
       return;
     }
 
@@ -154,6 +191,8 @@ $(document).ready(function () {
         comment: comentario,
         id_tipo_avaria: tipoAvariaId,
         stopped_prod: parou,
+        elegivel_sistemica: elegivelSistemica,
+        definida_acao: definidaAcao,
       },
       success: function (response) {
         if (response.status === "success") {

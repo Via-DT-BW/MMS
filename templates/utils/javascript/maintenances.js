@@ -82,7 +82,6 @@ $(document).ready(function () {
                     $(
                       "#equipament_var, #var_descricao, #var_numero_tecnico"
                     ).prop("disabled", false);
-                    console.log(data);
                   },
                   error: function () {
                     alert("Erro ao carregar dados do modal");
@@ -103,6 +102,7 @@ $(document).ready(function () {
     $('select[name="equipament_var"]').prop("disabled", disable);
     $('select[name="var_numero_operador"]').prop("disabled", disable);
     $('select[name="paragem_producao"]').prop("disabled", disable);
+    $('select[name="tipo_manutencao"]').prop("disabled", disable);
   }
 
   $('select[name="production_line"]').change(function () {
