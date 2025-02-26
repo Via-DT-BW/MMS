@@ -220,6 +220,7 @@ def corrective_order_by_mt():
         equipament_var = request.form.get('equipament_var')
         var_numero_tecnico = request.form.get('var_numero_tecnico')
         paragem_producao = request.form.get('paragem_producao')
+        tipo_manutencao = request.form.get('tipo_manutencao')
 
         try:
             conn = pyodbc.connect(conexao_mms)
@@ -227,11 +228,11 @@ def corrective_order_by_mt():
 
             create_order_by_mt = """
                 Exec dbo.create_order_by_mt 
-                @descricao=?, @equipamento=?, @paragem=?, @prod_line=?, @id_tecnico=?
+                @descricao=?, @equipamento=?, @paragem=?, @prod_line=?, @id_tecnico=?, @tipo_man = ?
             """
             cursor.execute(
                 create_order_by_mt,
-                var_descricao, equipament_var, paragem_producao, prod_line, var_numero_tecnico
+                var_descricao, equipament_var, paragem_producao, prod_line, var_numero_tecnico, tipo_manutencao
             )
             conn.commit()
 
@@ -417,21 +418,30 @@ def finish_maintenance():
     id_corretiva = request.form.get('id_corretiva')
     maintenance_comment = request.form.get('maintenance_comment')
     id_tipo_avaria = request.form.get('id_tipo_avaria')
+    elegivel = request.form.get('elegivel_sistemica')
+    definida = request.form.get('definida_acao') 
+    
+    elegivel_bit = 1 if elegivel == "Sim" else 0
+    definida_bit = 1 if definida == "Sim" else 0
 
     if not id or not maintenance_comment:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
     data_atual = datetime.now()
-
+    
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
 
         cursor.execute('''
             UPDATE corretiva_tecnicos
-            SET maintenance_comment = ?, data_fim = ?, id_tipo_avaria = ?
+            SET maintenance_comment = ?, 
+                data_fim = ?, 
+                id_tipo_avaria = ?,
+                elegivel_sistemica = ?, 
+                definida_acao = ?
             WHERE id_tecnico = ? AND id_corretiva = ? AND data_fim IS NULL
-        ''', (maintenance_comment, data_atual, id_tipo_avaria, id, id_corretiva))
+        ''', (maintenance_comment, data_atual, id_tipo_avaria, elegivel_bit, definida_bit, id, id_corretiva))
 
         cursor.execute('''
             UPDATE corretiva
