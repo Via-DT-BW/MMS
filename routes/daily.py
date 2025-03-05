@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, session, redirect, url_for, flash, render_template
 import pyodbc
-from datetime import datetime
+from datetime import datetime, timedelta
 import pyodbc
 from utils.call_conn import conexao_mms
 
@@ -8,6 +8,15 @@ daily_sec = Blueprint("daily", __name__, static_folder="static", static_url_path
 
 def empty_to_none(value):
     return None if value == "" else value
+
+def get_effective_date(shift, now):
+    if shift == 'C':
+        if now.hour < 8:
+            return (now - timedelta(days=1)).date()
+        else:
+            return now.date()
+    else:
+        return now.date()
 
 @daily_sec.route('/daily', methods=['GET'])
 def daily():
@@ -24,13 +33,14 @@ def daily():
         role = session.get('role')
         id_tl = session.get('id_tl')
 
-        today = datetime.today().strftime('%Y-%m-%d')
+        now = datetime.now()
+        effective_date = get_effective_date(turno, now)
         
         cursor.execute("""
             SELECT id
             FROM daily
             WHERE id_tl = ? AND CONVERT(date, data) = ?
-        """, id_tl, today)
+        """, id_tl, effective_date)
         daily_record = cursor.fetchone()
         
         page = request.args.get('page', 1, type=int)
