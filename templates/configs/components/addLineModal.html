@@ -1,0 +1,98 @@
+<div
+  class="modal fade"
+  id="modalAdicionarLinha"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modalAdicionarLinhaLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdicionarLinhaLabel">
+          Adicionar Novo Equipamento
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-bs-dismiss="modal"
+          aria-label="Fechar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formAdicionarLinha">
+          <div class="form-group">
+            <label for="cost_center">Linha</label>
+
+            <select
+              name="cost_center"
+              id="cost_center"
+              class="form-control"
+              required></select>
+          </div>
+          <div class="form-group">
+            <label for="equipment">Equipamento</label>
+            <input
+              type="text"
+              class="form-control"
+              id="equipment"
+              name="equipment"
+              placeholder="Escreva o equipamento"
+              required />
+          </div>
+
+          <div class="form-group">
+            <label for="desc">Descrição</label>
+            <textarea
+              class="form-control"
+              id="desc"
+              name="desc"
+              placeholder="Escreva a descrição"
+              rows="3"
+              required></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-success"
+          onclick="salvarNovaLinha()">
+          Adicionar
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function loadLines() {
+    $.ajax({
+      url: "/api/prod_lines",
+      method: "GET",
+      success: function (data) {
+        let lineSelect = $('select[name="cost_center"]');
+        lineSelect.empty();
+        lineSelect.append('<option value="">Selecione a linha</option>');
+
+        data.sort((a, b) => a.line.localeCompare(b.line));
+
+        data.forEach((line) => {
+          lineSelect.append(
+            `<option value="${line.line}">${line.line}</option>`
+          );
+        });
+      },
+      error: function () {
+        alert("Erro ao carregar as linhas.");
+      },
+    });
+  }
+
+  $(document).ready(function () {
+    loadLines();
+  });
+</script>

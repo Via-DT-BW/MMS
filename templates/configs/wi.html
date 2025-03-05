@@ -1,0 +1,105 @@
+{% extends 'configs/settings.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+{% if not selected_gama %}
+<div class="mt-2">
+  <div class="d-flex justify-content-between align-items-center">
+    <h2>Gamas</h2>
+    <button
+      class="btn btn-success"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#newWIForm"
+      aria-expanded="false"
+      aria-controls="newWIForm">
+      <i class="fa-solid fa-plus mr-1"></i>Tarefa(s)
+    </button>
+  </div>
+  <div id="gamaCards" class="row mt-3">
+    {% for gama in gamas %}
+    <div class="col-md-4">
+      <div class="card mb-3 shadow-lg">
+        <div class="card-body">
+          <h5 class="card-title">{{ gama.desc }}</h5>
+          <div class="justify-content-center d-flex">
+            <a
+              href="{{ url_for('settings.wi', gama_id=gama.id, gama=gama.desc) }}"
+              class="btn btn-sm"
+              style="background-color: #051729; color: white">
+              <i class="fa-solid fa-eye mr-1"></i> Ver Tarefas
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %} {% include "configs/components/newWIForm.html" %} {% if
+selected_gama %}
+<div class="mt-4" id="tasks">
+  <div class="d-flex align-items-center mb-3">
+    <a href="/wi" class="btn btn-secondary me-2">
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">Tarefas da Gama: {{ selected_gama }}</h2>
+  </div>
+
+  <form id="addTaskForm" class="mb-3">
+    <div class="input-group">
+      <select class="form-select" id="task_id" required>
+        <option value="" disabled selected>A carregar as tarefas...</option>
+      </select>
+      <button type="submit" class="btn btn-success">
+        <i class="fa-solid fa-plus"></i> Adicionar
+      </button>
+    </div>
+  </form>
+
+  {% if tasks %}
+  <ul class="list-group list-group-flush">
+    {% for task in tasks %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center">
+      <span><strong>{{ task.id }}</strong> - {{ task.descricao }}</span>
+      <button
+        class="btn btn-danger btn-sm"
+        onclick="removeTask({{ task.id }}, {{ selected_gama_id }})">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>Nenhuma tarefa associada a esta gama.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+  {%include "configs/js/tarefas.js"%}
+
+  function removeTask(taskId, gamaId) {
+    if (!confirm("Tem certeza que deseja remover esta tarefa da gama?")) return;
+
+    fetch(`/remove_task_from_gama`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tarefa_id: taskId, gama_id: gamaId }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert("Erro ao remover a tarefa.");
+        }
+      })
+      .catch((error) => console.error("Erro:", error));
+  }
+</script>
+
+{% endblock %}

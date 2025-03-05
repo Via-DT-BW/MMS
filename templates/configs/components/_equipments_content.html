@@ -57,7 +57,8 @@
 {% include "configs/components/addGamaModal.html" %} {% include
 "configs/components/editGamaModal.html" %} {% include
 "configs/components/addEquipment.html" %} {% include
-"configs/components/associateGama.html" %}
+"configs/components/associateGama.html" %} {% include
+"configs/components/showGamaTasks.html" %}
 
 <style>
   .cursor-pointer {
@@ -70,31 +71,29 @@
 </style>
 
 <script>
+  {% include "configs/js/functions.js" %}
 
-    {% include "configs/js/functions.js" %}
+  function carregarPeriocities() {
+    $.ajax({
+      url: "/get_periocities",
+      method: "GET",
+      success: function (response) {
+        var select = document.getElementById("gamaPeriodicidade");
+        select.innerHTML =
+          '<option value="">Selecione uma periodicidade</option>';
 
-    function carregarPeriocities() {
-      $.ajax({
-        url: "/get_periocities",
-        method: "GET",
-        success: function (response) {
-          var select = document.getElementById("gamaPeriodicidade");
-          select.innerHTML =
-            '<option value="">Selecione uma periodicidade</option>';
-
-          response.forEach(function (p) {
-            var option = document.createElement("option");
-            option.value = p.id;
-            option.textContent = p.periocity;
-            select.appendChild(option);
-          });
-        },
-        error: function () {
-          alert("Erro ao carregar as periodicidades.");
-        },
-      });
-    }
-
+        response.forEach(function (p) {
+          var option = document.createElement("option");
+          option.value = p.id;
+          option.textContent = p.periocity;
+          select.appendChild(option);
+        });
+      },
+      error: function () {
+        alert("Erro ao carregar as periodicidades.");
+      },
+    });
+  }
 
   function mostrarAssociateGama(cost_center) {
     $('#associateGamaModal').modal('show');
@@ -160,7 +159,6 @@
       }
     });
   });
-
 
   $('#associateGamaForm').submit(function(e) {
         e.preventDefault();

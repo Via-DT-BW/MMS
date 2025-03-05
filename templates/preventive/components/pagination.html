@@ -4,7 +4,15 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="{{ url_for('preventive.preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=preventive_current_page - 1, orders_page=orders_current_page) }}"
+        href="{{ url_for('preventive.preventive', 
+          filter_order=request.args.get('filter_order', ''), 
+          filter_cost=request.args.get('filter_cost', ''), 
+          filter_status=request.args.get('filter_status', ''), 
+          start_date=request.args.get('start_date', ''), 
+          end_date=request.args.get('end_date', ''), 
+          preventive_page_size=preventive_page_size, 
+          preventive_page=preventive_current_page - 1, 
+          orders_page=orders_current_page) }}"
         aria-label="Anterior">
         <span aria-hidden="true">&laquo;</span>
       </a>
@@ -18,7 +26,15 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="{{ url_for('preventive.preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=1, orders_page=orders_current_page) }}">
+        href="{{ url_for('preventive.preventive', 
+            filter_order=request.args.get('filter_order', ''), 
+            filter_cost=request.args.get('filter_cost', ''), 
+            filter_status=request.args.get('filter_status', ''), 
+            start_date=request.args.get('start_date', ''), 
+            end_date=request.args.get('end_date', ''), 
+            preventive_page_size=preventive_page_size, 
+            preventive_page=1, 
+            orders_page=orders_current_page) }}">
         1
       </a>
     </li>
@@ -30,7 +46,15 @@
       class="page-item {% if page_num == preventive_current_page %}active{% endif %}">
       <a
         class="page-link"
-        href="{{ url_for('preventive.preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=page_num, orders_page=orders_current_page) }}">
+        href="{{ url_for('preventive.preventive', 
+            filter_order=request.args.get('filter_order', ''), 
+            filter_cost=request.args.get('filter_cost', ''), 
+            filter_status=request.args.get('filter_status', ''), 
+            start_date=request.args.get('start_date', ''), 
+            end_date=request.args.get('end_date', ''), 
+            preventive_page_size=preventive_page_size, 
+            preventive_page=page_num, 
+            orders_page=orders_current_page) }}">
         {{ page_num }}
       </a>
     </li>
@@ -41,7 +65,15 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="{{ url_for('preventive.preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=preventive_total_pages, orders_page=orders_current_page) }}">
+        href="{{ url_for('preventive.preventive', 
+            filter_order=request.args.get('filter_order', ''), 
+            filter_cost=request.args.get('filter_cost', ''), 
+            filter_status=request.args.get('filter_status', ''), 
+            start_date=request.args.get('start_date', ''), 
+            end_date=request.args.get('end_date', ''), 
+            preventive_page_size=preventive_page_size, 
+            preventive_page=preventive_total_pages, 
+            orders_page=orders_current_page) }}">
         {{ preventive_total_pages }}
       </a>
     </li>
@@ -49,7 +81,15 @@
     <li class="page-item">
       <a
         class="page-link"
-        href="{{ url_for('preventive.preventive', filter=request.args.get('filter', ''), filter_cost=request.args.get('filter_cost', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), preventive_page_size=preventive_page_size, preventive_page=preventive_current_page + 1, orders_page=orders_current_page) }}"
+        href="{{ url_for('preventive.preventive', 
+          filter_order=request.args.get('filter_order', ''), 
+          filter_cost=request.args.get('filter_cost', ''), 
+          filter_status=request.args.get('filter_status', ''), 
+          start_date=request.args.get('start_date', ''), 
+          end_date=request.args.get('end_date', ''), 
+          preventive_page_size=preventive_page_size, 
+          preventive_page=preventive_current_page + 1, 
+          orders_page=orders_current_page) }}"
         aria-label="Próximo">
         <span aria-hidden="true">&raquo;</span>
       </a>

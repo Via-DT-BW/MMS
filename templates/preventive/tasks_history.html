@@ -1,0 +1,174 @@
+{% extends 'preventive/preventive.html' %} {% block content %}
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+{% if not filter_history_cost %}
+<div class="alert alert-warning text-center">
+  Por favor, filtre por Linha de Produção para ver o histórico.
+</div>
+{% endif %}
+<div class="container mt-4">
+  <form
+    class="form-inline d-flex justify-content-center"
+    method="GET"
+    action="{{ url_for('preventive.tasks_history') }}">
+    <div class="form-group mb-2">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        id="filter_history_cost"
+        name="filter_history_cost"
+        placeholder="Centro de Custo"
+        value="{{ request.args.get('filter_history_cost', '') }}" />
+    </div>
+
+    <div class="form-group mb-2 ml-3">
+      <label for="start_history_date" class="mr-2">De</label>
+      <input
+        type="date"
+        class="form-control form-control-sm"
+        id="start_history_date"
+        name="start_history_date"
+        value="{{ request.args.get('start_history_date', '') }}" />
+    </div>
+    <div class="form-group mb-2 ml-3">
+      <label for="end_history_date" class="mr-2">Até</label>
+      <input
+        type="date"
+        class="form-control form-control-sm"
+        id="end_history_date"
+        name="end_history_date"
+        value="{{ request.args.get('end_history_date', '') }}" />
+    </div>
+    <button type="submit" class="btn btn-sm btn-primary ml-3 mb-2">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+    <a href="/tasks_history" class="btn btn-sm btn-danger ml-3 mb-2"
+      ><i class="fa-solid fa-broom mr-1"></i>Limpar</a
+    >
+  </form>
+</div>
+
+<div class="card mt-4 mb-4">
+  <div class="card-header">
+    <h5 class="m-0 text-center">Histórico de Tarefas Realizadas</h5>
+  </div>
+  <div class="card-body">
+    {% if tasks_data is defined and tasks_data|length > 0 %}
+    <div class="table-responsive tableFixHead">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Equipamento</th>
+            <th>Centro de Custo</th>
+            <th>Descrição do Equipamento</th>
+            <th>Data Execução</th>
+            <th>Gama</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks_data %}
+          <tr>
+            <td>{{ task.equipment }}</td>
+            <td>{{ task.cost_center }}</td>
+            <td>{{ task.equipment_desc }}</td>
+            <td>{{ task.data_execucao }}</td>
+            <td>{{ task.gama_desc }}</td>
+            <td>
+              <button
+                class="btn btn-primary"
+                onclick="showHistoryTasks('{{ task.gama_id }}', '{{task.gama_desc}}')">
+                <i class="fa-solid fa-eye mr-2"></i
+                ><i class="fa-regular fa-rectangle-list"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-dark d-flex justify-content-center" role="alert">
+      Nenhuma tarefa encontrada para os filtros aplicados.
+    </div>
+    {% endif %} {% if preventive_total is defined and preventive_total >
+    preventive_page_size %}
+    <nav aria-label="Navegação de Tarefas">
+      <ul class="pagination justify-content-center">
+        {% if preventive_current_page > 1 %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive.tasks_history', filter_history_cost=filter_history_cost, start_history_date=start_history_date, end_history_date=end_history_date, preventive_page_size=preventive_page_size, preventive_page=preventive_current_page - 1) }}"
+            aria-label="Anterior">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% endif %} {% set total_pages = (preventive_total //
+        preventive_page_size) + (1 if preventive_total % preventive_page_size >
+        0 else 0) %} {% for page in range(1, total_pages+1) %}
+        <li
+          class="page-item {% if page == preventive_current_page %}active{% endif %}">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive.tasks_history', filter_history_cost=filter_history_cost, start_history_date=start_history_date, end_history_date=end_history_date, preventive_page_size=preventive_page_size, preventive_page=page) }}"
+            >{{ page }}</a
+          >
+        </li>
+        {% endfor %} {% if preventive_current_page < total_pages %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="{{ url_for('preventive.tasks_history', filter_history_cost=filter_history_cost, start_history_date=start_history_date, end_history_date=end_history_date, preventive_page_size=preventive_page_size, preventive_page=preventive_current_page + 1) }}"
+            aria-label="Próximo">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</div>
+
+{%include "preventive/components/rightBar.html"%}
+
+<script>
+  function showHistoryTasks(gamaId, gamaDesc) {
+    fetch(`/tasks_for_gama/${gamaId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        var content = document.getElementById("tasksOffcanvasContent");
+        var title = document.getElementById("tasksOffcanvasLabel");
+
+        title.textContent = "Tarefas da Gama - '" + gamaDesc + "'";
+
+        if (data.length === 0) {
+          content.innerHTML =
+            "<p class='text-muted'>Nenhuma tarefa encontrada.</p>";
+        } else {
+          data.sort((a, b) => a.id - b.id);
+          let html = "<ul class='list-group'>";
+          data.forEach((task) => {
+            html += `<li class="list-group-item">${task.descricao}</li>`;
+          });
+          html += "</ul>";
+          content.innerHTML = html;
+        }
+        var offcanvasElement = document.getElementById("tasksOffcanvas");
+        var bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+        bsOffcanvas.show();
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar tarefas:", error);
+        var content = document.getElementById("tasksOffcanvasContent");
+        content.innerHTML =
+          "<p class='text-danger'>Erro ao carregar tarefas.</p>";
+        var offcanvasElement = document.getElementById("tasksOffcanvas");
+        var bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+        bsOffcanvas.show();
+      });
+  }
+</script>
+
+{% endblock %}

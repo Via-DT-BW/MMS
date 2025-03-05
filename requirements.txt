@@ -7,3 +7,4 @@ flask_cors
 python-dotenv
 pandas
 openpyxl
+reportlab

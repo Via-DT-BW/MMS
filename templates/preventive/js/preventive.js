@@ -1,31 +1,28 @@
 function parseFormattedDate(dateStr) {
-  const parts = dateStr.split("-");
-  if (parts.length !== 3) {
-    return new Date(dateStr);
-  }
-  const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1;
-  const year = parseInt(parts[2], 10);
-  return new Date(year, month, day);
-}
+  const cleanedDateStr = dateStr.trim();
+  const parts = cleanedDateStr.split("-");
 
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  if (isNaN(date)) {
-    return dateString;
+  if (parts.length === 3) {
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    return new Date(Date.UTC(year, month, day));
   }
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear());
-  return `${day}-${month}-${year}`;
+
+  return new Date(cleanedDateStr);
 }
 
 function updateRowColors() {
   const table = document.getElementById("orders");
-  if (!table) return;
+  if (!table) {
+    console.log("Tabela não encontrada");
+    return;
+  }
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
+
+  console.log("Data de hoje (UTC):", today);
 
   const rows = table.querySelectorAll("tbody tr");
   rows.forEach((row) => {
@@ -41,16 +38,21 @@ function updateRowColors() {
     if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
       if (endDate < today) {
         row.style.backgroundColor = "#f8d2d2";
+        row.classList.add("table-danger");
       } else if (startDate <= today && endDate >= today) {
         row.style.backgroundColor = "#f8f8d2";
+        row.classList.add("table-warning");
       } else if (startDate > today) {
         row.style.backgroundColor = "#d2f8d2";
+        row.classList.add("table-success");
       }
     }
   });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  updateRowColors();
+
   $("#loginPreventive").on("shown.bs.modal", function (event) {
     const form = document.getElementById("loginForm");
     if (form) {
@@ -101,8 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cell.textContent = formatDate(cell.textContent.trim());
   });
 
-  updateRowColors();
-
   document
     .getElementById("loginForm")
     .addEventListener("submit", function (event) {
@@ -144,6 +144,70 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Erro ao autenticar. Tente novamente.");
         });
     });
+
+  const tableRows = document.querySelectorAll("table tbody tr");
+  const equipmentSet = new Set();
+
+  tableRows.forEach((row) => {
+    const equipCell = row.cells[3];
+    if (equipCell) {
+      const equipmentName = equipCell.textContent.trim();
+      if (equipmentName) {
+        equipmentSet.add(equipmentName);
+      }
+    }
+  });
+
+  const equipmentArray = Array.from(equipmentSet);
+  const pendingStatus = {};
+
+  equipmentArray.forEach((equipment) => {
+    fetch("/api/get_gamas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ equipment: equipment }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        let pending = false;
+        if (Array.isArray(data)) {
+          data.forEach((task) => {
+            if (task.overdue) {
+              pending = true;
+            }
+          });
+        }
+        pendingStatus[equipment] = pending;
+
+        tableRows.forEach((row) => {
+          const equipCell = row.cells[3];
+          if (
+            equipCell &&
+            equipCell.textContent.trim() === equipment &&
+            pending
+          ) {
+            const actionsCell = row.cells[8];
+            if (actionsCell) {
+              const showGamasBtn = actionsCell.querySelector(
+                "button.btn.btn-secondary"
+              );
+              if (showGamasBtn && !actionsCell.querySelector(".pending-icon")) {
+                const icon = document.createElement("i");
+                icon.className =
+                  "fa-solid fa-exclamation-circle text-danger pending-icon me-2";
+                actionsCell.insertBefore(icon, showGamasBtn);
+              }
+            }
+          }
+        });
+      })
+      .catch((error) => {
+        console.error(
+          "Erro ao verificar tarefas pendentes para " + equipment + ":",
+          error
+        );
+      });
+  });
 });
 
 let ordemIdParaFinalizar = null;
