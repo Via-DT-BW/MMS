@@ -21,6 +21,9 @@ function mostrarGamas(equipamentoId) {
             <td>${gama.gama_desc}</td>
             <td>${gama.periocity}</td>
             <td>
+              <button class="btn btn-primary btn-sm" onclick="showTasks(${gama.gama_id}, event)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
               <button class="btn btn-warning btn-sm" onclick="editarGama(${equipamentoId}, ${gama.gama_id}, event)">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
@@ -38,6 +41,35 @@ function mostrarGamas(equipamentoId) {
       alert("Erro ao carregar as gamas.");
     },
   });
+}
+
+function showTasks(gamaId, event) {
+  event.stopPropagation();
+
+  fetch(`/tasks_for_gama/${gamaId}/`)
+    .then((response) => response.json())
+    .then((tasks) => {
+      const tasksList = document.getElementById("tasksList");
+      tasksList.innerHTML = "";
+
+      if (tasks.length > 0) {
+        tasks.forEach((task) => {
+          let listItem = document.createElement("li");
+          listItem.className = "list-group-item";
+          listItem.textContent = `${task.id} - ${task.descricao}`;
+          tasksList.appendChild(listItem);
+        });
+      } else {
+        tasksList.innerHTML =
+          '<li class="list-group-item text-muted">Nenhuma tarefa definida para esta gama</li>';
+      }
+
+      let tasksModal = new bootstrap.Modal(
+        document.getElementById("tasksModal")
+      );
+      tasksModal.show();
+    })
+    .catch((error) => console.error("Erro ao buscar tarefas:", error));
 }
 
 function deleteLink(equipamentoId, gamaId, periocity_id, event) {

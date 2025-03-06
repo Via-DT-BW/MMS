@@ -88,8 +88,11 @@
                 data-order-num="{{ fini.order_number }}"
                 data-deno="{{ fini.denomination }}"
                 data-desc="{{ fini.description }}"
-                data-comment="{{ fini.comment }}">
-                <i class="fas fa-eye"></i>
+                data-comment="{{ fini.comment }}"
+                data-equipament="{{ fini.equipament }}"
+                data-ini="{{ fini.data_inicio }}"
+                data-fim="{{ fini.data_fim }}">
+                <i class="fas fa-eye" style="color: white"></i>
               </button>
             </td>
           </tr>
@@ -172,11 +175,119 @@
         var deno = button.getAttribute("data-deno");
         var desc = button.getAttribute("data-desc");
         var comment = button.getAttribute("data-comment");
+        var equipament = button.getAttribute("data-equipament");
+        var ini = button.getAttribute("data-ini");
+        var fim = button.getAttribute("data-fim");
 
         detailsModal.querySelector("#modalOrderNumber").value = orderNum;
         detailsModal.querySelector("#modalDeno").value = deno;
         detailsModal.querySelector("#modalDescription").value = desc;
-        detailsModal.querySelector("#modalComment").value = comment ?? "";
+        detailsModal.querySelector("#modalComment").value = comment || "";
+
+        var gamasContainer = detailsModal.querySelector("#gamasContainer");
+        gamasContainer.innerHTML = "<em>Carregando gamas...</em>";
+
+        fetch("/get_gama", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            equipament: equipament,
+            start_date: ini,
+            end_date: fim,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            gamasContainer.innerHTML = "";
+            if (data.tasks && data.tasks.length > 0) {
+              const grouped = data.tasks.reduce((acc, task) => {
+                const key = task.gama_desc;
+                if (!acc[key]) {
+                  acc[key] = { gama_id: task.gama_id, tasks: [] };
+                }
+                acc[key].tasks.push(task);
+                return acc;
+              }, {});
+
+              const accordion = document.createElement("div");
+              accordion.className = "accordion";
+              accordion.id = "gamaAccordion";
+
+              Object.keys(grouped).forEach((gamaDesc, index) => {
+                const group = grouped[gamaDesc];
+                const gamaId = group.gama_id;
+                const headerId = "heading-" + index;
+                const collapseId = "collapse-" + index;
+
+                const item = document.createElement("div");
+                item.className = "accordion-item";
+
+                const header = document.createElement("h2");
+                header.className = "accordion-header";
+                header.id = headerId;
+
+                const btn = document.createElement("button");
+                btn.className = "accordion-button collapsed";
+                btn.type = "button";
+                btn.setAttribute("data-bs-toggle", "collapse");
+                btn.setAttribute("data-bs-target", "#" + collapseId);
+                btn.setAttribute("aria-expanded", "false");
+                btn.setAttribute("aria-controls", collapseId);
+                btn.textContent = gamaDesc;
+
+                btn.addEventListener("click", function () {
+                  if (gamaId) {
+                    fetchGamaTasks(gamaId);
+                  } else {
+                    console.error(
+                      "Erro: gama_id não definido para " + gamaDesc
+                    );
+                  }
+                });
+
+                header.appendChild(btn);
+                item.appendChild(header);
+
+                const collapseDiv = document.createElement("div");
+                collapseDiv.id = collapseId;
+                collapseDiv.className = "accordion-collapse collapse";
+                collapseDiv.setAttribute("aria-labelledby", headerId);
+                collapseDiv.setAttribute("data-bs-parent", "#gamaAccordion");
+
+                const bodyDiv = document.createElement("div");
+                bodyDiv.className = "accordion-body";
+                bodyDiv.id = "gamaTasks-" + gamaId;
+                if (group.tasks.length > 0) {
+                  let ul = document.createElement("ul");
+                  ul.className = "list-group";
+                  group.tasks.forEach((task) => {
+                    let li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.textContent = `${task.data_execucao} - ${task.descricao}`;
+                    ul.appendChild(li);
+                  });
+                  bodyDiv.appendChild(ul);
+                } else {
+                  bodyDiv.innerHTML = "<em>Carregando tarefas...</em>";
+                }
+
+                collapseDiv.appendChild(bodyDiv);
+                item.appendChild(collapseDiv);
+
+                accordion.appendChild(item);
+              });
+
+              gamasContainer.appendChild(accordion);
+            } else {
+              gamasContainer.innerHTML =
+                "<div class='alert alert-info' role='alert'>Nenhuma tarefa executada nesse intervalo.</div>";
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao buscar gamas:", error);
+            gamasContainer.innerHTML =
+              "<div class='alert alert-danger' role='alert'>Erro ao carregar gamas.</div>";
+          });
       });
     } else {
       console.error(
@@ -189,6 +300,31 @@
       cell.textContent = formatDatetime(cell.textContent.trim());
     });
   });
+
+  function fetchGamaTasks(gamaId) {
+    fetch("/tasks_for_gama/" + gamaId)
+      .then((response) => response.json())
+      .then((tasks) => {
+        const tasksContainer = document.getElementById("gamaTasks-" + gamaId);
+        if (tasks.length > 0) {
+          let html = "<ul class='list-group'>";
+          tasks.forEach((task) => {
+            html += `<li class='list-group-item'>${task.descricao}</li>`;
+          });
+          html += "</ul>";
+          tasksContainer.innerHTML = html;
+        } else {
+          tasksContainer.innerHTML =
+            "<p class='text-muted'>Nenhuma tarefa encontrada.</p>";
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar tarefas para gama " + gamaId, error);
+        const tasksContainer = document.getElementById("gamaTasks-" + gamaId);
+        tasksContainer.innerHTML =
+          "<p class='text-danger'>Erro ao carregar tarefas.</p>";
+      });
+  }
 
   function formatDatetime(dateString) {
     const date = new Date(dateString);

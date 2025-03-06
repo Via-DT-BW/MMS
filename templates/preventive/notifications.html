@@ -34,7 +34,18 @@
     </div>
 
     <div class="form-group mb-2 ml-3">
-      <label for="start_date" class="mr-2">Data Inicial</label>
+      <select
+        class="form-control form-control-sm"
+        id="filter_status"
+        name="filter_status">
+        <option value="" disabled selected hidden>Selecione o Status</option>
+        <option value="atrasadas">Atrasadas</option>
+        <option value="emdia">Em Dia</option>
+      </select>
+    </div>
+
+    <div class="form-group mb-2 ml-3">
+      <label for="start_date" class="mr-2">De</label>
       <input
         type="date"
         class="form-control form-control-sm"
@@ -43,7 +54,7 @@
         value="{{ request.args.get('start_date', '') }}" />
     </div>
     <div class="form-group mb-2 ml-3">
-      <label for="end_date" class="mr-2">Data Final</label>
+      <label for="end_date" class="mr-2">Até</label>
       <input
         type="date"
         class="form-control form-control-sm"
@@ -51,10 +62,10 @@
         name="end_date"
         value="{{ request.args.get('end_date', '') }}" />
     </div>
-    <button type="submit" class="btn btn-primary ml-3 mb-2">
+    <button type="submit" class="btn btn-sm btn-primary ml-3 mb-2">
       <i class="fa-solid fa-magnifying-glass"></i>
     </button>
-    <a href="/preventive" class="btn btn-danger ml-3 mb-2"
+    <a href="/preventive" class="btn btn-sm btn-danger ml-3 mb-2"
       ><i class="fa-solid fa-broom mr-1"></i>Limpar</a
     >
   </form>
@@ -112,7 +123,7 @@
               <button
                 class="btn btn-warning"
                 onclick="pausarIntervencao('{{ order.id }}')">
-                <i class="fa-solid fa-pause"></i>
+                <i class="fa-solid fa-pause" style="color: white"></i>
               </button>
               <button
                 class="btn btn-danger"
@@ -194,6 +205,7 @@
 "preventive/components/showGamas.html" %}
 
 <script>
+
   {% include "preventive/js/preventive.js" %}
 
   function showGamas(equipment) {
@@ -211,7 +223,7 @@
 
         if (response.length > 0) {
           html += '<table class="table table-striped">';
-          html += '<thead><tr><th>Descrição</th><th>Periodicidade</th><th>Status</th><th>Realizado?</th></tr></thead>';
+          html += '<thead><tr><th>Descrição</th><th>Tarefas</th><th>Periodicidade</th><th>Status</th><th>Realizado?</th></tr></thead>';
           html += '<tbody>';
           response.forEach(function(item) {
             let statusLabel = '';
@@ -226,6 +238,7 @@
 
             html += '<tr>';
             html += '<td>' + item.gama_descricao + '</td>';
+            html += '<td><a href="/view_tarefas/' + item.gama_id + '" target="_blank" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye mr-1"></i><i class="fa-solid fa-file-pdf"></i></a></td>';
             html += '<td>' + item.periodicidade + '</td>';
             html += '<td>' + statusLabel + '</td>';
             html += '<td>' + acao + '</td>';

@@ -1,0 +1,45 @@
+<div class="mt-4 collapse" id="newWIForm">
+  <h3>Criar Nova(s) Tarefa(s)</h3>
+  <form action="{{ url_for('settings.create_wi') }}" method="post">
+    <div class="form-group">
+      <label for="wi_tasks">Insira as tarefas (separadas por ";"):</label>
+      <textarea
+        class="form-control"
+        id="wi_tasks"
+        name="wi_tasks"
+        rows="10"
+        placeholder="Tarefa 1; Tarefa 2; Tarefa 3; Tarefa 4;"></textarea>
+      <small class="form-text text-muted">
+        Cada tarefa será considerada até encontrar o caractere ";".
+      </small>
+    </div>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="form-group">
+          <label for="gama_id">Escolha a Gama a associar:</label>
+          <select class="form-control" id="gama_id" name="gama_id">
+            <option value="">
+              Ao deixar esta opção vazia, as tarefas serão criadas, mas não
+              associadas a qualquer gama
+            </option>
+            {% for gama in gamas %}
+            <option value="{{ gama.id }}">{{ gama.desc }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4 justify-content-start d-flex align-items-center">
+        <button type="submit" class="btn btn-primary">Criar Tarefas</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="mt-3">
+    <h5>Tarefas já associadas à gama</h5>
+    <ul class="list-group" id="associatedTasks">
+      <li class="list-group-item text-muted">
+        Selecione uma gama para visualizar
+      </li>
+    </ul>
+  </div>
+</div>

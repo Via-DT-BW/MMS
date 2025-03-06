@@ -950,7 +950,6 @@ def get_gamas():
 
         cursor.close()
         conn.close()
-        
         return jsonify(result)
 
     except Exception as e:

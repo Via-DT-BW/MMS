@@ -315,8 +315,6 @@ def adicionar_equipamento():
     cost_center = data['costCenter']
     equipment = data['equipment']
     descricao = data['descricao']
-
-    print(cost_center, equipment, descricao)
     
     try:
         conn = pyodbc.connect(conexao_mms)
@@ -399,6 +397,204 @@ def update_gama_e_periocidade():
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
+
+@settings_sec.route('/wi', methods=['GET'])
+def wi():
+    if 'username' not in session:
+        flash('É necessário fazer login para aceder a esta página.', category='error')
+        return redirect(url_for('index'))
+    try:
+        username = session.get('username')
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, [desc] FROM gama")
+        gamas = cursor.fetchall()
+
+        selected_gama_id = request.args.get('gama_id')
+        selected_gama = request.args.get('gama')
+        tasks = []
+        if selected_gama_id:
+            cursor.execute("""
+                SELECT t.id, t.descricao
+                FROM tarefas t
+                INNER JOIN tarefas_gama tg ON t.id = tg.tarefa_id
+                WHERE tg.gama_id = ?
+            """, (selected_gama_id,))
+            tasks = cursor.fetchall()
+
+        return render_template('configs/wi.html', 
+                               maintenance="Settings", 
+                               username=username,
+                               gamas=gamas,
+                               tasks=tasks,
+                               selected_gama_id=selected_gama_id, 
+                               selected_gama=selected_gama
+                               )
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('settings.settings'))
+
+@settings_sec.route('/create_wi', methods=['POST'])
+def create_wi():
+    if 'username' not in session:
+        flash('É necessário fazer login para aceder a esta página.', category='error')
+        return redirect(url_for('index'))
+    try:
+        wi_tasks_str = request.form.get('wi_tasks', "").strip()
+        gama_id = request.form.get('gama_id')
+
+        if not wi_tasks_str:
+            raise Exception("Nenhuma tarefa escrita.")
+
+        tasks_list = [task.strip() for task in wi_tasks_str.split(';') if task.strip()]
+        if not tasks_list:
+            raise Exception("Nenhuma tarefa válida foi escrita.")
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        for task in tasks_list:
+            cursor.execute("INSERT INTO tarefas (descricao) VALUES (?)", (task,))
+            conn.commit()
+
+            cursor.execute("SELECT @@IDENTITY AS id")
+            row = cursor.fetchone()
+            tarefa_id = row.id if row else None
+
+            if tarefa_id is None:
+                raise Exception(f"Erro ao recuperar o ID da tarefa '{task}'.")
+
+            if gama_id:
+                cursor.execute("INSERT INTO tarefas_gama (tarefa_id, gama_id) VALUES (?, ?)", (tarefa_id, gama_id))
+
+        conn.commit()
+
+        flash("Tarefas criadas com sucesso!", category='success')
+        return redirect(url_for('settings.wi'))
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+        return redirect(url_for('settings.wi'))
+    finally:
+        cursor.close()
+        conn.close()
+
+@settings_sec.route('/remove_task_from_gama', methods=['POST'])
+def remove_task_from_gama():
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "É necessário fazer login"}), 403
+
+    try:
+        data = request.get_json()
+        tarefa_id = data.get("tarefa_id")
+        gama_id = data.get("gama_id")
+
+        if not tarefa_id or not gama_id:
+            return jsonify({"success": False, "message": "Dados inválidos"}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM tarefas_gama WHERE tarefa_id = ? AND gama_id = ?", (tarefa_id, gama_id))
+        conn.commit()
+        flash("Tarefa removida com sucesso!", category='warning')
+        return jsonify({"success": True})
+    except Exception as e:
+        print("Erro:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@settings_sec.route('/add_task_to_gama', methods=['POST'])
+def add_task_to_gama():
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "É necessário fazer login"}), 403
+
+    try:
+        data = request.get_json()
+        tarefa_id = data.get("tarefa_id")
+        gama_id = data.get("gama_id")
+
+        if not tarefa_id or not gama_id:
+            return jsonify({"success": False, "message": "Dados inválidos"}), 400
+
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM tarefas_gama WHERE tarefa_id = ? AND gama_id = ?", (tarefa_id, gama_id))
+        if cursor.fetchone():
+            return jsonify({"success": False, "message": "Tarefa já associada a esta gama"}), 400
+
+        cursor.execute("INSERT INTO tarefas_gama (tarefa_id, gama_id) VALUES (?, ?)", (tarefa_id, gama_id))
+        conn.commit()   
+        flash("Tarefa associada à gama com sucesso!", category='success')
+        return jsonify({"success": True})
+    except Exception as e:
+        print("Erro:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@settings_sec.route('/get_unassigned_tasks/<int:gama_id>', methods=['GET'])
+def get_unassigned_tasks(gama_id):
+    conn = pyodbc.connect(conexao_mms)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT t.id, t.descricao
+        FROM tarefas t
+        WHERE t.id NOT IN (
+            SELECT tg.tarefa_id FROM tarefas_gama tg WHERE tg.gama_id = ?
+        )
+    """, (gama_id,))
+    
+    unassigned_tasks = [{"id": row[0], "descricao": row[1]} for row in cursor.fetchall()]
+    
+    cursor.close()
+    conn.close()
+    
+    return jsonify(unassigned_tasks)
+
+@settings_sec.route("/get_tasks_for_gama/<int:gama_id>")
+def get_tasks_for_gama(gama_id):
+    conn = pyodbc.connect(conexao_mms)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT t.id, t.descricao FROM tarefas t
+        JOIN tarefas_gama tg ON t.id = tg.tarefa_id
+        WHERE tg.gama_id = ?""" 
+    , (gama_id,))
+
+    tasks = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return jsonify([{"id": t.id, "descricao": t.descricao} for t in tasks])
+
+@settings_sec.route("/tasks_for_gama/<int:gama_id>/")
+def tasks_for_gama(gama_id):
+    conn = pyodbc.connect(conexao_mms)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT t.id, t.descricao FROM tarefas t
+        JOIN tarefas_gama tg ON t.id = tg.tarefa_id
+        WHERE tg.gama_id = ?""" 
+    , (gama_id,))
+
+    gama_tasks = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return jsonify([{"id": t.id, "descricao": t.descricao} for t in gama_tasks])
 
 @settings_sec.route('/admin_tl', methods=['GET'])
 def admin_tl():

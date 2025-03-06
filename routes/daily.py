@@ -9,15 +9,6 @@ daily_sec = Blueprint("daily", __name__, static_folder="static", static_url_path
 def empty_to_none(value):
     return None if value == "" else value
 
-def get_effective_date(shift, now):
-    if shift == 'C':
-        if now.hour < 8:
-            return (now - timedelta(days=1)).date()
-        else:
-            return now.date()
-    else:
-        return now.date()
-
 @daily_sec.route('/daily', methods=['GET'])
 def daily():
     if 'username' not in session:
@@ -34,15 +25,15 @@ def daily():
         id_tl = session.get('id_tl')
 
         now = datetime.now()
-        effective_date = get_effective_date(turno, now)
+        cutoff = now - timedelta(hours=12)
         
         cursor.execute("""
             SELECT id
             FROM daily
-            WHERE id_tl = ? AND CONVERT(date, data) = ?
-        """, id_tl, effective_date)
+            WHERE id_tl = ? AND data >= ?
+        """, id_tl, cutoff)
         daily_record = cursor.fetchone()
-        
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
         filter_turno = empty_to_none(request.args.get('filter_turno', '', type=str))
