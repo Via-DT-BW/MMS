@@ -1,0 +1,360 @@
+{% extends 'analytics/analytics_base.html' %} {% block content %}
+
+<style>
+  #filterToggleBtn {
+    transition: color 0.3s ease, background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  #filterIcon {
+    transition: transform 0.3s ease;
+  }
+</style>
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="card mt-2 mb-2">
+  <div class="card-header justify-content-end d-flex">
+    <button
+      id="filterToggleBtn"
+      class="btn btn-outline-danger"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#filterCollapse"
+      aria-expanded="true"
+      aria-controls="filterCollapse">
+      <i id="filterIcon" class="fa-solid fa-filter-circle-xmark"></i>
+    </button>
+  </div>
+  <div id="filterCollapse" class="collapse show">
+    <div class="card-body">
+      <form id="filterForm" class="form-row justify-content-center">
+        <div class="form-group col-md-2 col-sm-6 col-4 text-center">
+          <small class="form-text text-muted"
+            >Filtrar por linha de produção</small
+          >
+          <select
+            name="filter_prod_line"
+            id="filter_prod_line"
+            class="form-control"
+            required>
+            <option value="">Selecione a linha</option>
+          </select>
+        </div>
+
+        <div class="form-group col-md-3 col-sm-6 col-5 text-center">
+          <small class="form-text text-muted">Intervalo de Datas</small>
+          <input
+            type="text"
+            id="date_range"
+            class="form-control"
+            placeholder="Selecione o intervalo de datas" />
+        </div>
+
+        <input
+          type="hidden"
+          id="start_date"
+          name="start_date"
+          value="{{ start_date }}" />
+        <input
+          type="hidden"
+          id="end_date"
+          name="end_date"
+          value="{{ end_date }}" />
+
+        <div class="form-group col-md-2 col-sm-6 col-4 text-center">
+          <small class="form-text text-muted">Turno</small>
+          <select
+            name="filter_shift"
+            id="filter_shift"
+            class="form-control"
+            required>
+            <option value="">Selecione o Turno</option>
+            <option value="">Todos os turnos</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </div>
+
+        <div
+          class="form-group col-md-2 col-sm-6 d-flex align-items-end justify-content-center">
+          <button type="submit" class="btn btn-primary mr-2">
+            <i class="fas fa-filter"></i> Filtrar
+          </button>
+          <a href="/analytics_per_line" class="btn btn-danger">Limpar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        <strong>Média</strong> de Tempo de Resposta (<strong>MWT</strong>)
+      </div>
+      <div class="card-body">
+        <div id="mediaResponseTimeChart"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        <strong>Média</strong> de Tempo de Resolução (<strong>MTTR</strong>)
+      </div>
+      <div class="card-body">
+        <div id="averageResolutionTimeChart"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4 col-md-4 col-sm-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        <strong>Média</strong> de Tempo com Máquina Parada
+        (<strong>MDT</strong>)
+      </div>
+      <div class="card-body">
+        <div id="averageStoppedMachineTimeChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        <strong>Média</strong> de Tempo entre Avarias (<strong>MTBF</strong>)
+      </div>
+      <div class="card-body">
+        <div id="averageTimeBetweenFailuresChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Pareto de Tempo de Manutenção (por Modo de Falha)
+      </div>
+      <div class="card-body">
+        <div id="paretoChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Pareto de Tempo de Manutenção (por Tipologia)
+      </div>
+      <div class="card-body">
+        <div id="paretoChartTipologia"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">Tempo de Manutenção (Não Impactou Produção)</div>
+      <div class="card-body">
+        <div id="interventionChartNotStopped"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">Tempo de Manutenção (Impactou Produção)</div>
+      <div class="card-body">
+        <div id="interventionChartStopped"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Tempo em Manutenção por Equipamento (Impactou Produção)
+      </div>
+      <div class="card-body">
+        <div id="equipmentPieChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Evolução do Tempo (minutos) / Número de Intervenções
+      </div>
+      <div class="card-body">
+        <div id="timeEvolutionChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Número de Intervenções / Média de Tempo de Resolução (por Técnico)
+      </div>
+      <div class="card-body">
+        <div id="mtInterventions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Correlação entre o Tempo de Resposta e o Tempo de Resolução das
+        Manutenções
+      </div>
+      <div class="card-body">
+        <div id="scatterPlotChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+<script>
+  function loadLines() {
+    $.ajax({
+      url: "/api/prod_lines",
+      method: "GET",
+      success: function (data) {
+        let lineSelect = $('select[name="filter_prod_line"]');
+        lineSelect.empty();
+        lineSelect.append('<option value="">Selecione a linha</option>');
+
+        data.sort((a, b) => a.line.localeCompare(b.line));
+
+        data.forEach((line) => {
+          lineSelect.append(
+            `<option value="${line.line}">${line.line}</option>`
+          );
+        });
+
+        let filterProdLineValue =
+          '{{ request.args.get("filter_prod_line", "") }}';
+        if (filterProdLineValue) {
+          lineSelect.val(filterProdLineValue);
+        }
+
+        let filterShiftValue = '{{ request.args.get("filter_shift", "") }}';
+        if (filterShiftValue) {
+          $('#filter_shift').val(filterShiftValue);
+        }
+      },
+      error: function () {
+        alert("Erro ao carregar as linhas.");
+      },
+    });
+  }
+
+  {%include "analytics/js/single/total_time_fail_mode.js"%}
+  {%include "analytics/js/single/total_time_typology.js"%}
+  {% include "analytics/js/single/graphicIntervention.js" %}
+  {% include "analytics/js/single/equipmentPieChart.js" %}
+  {% include "analytics/js/single/timeEvolution.js" %}
+  {% include "analytics/js/single/mediaResponseTime.js" %}
+  {% include "analytics/js/single/mediaResolutionTime.js" %}
+  {% include "analytics/js/single/mediaAvariaTime.js" %}
+  {% include "analytics/js/single/mtbf.js" %}
+  {% include "analytics/js/single/mtInterventions.js" %}
+  {% include "analytics/js/single/scatter.js" %}
+
+  $(document).ready(function () {
+
+    $('#date_range').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD',
+        separator: ' a ',
+        applyLabel: 'Aplicar',
+        cancelLabel: 'Cancelar',
+      },
+      autoUpdateInput: false,
+    });
+
+    $('#date_range').on('apply.daterangepicker', function(ev, picker) {
+      let start = picker.startDate.format('YYYY-MM-DD');
+      let end = picker.endDate.format('YYYY-MM-DD');
+      $(this).val(start + ' a ' + end);
+      $('#start_date').val(start);
+      $('#end_date').val(end);
+    });
+
+    $('#date_range').on('cancel.daterangepicker', function(ev, picker) {
+      $(this).val('');
+      $('#start_date').val('');
+      $('#end_date').val('');
+    });
+
+    loadLines();
+    $("#accordionSidebar").addClass("toggled");
+
+    $("#filterForm").on("submit", function (e) {
+        e.preventDefault();
+
+        loadParetoChartTipologia();
+        loadParetoChart();
+        loadInterventionChart("Sim", "interventionChartStopped");
+        loadInterventionChart("Não", "interventionChartNotStopped");
+        loadEquipmentPieChart();
+        loadTimeEvolutionChart();
+        loadResponseTimeChart();
+        loadAverageResolutionTimeChart();
+        loadAverageStoppedMachineTimeChart();
+        loadTechnicianInterventionsChart();
+        loadScatterPlotChart();
+        loadMTBFByEquipmentChart();
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterCollapse = document.getElementById('filterCollapse');
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const filterIcon = document.getElementById('filterIcon');
+
+    function updateButtonState() {
+      if (filterCollapse.classList.contains('show')) {
+        filterToggleBtn.classList.remove('btn-outline-success');
+        filterToggleBtn.classList.add('btn-outline-danger');
+        filterIcon.classList.remove('a-angle-down');
+        filterIcon.classList.add('fa-angle-up');
+      } else {
+        filterToggleBtn.classList.remove('btn-outline-danger');
+        filterToggleBtn.classList.add('btn-outline-success');
+        filterIcon.classList.remove('fa-angle-up');
+        filterIcon.classList.add('fa-angle-down');
+      }
+    }
+
+    filterCollapse.addEventListener('shown.bs.collapse', updateButtonState);
+    filterCollapse.addEventListener('hidden.bs.collapse', updateButtonState);
+
+    updateButtonState();
+  });
+</script>
+{% endblock %}

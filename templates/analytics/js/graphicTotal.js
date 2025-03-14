@@ -48,7 +48,6 @@ function renderChart(data, filterProdLine) {
         })),
         colorByPoint: true,
         dataLabels: {
-          // Configurações dos rótulos
           enabled: true,
           format: "{point.name}: {point.y}",
           style: {

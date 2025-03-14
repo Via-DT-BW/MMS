@@ -1,0 +1,202 @@
+{% extends 'configs/settings.html' %} {% block content %}
+<style>
+  #filterToggleBtn {
+    transition: color 0.3s ease, background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  #filterIcon {
+    transition: transform 0.3s ease;
+  }
+</style>
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+<div class="container mt-4">
+  <h2>Gestão de Recetores de Reports</h2>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <form id="filterForm" method="GET" class="form-inline">
+            <div class="form-group">
+              <select
+                name="filter_area"
+                id="filter_area"
+                class="form-control mr-1">
+                <option value="">Selecione a Área</option>
+              </select>
+              <div class="row">
+                <div
+                  class="col-md-12 d-flex align-items-center justify-content-center">
+                  <button
+                    type="button"
+                    class="btn btn-info"
+                    id="badge_info_lines">
+                    <i class="fa-solid fa-info"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary ml-2">
+              <i class="fa-solid fa-filter mr-1"></i>Filtrar
+            </button>
+            <a
+              href="{{ url_for('settings.list_reports') }}"
+              class="btn btn-danger ml-2"
+              >Limpar</a
+            >
+          </form>
+        </div>
+        <div class="col-md-4 text-end">
+          <button
+            class="btn btn-success mb-3"
+            data-bs-toggle="modal"
+            data-bs-target="#addReportModal">
+            <i class="fa-solid fa-plus mr-1"></i>
+            <i class="fa-solid fa-address-book"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Área</th>
+            <th>Destinatário</th>
+            <th>Inicial</th>
+            <th>Eliminar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for report in reports %}
+          <tr>
+            <td>{{ report.id }}</td>
+            <td>{{ report.area }}</td>
+            <td>{{ report.destinatario }}</td>
+            <td>{{ report.inicial }}</td>
+            <td>
+              <form
+                action="{{ url_for('settings.delete_report', id=report.id) }}"
+                method="POST"
+                style="display: inline">
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-danger"
+                  onclick="return confirm('Deseja excluir este report?');">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer">
+      <nav>
+        <ul class="pagination">
+          {% if current_page > 1 %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('settings.list_reports', page=current_page-1, filter_area=filter_area) }}"
+              >Anterior</a
+            >
+          </li>
+          {% endif %} {% for p in range(1, total_paginas + 1) %}
+          <li class="page-item {% if p == current_page %}active{% endif %}">
+            <a
+              class="page-link"
+              href="{{ url_for('settings.list_reports', page=p, filter_area=filter_area) }}"
+              >{{ p }}</a
+            >
+          </li>
+          {% endfor %} {% if current_page < total_paginas %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('settings.list_reports', page=current_page+1, filter_area=filter_area) }}"
+              >Próxima</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+{% include "configs/components/add_report_modal.html" %} {% include
+"components/lines_by_area_offcanvas.html" %}
+
+<script>
+  function loadArea() {
+    $.ajax({
+      url: "/api/get_areas",
+      method: "GET",
+      success: function (data) {
+        let areaSelect = $('select[name="filter_area"]');
+        let areaSelectAdd = $('select[name="filter_area_add"]');
+        areaSelect.empty();
+        areaSelectAdd.empty();
+        areaSelect.append('<option value="">Selecione a area</option>');
+        areaSelectAdd.append('<option value="">Selecione a area</option>');
+
+        data.sort((a, b) => a.area.localeCompare(b.area));
+
+        data.forEach((area) => {
+          areaSelect.append(
+            `<option value="${area.area}">${area.area}</option>`
+          );
+          areaSelectAdd.append(
+            `<option value="${area.area}">${area.area}</option>`
+          );
+        });
+
+        let filterProdLineValue = '{{ request.args.get("filter_area", "") }}';
+        if (filterProdLineValue) {
+          areaSelect.val(filterProdLineValue);
+        }
+      },
+      error: function () {
+        alert("Erro ao carregar as linhas.");
+      },
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    loadArea();
+
+    const filterCollapse = document.getElementById("filterCollapse");
+    const filterToggleBtn = document.getElementById("filterToggleBtn");
+    const filterIcon = document.getElementById("filterIcon");
+
+    document
+      .getElementById("badge_info_lines")
+      .addEventListener("click", showLines);
+
+    function updateButtonState() {
+      if (filterCollapse.classList.contains("show")) {
+        filterToggleBtn.classList.remove("btn-outline-success");
+        filterToggleBtn.classList.add("btn-outline-danger");
+        filterIcon.classList.remove("a-angle-down");
+        filterIcon.classList.add("fa-angle-up");
+      } else {
+        filterToggleBtn.classList.remove("btn-outline-danger");
+        filterToggleBtn.classList.add("btn-outline-success");
+        filterIcon.classList.remove("fa-angle-up");
+        filterIcon.classList.add("fa-angle-down");
+      }
+    }
+
+    filterCollapse.addEventListener("shown.bs.collapse", updateButtonState);
+    filterCollapse.addEventListener("hidden.bs.collapse", updateButtonState);
+
+    updateButtonState();
+  });
+  {% include "utils/javascript/showLines.js" %}
+</script>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/plat_static/css/sb-admin-2.min.css" />
+    <link rel="icon" type="image/ico" href="static/initial_page/img/icon.PNG" />
+    <title>Corrective Maintenance</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600" />
+
+    <link rel="stylesheet" href="static/initial_page/css/all.min.css" />
+
+    <link rel="stylesheet" href="static/initial_page/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="static/initial_page/css/tooplate-style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1/daterangepicker.min.css" />
+  </head>
+
+  <style>
+    body:not(.sidebar-toggled) .topbar {
+      display: none;
+    }
+
+    body.sidebar-toggled .topbar {
+      display: block;
+    }
+
+    td {
+      font-size: 0.91rem;
+    }
+  </style>
+
+  <body id="page-top">
+    <div id="wrapper">
+      {% include 'analytics/components/sidebar_links.html' %}
+
+      <div id="content-wrapper" class="d-flex flex-column">
+        <nav class="navbar navbar-expand navbar-light topbar static-top">
+          <button
+            id="sidebarToggleTop"
+            class="btn d-md-none rounded-circle mr-1">
+            <i class="fa fa-bars" style="color: #051729"></i>
+          </button>
+        </nav>
+        <div id="content">
+          <div class="container-fluid">{% block content %} {% endblock %}</div>
+        </div>
+        {% include "components/footer.html" %}
+      </div>
+    </div>
+
+    {% include "components/modalCorrectiveMaintenace.html" %} {% include
+    "corrective/components/createOrderModal.html" %} {% include
+    'corrective/components/loginModal.html' %}
+
+    <script src="static/plat_static/js/sb-admin-2.min.js"></script>
+    <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
+
+    <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
+    <script src="static/initial_page/js/bootstrap.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script
+      type="text/javascript"
+      src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1/daterangepicker.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+
+        function toggleSidebarClass() {
+          const body = document.body;
+          if (window.innerWidth <= 768) {
+            body.classList.add('sidebar-toggled');
+          } else {
+            body.classList.remove('sidebar-toggled');
+          }
+        }
+        toggleSidebarClass();
+
+        window.addEventListener('resize', toggleSidebarClass);
+      });
+
+      document.getElementById('sidebarToggleTop').addEventListener('click', function () {
+        document.body.classList.toggle('sidebar-toggled');
+      });
+
+      {% include "utils/javascript/maintenances.js" %}
+      {% include "utils/javascript/formatDate.js" %}
+      {% include "utils/javascript/charCount.js" %}
+      {% include "utils/javascript/tipos_avaria.js" %}
+    </script>
+  </body>
+</html>

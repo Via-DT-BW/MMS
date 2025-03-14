@@ -22,7 +22,7 @@
       </div>
 
       <div class="modal-body">
-        <form id="addDailyForm">
+        <form id="addDailyForm" enctype="multipart/form-data">
           <div class="row">
             <div
               class="col-md-12 alert-section mt-1 mb-1 d-flex justify-content-center align-items-center"
@@ -106,6 +106,20 @@
                 rows="7"
                 maxlength="1000"
                 oninput="updateCharCount('people_comment', 'peopleCount', 'saveDailyRecord', 1000)"></textarea>
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="form-group col-md-12">
+              <label for="images"
+                >Selecione as Imagens (.png, .jpg, .jpeg, .gif)</label
+              >
+              <input
+                type="file"
+                class="form-control-file"
+                id="images"
+                name="images"
+                multiple />
             </div>
           </div>
         </form>

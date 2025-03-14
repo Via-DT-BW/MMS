@@ -1,4 +1,4 @@
-{% extends 'corrective/corrective.html' %} {% block content %}
+{% extends 'analytics/analytics_base.html' %} {% block content %}
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
 <div class="card mt-4 mb-4">
@@ -75,28 +75,6 @@
 <div class="row">
   <div class="col-lg-12">
     <div class="card mt-4 mb-4 shadow-lg">
-      <div class="card-header">Downtime vs Tempo de Intervenção por Linha</div>
-      <div class="card-body">
-        <div id="interventionChart"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card mt-4 mb-4 shadow-lg">
-      <div class="card-header">Tipo de Avarias ao longo do tempo</div>
-      <div class="card-body">
-        <div id="avariasPorTempo"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card mt-4 mb-4 shadow-lg">
       <div
         class="card-header d-flex justify-content-between align-items-center">
         <span>Registos de Manutenção</span>
@@ -137,7 +115,7 @@
             {% endfor %}
           </tbody>
         </table>
-        {% include "corrective/components/pages_analytics.html" %}
+        {% include "analytics/components/pages_analytics.html" %}
       </div>
     </div>
   </div>
@@ -152,11 +130,7 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-  {% include "corrective/js/graphicTotal.js" %}
-
-  {% include "corrective/js/graphicIntervention.js" %}
-
-  {% include "corrective/js/graphicTiposAvarias.js" %}
+  {% include "analytics/js/graphicTotal.js" %}
 
   document.addEventListener("DOMContentLoaded", function() {
     updateCharts();
@@ -164,15 +138,13 @@
 
   function updateCharts() {
     loadChartData();
-    loadInterventionChartData();
-    loadAvariasPorTempoChart();
   }
 
   function clearFilters() {
     document.getElementById("filter_prod_line").value = "";
     document.getElementById("start_date").value = "";
     document.getElementById("end_date").value = "";
-    window.location.href = "{{ url_for('corrective.corrective_analytics') }}";
+    window.location.href = "{{ url_for('analytics.analytics') }}";
   }
 
   function exportToExcel() {
