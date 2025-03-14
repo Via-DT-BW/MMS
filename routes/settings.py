@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 import os
 import re
 import unicodedata
@@ -654,6 +655,104 @@ def admin_tl():
         conn.close()
 
     return redirect(url_for('settings.admin_tl'))
+
+@settings_sec.route('/reports', methods=['GET'])
+def list_reports():
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+        
+        page = request.args.get('page', 1, type=int)
+        filter_area = request.args.get('filter_area')
+        page_size = 20
+        offset = (page - 1) * page_size
+
+        base_query = "SELECT * FROM report_email_novo"
+        count_query = "SELECT COUNT(*) FROM report_email_novo"
+        params = []
+
+        if filter_area:
+            base_query += " WHERE inicial = ?"
+            count_query += " WHERE inicial = ?"
+            params.append(filter_area)
+
+        base_query += " ORDER BY id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"
+        params.extend([offset, page_size])
+
+        cursor.execute(base_query, params)
+        reports = cursor.fetchall()
+
+        if filter_area:
+            cursor.execute(count_query, (filter_area,))
+        else:
+            cursor.execute(count_query)
+        total_registros = cursor.fetchone()[0]
+        total_paginas = math.ceil(total_registros / page_size)
+
+        return render_template(
+            'configs/reports.html',
+            reports=reports,
+            current_page=page,
+            total_paginas=total_paginas,
+            filter_area=filter_area
+        )
+
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+        return redirect(url_for('settings.list_reports'))
+    finally:
+        cursor.close()
+        conn.close()
+
+@settings_sec.route('/reports/new', methods=['GET', 'POST'])
+def new_report():
+    if request.method == 'POST':
+        nome = request.form.get('destinatario')
+        inicial = request.form.get('filter_area_add')
+        destinatario = f'{nome}@borgwarner.com'
+        
+        try:
+            conn = pyodbc.connect(conexao_capture)
+            cursor = conn.cursor()
+            
+            cursor.execute(
+                "SELECT DISTINCT area FROM report_email_novo where inicial = ?", inicial,
+            )
+            area_list = cursor.fetchone()
+            area = area_list[0]
+            
+            print(area, destinatario, inicial)
+            cursor.execute(
+                "INSERT INTO report_email_novo (area, destinatario, inicial) VALUES (?, ?, ?)",
+                (area, destinatario, inicial)
+            )
+            conn.commit()
+            
+            flash('Report criado com sucesso!', 'success')
+            return redirect(url_for('settings.list_reports'))
+        except Exception as e:
+            print(e)
+            flash(f'Erro ao criar report: {str(e)}', 'error')
+            return redirect(url_for('settings.list_reports'))
+        finally:
+            cursor.close()
+            conn.close()
+
+@settings_sec.route('/reports/delete/<int:id>', methods=['POST'])
+def delete_report(id):
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM report_email_novo WHERE id = ?", (id,))
+        conn.commit()
+        flash('Report excluído com sucesso!', 'success')
+    except Exception as e:
+        flash(f'Erro ao excluir report: {str(e)}', 'error')
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('settings.list_reports'))
 
 @settings_sec.route('/admin_mtl', methods=['GET'])
 def admin_mtl():

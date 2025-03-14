@@ -32,4 +32,27 @@ $("#editDailyModal").on("show.bs.modal", function (event) {
   modal.find("#qualityComment").val(quality);
   modal.find("#volumeComment").val(volume);
   modal.find("#peopleComment").val(people);
+
+  const imageContainer = modal.find("#existingImages");
+  imageContainer.empty();
+
+  $.ajax({
+    url: `/api/get_images/${id}`,
+    method: "GET",
+    success: function (data) {
+      if (data.status === "success") {
+        data.images.forEach(function (image) {
+          const imageElement = `
+            <div class="image-wrapper" data-image-id="${image.id}">
+              <img src="${image.url}" alt="Imagem associada" class="img-thumbnail" style="max-height: 150px;">
+              <button type="button" class="btn btn-danger btn-sm remove-image-btn"><i class="fa-solid fa-trash"></i></button>
+            </div>`;
+          imageContainer.append(imageElement);
+        });
+      }
+    },
+    error: function () {
+      console.error("Erro ao carregar imagens.");
+    },
+  });
 });
