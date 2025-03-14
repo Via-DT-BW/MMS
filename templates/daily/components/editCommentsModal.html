@@ -78,6 +78,28 @@
                 oninput="updateCharCount('peopleComment', 'pcount', 'saveEditedRecord', 1000)"></textarea>
             </div>
           </div>
+          <div class="row mt-1">
+            <div class="form-group col-md-12">
+              <label>Imagens Existentes</label>
+              <div
+                id="existingImages"
+                class="d-flex flex-wrap"
+                style="gap: 10px"></div>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="form-group col-md-12">
+              <label for="images"
+                >Selecione as Imagens (.png, .jpg, .jpeg, .gif)</label
+              >
+              <input
+                type="file"
+                class="form-control-file"
+                id="images"
+                name="images"
+                multiple />
+            </div>
+          </div>
           <div class="justify-content-end d-flex">
             <button type="button" class="btn btn-success" id="saveEditedRecord">
               Editar
@@ -88,3 +110,25 @@
     </div>
   </div>
 </div>
+
+<script>
+  $(document).on("click", ".remove-image-btn", function () {
+    const imageWrapper = $(this).closest(".image-wrapper");
+    const imageId = imageWrapper.data("image-id");
+
+    $.ajax({
+      url: `/api/delete_image/${imageId}`,
+      method: "DELETE",
+      success: function (data) {
+        if (data.status === "success") {
+          imageWrapper.remove();
+        } else {
+          alert("Erro ao remover a imagem.");
+        }
+      },
+      error: function () {
+        alert("Erro ao remover a imagem.");
+      },
+    });
+  });
+</script>

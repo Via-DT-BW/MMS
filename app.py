@@ -15,6 +15,7 @@ from routes.corrective import corrective
 from routes.daily import daily_sec
 from routes.settings import settings_sec
 from routes.preventive import preventive_sec
+from routes.analytics import analytics_bp
 
 app = Flask(__name__)
 
@@ -32,7 +33,7 @@ app.register_blueprint(corrective)
 app.register_blueprint(daily_sec)
 app.register_blueprint(settings_sec)
 app.register_blueprint(preventive_sec)
-
+app.register_blueprint(analytics_bp)
 
 @app.after_request
 def add_header(response):
@@ -439,158 +440,7 @@ def get_corrective_stats():
             cursor.close()
         if 'conn' in locals():
             conn.close()
-
-@app.route('/api/get_intervention_stats')
-def get_intervention_stats():
-    try:
-        filter_line = request.args.get('filter_line', '')
-        start_date = request.args.get('start_datetime', '')
-        end_date = request.args.get('end_datetime', '')
-        filter_fault_type = request.args.get('filter_fault_type', '')
-
-        if start_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        else:
-            start_date = None
-        if end_date:
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        else:
-            end_date = None
-        
-        conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
-
-        downtime_query = """
-            SELECT id, prod_line, CAST(tempo_manutencao AS FLOAT) AS downtime
-            FROM [dbo].[corretiva]
-            WHERE 1=1 and stopped_production = 'Sim'
-        """
-        params_downtime = []
-        if filter_line:
-            downtime_query += " AND prod_line like ?"
-            params_downtime.append(filter_line + "%")
-
-        tech_query = """
-            SELECT ct.id_corretiva, SUM(CAST(ct.duracao AS FLOAT)) AS technician_time
-            FROM [dbo].[corretiva_tecnicos] ct
-            JOIN [dbo].[tipo_avaria] ta ON ct.id_tipo_avaria = ta.id
-            JOIN [dbo].[corretiva] c ON ct.id_corretiva = c.id
-            WHERE 1=1 and c.stopped_production = 'Sim'
-        """
-        
-        params_tech = []
-        if start_date:
-            tech_query += " AND ct.data_inicio >= ?"
-            params_tech.append(start_date)
-        if end_date:
-            tech_query += " AND ct.data_inicio <= ?"
-            params_tech.append(end_date)
-        if filter_fault_type:
-            fault_ids = filter_fault_type.split(',')
-            placeholders = ','.join('?' for _ in fault_ids)
-            tech_query += f" AND ct.id_tipo_avaria IN ({placeholders})"
-            params_tech.extend(fault_ids)
-        tech_query += " GROUP BY ct.id_corretiva"
-
-        final_query = f"""
-            SELECT d.prod_line,
-                   SUM(d.downtime) AS downtime,
-                   SUM(t.technician_time) AS technician_time
-            FROM ({downtime_query}) d
-            JOIN ({tech_query}) t ON d.id = t.id_corretiva
-            GROUP BY d.prod_line
-        """
-
-        params = params_downtime + params_tech
-
-        cursor.execute(final_query, params)
-
-        data = []
-        for row in cursor.fetchall():
-            data.append({
-                'prod_line': row.prod_line,
-                'downtime': row.downtime,
-                'technician_time': row.technician_time
-            })
-
-        return jsonify(data)
-
-    except Exception as e:
-        print(e)
-        return jsonify({'error': f'Ocorreu um erro: {str(e)}'}), 500
-    finally:
-        if 'cursor' in locals():
-            cursor.close()
-        if 'conn' in locals():
-            conn.close()
-            
-@app.route('/api/avarias_por_tempo', methods=['GET'])           
-def get_avarias_por_tempo():
-    filter_prod_line = request.args.get('filter_line', '')
-    filter_area = request.args.get('filter_area', '')
-    start_date = request.args.get('start_datetime', '')
-    end_date = request.args.get('end_datetime', '')
-
-    try:
-        conn = pyodbc.connect(conexao_capture)
-        cursor = conn.cursor()
-
-        query = """
-            SELECT
-                ta.tipo AS TipoAvaria,
-                c.prod_line AS LinhaProducao,
-                YEAR(c.data_pedido) AS Ano,
-                MONTH(c.data_pedido) AS Mes,
-                COUNT(*) AS NumeroOcorrencias
-            FROM MMS.[dbo].corretiva c
-            JOIN MMS.[dbo].corretiva_tecnicos ct ON c.id = ct.id_corretiva
-            JOIN MMS.[dbo].tipo_avaria ta ON ct.id_tipo_avaria = ta.id
-            WHERE 1=1
-        """
-        params = []
-
-        if filter_prod_line:
-            query += " AND c.prod_line like ?"
-            params.append(filter_prod_line + "%")
-
-        if filter_area:
-            query += " AND ta.area = ?"
-            params.append(filter_area)
-
-        if start_date:
-            query += " AND c.data_pedido >= ?"
-            params.append(start_date)
-
-        if end_date:
-            query += " AND c.data_pedido <= ?"
-            params.append(end_date)
-
-        query += " GROUP BY ta.tipo, c.prod_line, YEAR(c.data_pedido), MONTH(c.data_pedido)"
-        query += " ORDER BY ta.tipo, c.prod_line, Ano, Mes"
-
-        cursor.execute(query, params)
-        records = cursor.fetchall()
-
-        data = [
-            {
-                "TipoAvaria": row[0],
-                "LinhaProducao": row[1],
-                "Ano": row[2],
-                "Mes": row[3],
-                "NumeroOcorrencias": row[4]
-            }
-            for row in records
-        ]
-
-        return jsonify(data)
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-
+          
 @app.route('/api/export_corrective_records')
 def export_corrective_records():
     start_date = request.args.get('start_date')
@@ -771,76 +621,6 @@ def check_all_interventions_completed():
         if conn:
             conn.close()
 
-@app.route('/api/add_daily_record', methods=['POST'])
-def add_daily_record():
-    if 'id_tl' not in session:
-        return jsonify({'status': 'error', 'message': 'Usuário não autenticado!'}), 403
-
-    try:
-        safety_comment = request.form.get('safety_comment')
-        quality_comment = request.form.get('quality_comment')
-        volume_comment = request.form.get('volume_comment')
-        people_comment = request.form.get('people_comment')
-
-        conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            INSERT INTO daily (id_tl, data, safety_comment, quality_comment, volume_comment, people_comment)
-            VALUES (?, GETDATE(), ?, ?, ?, ?)
-        """, session['id_tl'], safety_comment, quality_comment, volume_comment, people_comment)
-
-        conn.commit()
-        flash('Comentários adicionados!', category='success')
-        return jsonify({'status': 'success', 'message': 'Comentários adicionados!'})
-
-    except Exception as e:
-        print(e)
-        flash('Erro ao adicionar os comentários.', category='error')
-        return jsonify({'status': 'error', 'message': 'Erro ao adicionar comentários!'}), 500
-    
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-
-@app.route('/api/edit_daily_record', methods=['POST'])
-def edit_daily_record():
-    if 'username' not in session:
-        return jsonify({'status': 'error', 'message': 'Usuário não autenticado.'}), 403
-    conn = pyodbc.connect(conexao_mms)
-    cursor = conn.cursor()
-    
-    try:
-        record_id = request.form.get('id')
-        safety_comment = request.form.get('safety_comment')
-        quality_comment = request.form.get('quality_comment')
-        volume_comment = request.form.get('volume_comment')
-        people_comment = request.form.get('people_comment')
-
-        today = datetime.today().strftime('%Y-%m-%d')
-        cursor.execute("""
-            UPDATE daily
-            SET safety_comment = ?, quality_comment = ?, volume_comment = ?, people_comment = ?
-            WHERE id = ? AND CONVERT(date, data) = ?
-        """, (safety_comment, quality_comment, volume_comment, people_comment, record_id, today))
-
-        conn.commit()
-
-        if cursor.rowcount == 0:
-            return jsonify({'status': 'error', 'message': 'Comentário não encontrado ou já editado.'}), 404
-
-        return jsonify({'status': 'success', 'message': 'Comentário atualizado com sucesso.'}), 200
-
-    except Exception as e:
-        print(f"Erro ao atualizar comentário: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Ocorreu um erro ao atualizar o comentário.'}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-
 @app.route('/api/prod_lines', methods=['GET'])
 def lines():
   try:
@@ -888,7 +668,39 @@ def areas():
 
     cursor.close()
     conn.close()
+    return jsonify(result)
 
+  except Exception as e:
+    print(e)
+    return jsonify({'error'}), 500
+
+@app.route('/api/lines_per_area', methods=['GET'])
+def lines_per_area():
+  try:
+    conn = pyodbc.connect(conexao_capture)
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT 
+            area,
+            STRING_AGG(prod_line, ', ') AS linhas_producao
+        FROM 
+            [Capture].[dbo].[ProdLineAreaPL]
+        GROUP BY 
+            area
+        ORDER BY 
+            area;"""
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    result = []
+    for row in rows:
+        result.append({
+            "area": row[0],
+            "linhas": row[1]
+        })
+
+    cursor.close()
+    conn.close()
     return jsonify(result)
 
   except Exception as e:

@@ -1,0 +1,30 @@
+{% extends 'components/sidebar.html' %} {% block content %}
+
+<br />
+
+<div class="sidebar-heading mt-2" style="color: #2cedd4">Analytics</div>
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/analytics">
+    <span>Geral</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/analytics_per_line">
+    <span>Por Linha</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/analytics_per_area">
+    <span>Por Área</span>
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="btn nav-link collapsed" href="/out">
+    <i class="fas fa-sign-out-alt" style="color: #2cedd4"></i>
+    <span>Sair</span>
+  </a>
+</li>
+{% endblock %}
