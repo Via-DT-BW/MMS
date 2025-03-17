@@ -169,3 +169,5 @@ connections/
 docs/
 
 *.pdf
+
+static/uploads

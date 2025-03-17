@@ -1,4 +1,5 @@
 import os
+import uuid
 from flask import Blueprint, json, jsonify, request, current_app, session, redirect, url_for, flash, render_template
 import pyodbc
 from datetime import datetime, timedelta
@@ -14,6 +15,27 @@ def allowed_file(filename):
 
 def empty_to_none(value):
     return None if value == "" else value
+
+def insert_files(cursor, daily_id, uploaded_files, upload_folder):
+
+    invalid_files = []
+    for file in uploaded_files:
+        if file.filename == '':
+            continue
+        if allowed_file(file.filename):
+            ext = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
+            unique_filename = secure_filename(unique_filename)
+            file_path = os.path.join(upload_folder, unique_filename)
+            file.save(file_path)
+            relative_path = os.path.join('static', 'uploads', 'images', unique_filename)
+            cursor.execute("""
+                INSERT INTO daily_images (id_daily, image_path)
+                VALUES (?, ?)
+            """, (daily_id, relative_path))
+        else:
+            invalid_files.append(file.filename)
+    return invalid_files
 
 @daily_sec.route('/daily', methods=['GET'])
 def daily():
@@ -222,27 +244,20 @@ def add_daily_record():
 
         invalid_files = []
         uploaded_files = request.files.getlist("images")
-        for file in uploaded_files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(upload_folder, filename)
-                file.save(file_path)
-                relative_path = os.path.join('static', 'uploads', 'images', filename)
-                cursor.execute("""
-                    INSERT INTO daily_images (id_daily, image_path)
-                    VALUES (?, ?)
-                """, daily_id, relative_path)
-            else:
-                invalid_files.append(file.filename)
-        
+        invalid_files = insert_files(cursor, daily_id, uploaded_files, upload_folder)
+
         conn.commit()
-        if invalid_files:
-            message = f"Comentários adicionados! No entanto, os seguintes ficheiros têm tipos inválidos e não foram carregados: {', '.join(invalid_files)}"
+        
+        if invalid_files and len(invalid_files) > 0:
+            message = (f"Comentários adicionados! "
+                       f"No entanto, os seguintes ficheiros têm tipos inválidos e não foram carregados: "
+                       f"{', '.join(invalid_files)}")
             flash(message, category='warning')
             return jsonify({'status': 'warning', 'message': message})
         else:
             flash('Comentários e imagens adicionados com sucesso!', category='success')
             return jsonify({'status': 'success', 'message': 'Comentários e imagens adicionados com sucesso!'})
+
 
     except Exception as e:
         print(e)
@@ -286,19 +301,19 @@ def edit_daily_record():
             os.makedirs(upload_folder)
 
         uploaded_files = request.files.getlist("images")
-        for file in uploaded_files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(upload_folder, filename)
-                file.save(file_path)
-                relative_path = os.path.join('uploads', 'images', filename)
-                cursor.execute("""
-                    INSERT INTO daily_images (id_daily, image_path)
-                    VALUES (?, ?)
-                """, (record_id, relative_path))
+        
+        invalid_files = insert_files(cursor, record_id, uploaded_files, upload_folder)
 
         conn.commit()
-        return jsonify({'status': 'success', 'message': 'Comentário atualizado com sucesso.'}), 200
+        
+        if invalid_files and len(invalid_files) > 0:
+            message = (f"Comentários atualizados! "
+                       f"Mas os seguintes ficheiros têm tipos inválidos e não foram carregados: "
+                       f"{', '.join(invalid_files)}")
+            flash(message, category='warning')
+            return jsonify({'status': 'warning', 'message': message}), 200
+        else:
+            return jsonify({'status': 'success', 'message': 'Comentários atualizados com sucesso.'}), 200
 
     except Exception as e:
         print(f"Erro ao atualizar comentário: {str(e)}")
@@ -314,7 +329,11 @@ def get_images(daily_id):
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT id, image_path FROM daily_images WHERE id_daily = ?", daily_id)
-        images = [{"id": row.id, "url": url_for('static', filename=row.image_path)} for row in cursor.fetchall()]
+        images = [{
+            "id": row.id,
+            "url": url_for('static', filename=row.image_path.replace("static/", ""))
+        } for row in cursor.fetchall()]
+
         return jsonify({"status": "success", "images": images}), 200
     except Exception as e:
         print(f"Erro ao obter imagens: {str(e)}")

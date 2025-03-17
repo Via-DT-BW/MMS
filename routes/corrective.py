@@ -650,13 +650,11 @@ def mt_profile_page():
                 "username": row.username,
                 "password": row.password,
                 "area": row.area,
-                "email": row.email,
-                "sap_user": row.sap_user,
-                "sap_pass": row.sap_pass,
+                "email": row.email
             }
             
             shift = get_mt_shift(row.n_tecnico)
-
+            
             return render_template('corrective/mt_profile.html',maintenance="Perfil", tecnico=tecnico, shift=shift, turnos=turnos)
         else:
             return render_template('corrective/mt_profile.html',maintenance="Perfil", error="Técnico não encontrado")
