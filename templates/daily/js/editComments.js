@@ -43,10 +43,12 @@ $("#editDailyModal").on("show.bs.modal", function (event) {
       if (data.status === "success") {
         data.images.forEach(function (image) {
           const imageElement = `
-            <div class="image-wrapper" data-image-id="${image.id}">
-              <img src="${image.url}" alt="Imagem associada" class="img-thumbnail" style="max-height: 150px;">
-              <button type="button" class="btn btn-danger btn-sm remove-image-btn"><i class="fa-solid fa-trash"></i></button>
-            </div>`;
+          <div class="image-wrapper" data-image-id="${image.id}">
+            <img src="${image.url}" alt="Imagem associada" style="max-height: 150px;">
+            <button type="button" class="btn btn-danger btn-sm remove-image-btn">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>`;
           imageContainer.append(imageElement);
         });
       }
