@@ -107,7 +107,6 @@ $(document).ready(function () {
             $("#technical-warning").fadeOut();
           }, 6000);
 
-          //Comments
           $("#submitComment").on("click", function () {
             var idCorretiva = $("#corretiva-id").text();
             var tecnicoId = $("#select-tecnico").val();

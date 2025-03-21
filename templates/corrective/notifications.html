@@ -3,7 +3,7 @@ endif %} {% block content %}
 
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
-<div class="container-fluid mt-2">
+<div class="mt-2">
   <div class="card mt-2 mb-2">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Manutenções Pendentes</h5>
@@ -86,7 +86,7 @@ endif %} {% block content %}
       {% if notifications|length == 0 %}
       <p class="text-center">Sem Pedidos de Manutenção Pendentes</p>
       {% else %}
-      <table class="table table-striped">
+      <table id="notifications" class="table table-striped">
         <thead>
           <tr>
             <th>ID</th>
@@ -111,7 +111,7 @@ endif %} {% block content %}
               {{ notification.data_pedido }}
             </td>
             <td data-label="Equipamento">{{ notification.equipament }}</td>
-            <td data-label="Parou Prod?">
+            <td class="parou" data-label="Parou Prod?">
               {{ notification.stopped_production }}
             </td>
             <td>
@@ -175,6 +175,30 @@ endif %} {% block content %}
 "corrective/components/commentsModal.html" %}
 
 <script>
+  function addPriorityBadge(cell) {
+    if (cell.classList.contains("parou") && cell.textContent.trim().toLowerCase() === "sim") {
+      const badge = document.createElement("span");
+      badge.classList.add("badge", "bg-danger", "p-1", "ml-1");
+      badge.style.width = "1.9rem";
+      badge.style.height = "1.9rem";
+
+      const icon = document.createElement("i");
+      icon.classList.add("fa-solid", "fa-triangle-exclamation");
+      icon.style.fontSize = "1.3rem";
+      icon.style.color = "white";
+
+      badge.appendChild(icon);
+      cell.appendChild(badge);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const parouCells = document.querySelectorAll(".parou");
+    parouCells.forEach((cell) => {
+      addPriorityBadge(cell);
+    });
+  });
+
   {% include "corrective/js/openModal.js" %}
   {% include "corrective/js/loadLines.js" %}
   {% include "utils/javascript/collapse_filters.js" %}

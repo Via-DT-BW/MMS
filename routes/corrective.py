@@ -262,8 +262,12 @@ def corrective_order_by_mt():
             )
             conn.commit()
 
-            flash('Notificação enviada com sucesso', category='success')
-            return redirect(url_for('corrective.inwork'))
+            if planned_date:
+                flash('Manutenção Planeada com sucesso', category='success')
+                return redirect(url_for('corrective.notifications'))
+            else:
+                flash('Manutenção Em Curso!', category='success')
+                return redirect(url_for('corrective.inwork'))
         except Exception as e:
           print(e)
           flash(f'Ocorreu um erro: {str(e)}', category='error')
