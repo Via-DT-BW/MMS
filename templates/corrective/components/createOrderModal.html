@@ -104,6 +104,19 @@
               </div>
             </div>
           </div>
+          <div class="row" id="data-planeada-container" style="display: none">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="control-label">Selecione a Data</label>
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  name="data_planeada"
+                  id="data-planeada" />
+              </div>
+            </div>
+          </div>
+
           <br />
           <div class="form-group">
             <button type="submit" class="btn btn-primary" id="order-button">
@@ -120,3 +133,21 @@
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tipoManutencao = document.querySelector(
+      'select[name="tipo_manutencao"]'
+    );
+    const dataPlaneadaContainer = document.getElementById(
+      "data-planeada-container"
+    );
+
+    tipoManutencao.addEventListener("change", function () {
+      if (this.value === "Planeada") {
+        dataPlaneadaContainer.style.display = "block";
+      } else {
+        dataPlaneadaContainer.style.display = "none";
+      }
+    });
+  });
+</script>

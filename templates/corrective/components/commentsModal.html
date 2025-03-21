@@ -12,7 +12,7 @@
         <button
           type="button"
           class="close"
-          data-dismiss="modal"
+          data-bs-dismiss="modal"
           aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -127,7 +127,19 @@
                 </div>
               </div>
             </div>
-
+            <div class="row mt-2">
+              <div class="form-group col-md-12">
+                <label for="images"
+                  >Selecione Imagens (.png, .jpg, .jpeg, .gif)</label
+                >
+                <input
+                  type="file"
+                  class="form-control-file"
+                  id="images"
+                  name="images"
+                  multiple />
+              </div>
+            </div>
             <div class="form-group">
               <label for="comment"
                 ><strong>Descrição da Atividade:</strong></label
@@ -171,7 +183,7 @@
           <i class="fa-solid fa-check mr-1"></i>
           Finalizar Manutenção
         </button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Fechar
         </button>
       </div>

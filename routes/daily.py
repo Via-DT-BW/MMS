@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 from flask import Blueprint, json, jsonify, request, current_app, session, redirect, url_for, flash, render_template
 import pyodbc
@@ -6,12 +7,9 @@ from datetime import datetime, timedelta
 import pyodbc
 from werkzeug.utils import secure_filename
 from utils.call_conn import conexao_mms
+from utils.allowed import allowed_file
 
 daily_sec = Blueprint("daily", __name__, static_folder="static", static_url_path='/Main/static', template_folder="templates")
-
-def allowed_file(filename):
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def empty_to_none(value):
     return None if value == "" else value
@@ -36,6 +34,20 @@ def insert_files(cursor, daily_id, uploaded_files, upload_folder):
         else:
             invalid_files.append(file.filename)
     return invalid_files
+
+def clean_comment(text):
+    print(text)
+    if text is None:
+        return None
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    
+    text = re.sub(r'[ \t]{2,}', ' ', text)
+    
+    text = re.sub(r'\n{2,}', '\n', text)
+    
+    text = "\n".join(line.strip() for line in text.splitlines())
+    print(text)
+    return text.strip()
 
 @daily_sec.route('/daily', methods=['GET'])
 def daily():
@@ -181,7 +193,7 @@ def tl_profile():
                 "card_number": row.card_number
             }
                    
-            return render_template('daily/profile.html', maintenance="Perfil", tl=tl)
+            return render_template('daily/profile.html', maintenance="Perfil", tl=tl, username=session.get('username'))
         else:
             return render_template('daily/profile.html', maintenance="Perfil", error="Team Leader não encontrado")
     except Exception as e:
@@ -223,10 +235,10 @@ def add_daily_record():
         return jsonify({'status': 'error', 'message': 'Usuário não autenticado!'}), 403
 
     try:
-        safety_comment = request.form.get('safety_comment')
-        quality_comment = request.form.get('quality_comment')
-        volume_comment = request.form.get('volume_comment')
-        people_comment = request.form.get('people_comment')
+        safety_comment = clean_comment(request.form.get('safety_comment'))
+        quality_comment = clean_comment(request.form.get('quality_comment'))
+        volume_comment = clean_comment(request.form.get('volume_comment'))
+        people_comment = clean_comment(request.form.get('people_comment'))
 
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
@@ -258,7 +270,6 @@ def add_daily_record():
             flash('Comentários e imagens adicionados com sucesso!', category='success')
             return jsonify({'status': 'success', 'message': 'Comentários e imagens adicionados com sucesso!'})
 
-
     except Exception as e:
         print(e)
         flash('Erro ao adicionar os comentários.', category='error')
@@ -279,10 +290,10 @@ def edit_daily_record():
 
     try:
         record_id = request.form.get('id')
-        safety_comment = request.form.get('safety_comment')
-        quality_comment = request.form.get('quality_comment')
-        volume_comment = request.form.get('volume_comment')
-        people_comment = request.form.get('people_comment')
+        safety_comment = clean_comment(request.form.get('safety_comment'))
+        quality_comment = clean_comment(request.form.get('quality_comment'))
+        volume_comment = clean_comment(request.form.get('volume_comment'))
+        people_comment = clean_comment(request.form.get('people_comment'))
         removed_images = json.loads(request.form.get('removed_images', '[]'))
 
         cursor.execute("""

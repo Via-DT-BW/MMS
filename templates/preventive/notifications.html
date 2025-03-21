@@ -218,7 +218,15 @@
         $('#modalContent').html('Carregando...');
       },
       success: function(response) {
-        $('#gamasModalLabel').text('Gamas do Equipamento - ' + equipment);
+        $('#gamasModalLabel').text('Lista de Tarefas do Equipamento - ' + equipment);
+
+        var pdfButton = `
+          <button type="button" class="btn btn-outline-danger" onclick="redirectToPdf('${equipment}')">
+            <i class="fa-solid fa-file-pdf"></i>
+          </button>
+        `;
+        $('#pdfButtonContainer').html(pdfButton);
+
         let html = '';
 
         if (response.length > 0) {
@@ -260,6 +268,13 @@
       }
     });
   }
+
+  function redirectToPdf(equipment) {
+    var baseUrl = 'https://borgwarner.sharepoint.com/sites/5001238/MaintenanceT3Viana/Machine%20Documents/';
+    var pdfUrl = baseUrl + encodeURIComponent(equipment);
+    window.open(pdfUrl, '_blank');
+  }
+
 
   function editSelectedGamas(currentEquipment) {
     let selectedIds = [];

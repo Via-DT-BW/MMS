@@ -321,4 +321,15 @@ $(document).ready(function () {
       });
     });
   });
+
+  loadLines();
+  let selectedProdLine = $('select[name="filter_prod_line"]').val();
+  if (selectedProdLine) {
+    loadEquipments(selectedProdLine);
+  }
+
+  $('select[name="filter_prod_line"]').on("change", function () {
+    let prodLine = $(this).val();
+    loadEquipments(prodLine);
+  });
 });
