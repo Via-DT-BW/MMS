@@ -7,9 +7,7 @@
   table tr {
     display: flex;
     flex-direction: column;
-    border: 1px solid #dee2e6;
-    margin-bottom: 10px;
-    padding: 10px;
+    margin-bottom: 1.3rem;
     border-radius: 8px;
     background: #fff;
   }
@@ -31,6 +29,16 @@
     flex: 1;
     text-align: left;
     padding-right: 10px;
+  }
+
+  .separator-row {
+    display: none;
+  }
+
+  .action-buttons {
+    display: block !important;
+    margin-right: 0.2rem;
+    justify-content: center !important;
   }
 }
 

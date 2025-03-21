@@ -1,7 +1,7 @@
 {% extends 'corrective/corrective.html' %} {% block content %}
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
-<div class="container-fluid mt-2">
+<div class="mt-2">
   <div class="card mt-2 mb-2">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Manutenções Finalizadas</h5>
@@ -145,7 +145,7 @@
               </button>
             </td>
           </tr>
-          <tr></tr>
+          <tr class="separator-row"></tr>
           <tr
             id="comments-{{ fini.id_corretiva }}"
             class="comment-row"

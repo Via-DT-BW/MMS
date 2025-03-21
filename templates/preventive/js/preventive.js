@@ -22,8 +22,6 @@ function updateRowColors() {
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
-  console.log("Data de hoje (UTC):", today);
-
   const rows = table.querySelectorAll("tbody tr");
   rows.forEach((row) => {
     const dateCells = row.querySelectorAll(".data");
