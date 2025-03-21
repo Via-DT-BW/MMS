@@ -76,6 +76,7 @@ $(document).ready(function () {
       var idCorretiva = $("#corretiva-id").text();
       var tipoAvariaId = $("#select-avaria").val();
       var parouProducao = $("#select-stop").val();
+      var tecnicoId = $("#select-tecnico").val();
 
       var elegivelSistemica = $("#elegivelSistemica").is(":checked")
         ? "Sim"
@@ -101,6 +102,20 @@ $(document).ready(function () {
         return;
       }
 
+      var formData = new FormData();
+      formData.append("id_corretiva", idCorretiva);
+      formData.append("id_tecnico", tecnicoLogadoId);
+      formData.append("comment", maintenanceComment);
+      formData.append("id_tipo_avaria", tipoAvariaId);
+      formData.append("stopped_prod", parouProducao);
+      formData.append("elegivel_sistemica", elegivelSistemica);
+      formData.append("definida_acao", definidaAcao);
+
+      var files = $("#images")[0].files;
+      for (var i = 0; i < files.length; i++) {
+        formData.append("images[]", files[i]);
+      }
+
       $.ajax({
         type: "GET",
         url: "/api/check_all_interventions_completed",
@@ -110,15 +125,9 @@ $(document).ready(function () {
             $.ajax({
               type: "POST",
               url: "/finish_maintenance",
-              data: {
-                id_corretiva: idCorretiva,
-                id: tecnicoLogadoId,
-                maintenance_comment: maintenanceComment,
-                id_tipo_avaria: tipoAvariaId,
-                parou_producao: parouProducao,
-                elegivel_sistemica: elegivelSistemica,
-                definida_acao: definidaAcao,
-              },
+              data: formData,
+              contentType: false,
+              processData: false,
               success: function (response) {
                 if (response.status === "success") {
                   alert("Manutenção finalizada com sucesso!");
@@ -182,18 +191,26 @@ $(document).ready(function () {
       return;
     }
 
+    var formData = new FormData();
+    formData.append("id_corretiva", idCorretiva);
+    formData.append("id_tecnico", tecnicoId);
+    formData.append("comment", comentario);
+    formData.append("id_tipo_avaria", tipoAvariaId);
+    formData.append("stopped_prod", parou);
+    formData.append("elegivel_sistemica", elegivelSistemica);
+    formData.append("definida_acao", definidaAcao);
+
+    var files = $("#images")[0].files;
+    for (var i = 0; i < files.length; i++) {
+      formData.append("images[]", files[i]);
+    }
+
     $.ajax({
       type: "POST",
       url: "/api/update_comment",
-      data: {
-        id_corretiva: idCorretiva,
-        id_tecnico: tecnicoId,
-        comment: comentario,
-        id_tipo_avaria: tipoAvariaId,
-        stopped_prod: parou,
-        elegivel_sistemica: elegivelSistemica,
-        definida_acao: definidaAcao,
-      },
+      data: formData,
+      contentType: false,
+      processData: false,
       success: function (response) {
         if (response.status === "success") {
           $("#commentsModal").modal("hide");

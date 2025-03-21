@@ -1,12 +1,15 @@
 import os
 import re
 import unicodedata
-from flask import Blueprint, jsonify, request, session, redirect, url_for, flash, render_template
+import uuid
+from flask import Blueprint, current_app, jsonify, request, session, redirect, url_for, flash, render_template
 import pyodbc
 from datetime import date, datetime
 import time
 import pyodbc
-from utils.call_conn import conexao_mms, conexao_sms
+from utils.allowed import allowed_file
+from utils.call_conn import conexao_mms, conexao_sms, conexao_capture
+from werkzeug.utils import secure_filename
 
 today = date.today()
 year = today.strftime("%Y")
@@ -19,6 +22,26 @@ def sanitize_text(text):
     text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
     text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text
+
+def insert_files(cursor, ct_id, uploaded_files, upload_folder):
+    invalid_files = []
+    for file in uploaded_files:
+        if file.filename == '':
+            continue
+        if allowed_file(file.filename):
+            ext = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
+            unique_filename = secure_filename(unique_filename)
+            file_path = os.path.join(upload_folder, unique_filename)
+            file.save(file_path)
+            relative_path = os.path.join('static', 'uploads', 'images', unique_filename)
+            cursor.execute("""
+                INSERT INTO tecnicos_images (id_ct, image_path)
+                VALUES (?, ?)
+            """, (ct_id, relative_path))
+        else:
+            invalid_files.append(file.filename)
+    return invalid_files
 
 corrective = Blueprint("corrective", __name__, static_folder="static", static_url_path='/Main/static', template_folder="templates")
 @corrective.route('/logout')
@@ -218,18 +241,24 @@ def corrective_order_by_mt():
         var_numero_tecnico = request.form.get('var_numero_tecnico')
         paragem_producao = request.form.get('paragem_producao')
         tipo_manutencao = request.form.get('tipo_manutencao')
-
+        planned_date = request.form.get('data_planeada')
+        
+        if planned_date:
+            planned_date = datetime.strptime(planned_date, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            planned_date = None
         try:
             conn = pyodbc.connect(conexao_mms)
             cursor = conn.cursor()
 
             create_order_by_mt = """
                 Exec dbo.create_order_by_mt 
-                @descricao=?, @equipamento=?, @paragem=?, @prod_line=?, @id_tecnico=?, @tipo_man = ?
+                @descricao=?, @equipamento=?, @paragem=?, @prod_line=?, @id_tecnico=?, @tipo_man = ?, @select_date = ?
             """
             cursor.execute(
                 create_order_by_mt,
-                var_descricao, equipament_var, paragem_producao, prod_line, var_numero_tecnico, tipo_manutencao
+                var_descricao, equipament_var, paragem_producao, prod_line, 
+                var_numero_tecnico, tipo_manutencao, planned_date
             )
             conn.commit()
 
@@ -411,9 +440,9 @@ def inwork():
 
 @corrective.route('/finish_maintenance', methods=['POST'])
 def finish_maintenance():
-    id = request.form.get('id')
+    id = request.form.get('id_tecnico')
     id_corretiva = request.form.get('id_corretiva')
-    maintenance_comment = request.form.get('maintenance_comment')
+    maintenance_comment = request.form.get('comment')
     id_tipo_avaria = request.form.get('id_tipo_avaria')
     elegivel = request.form.get('elegivel_sistemica')
     definida = request.form.get('definida_acao') 
@@ -429,6 +458,17 @@ def finish_maintenance():
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id FROM corretiva_tecnicos
+            WHERE id_corretiva = ? AND id_tecnico = ? and data_fim IS NULL
+        ''', (id_corretiva, id))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({'error': 'Registo nao encontrado para finalizar manutencao'}), 404
+        else:
+            id_ct = row.id
 
         cursor.execute('''
             UPDATE corretiva_tecnicos
@@ -437,9 +477,17 @@ def finish_maintenance():
                 id_tipo_avaria = ?,
                 elegivel_sistemica = ?, 
                 definida_acao = ?
-            WHERE id_tecnico = ? AND id_corretiva = ? AND data_fim IS NULL
-        ''', (maintenance_comment, data_atual, id_tipo_avaria, elegivel_bit, definida_bit, id, id_corretiva))
+            WHERE id = ?
+        ''', (maintenance_comment, data_atual, id_tipo_avaria, elegivel_bit, definida_bit, id_ct))
 
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'images')
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+        
+        invalid_files = []
+        files = request.files.getlist("images[]")
+        invalid_files = insert_files(cursor, id_ct, files, upload_folder)
+        
         cursor.execute('''
             UPDATE corretiva
             SET data_fim_man = ?, id_estado = ?
@@ -467,9 +515,17 @@ def finish_maintenance():
         cursor.close()
         conn.close()
         
-        flash('Manutenção concluída!', category='success')
-        logout()
-        return jsonify({'status': 'success', 'message': 'Manutenção concluída!'})
+        if invalid_files and len(invalid_files) > 0:
+            message = (f"Manutenção Concluída!"
+                       f"No entanto, os seguintes ficheiros têm tipos inválidos e não foram carregados: "
+                       f"{', '.join(invalid_files)}")
+            flash(message, category='warning')
+            logout()
+            return jsonify({'status': 'warning', 'message': message})
+        else:
+            flash('Manutenção finalizada e imagens adicionadas com sucesso!', category='success')
+            logout()
+            return jsonify({'status': 'success', 'message': 'Manutenção concluída!'})
 
     except Exception as e:
         if 'conn' in locals():
@@ -484,15 +540,14 @@ def finished():
     try:
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
-        
-        mt_id = session.get('id_mt')
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 10, type=int)
-        filter_equipment = request.args.get('filter', '', type=str)
+        filter_equipment = request.args.get('filter_equipment', '', type=str)
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
+        print(filter_equipment)
         
         cursor.execute("""
             EXEC GetCorretivaFinished
@@ -746,4 +801,107 @@ def update_shift(n_tecnico, turno):
     except pyodbc.Error as e:
         print(e)
         return {"success": False, "message": f"Erro ao atualizar turno: {e}"}
+
+@corrective.route('/get_equipments', methods=['GET'])
+def get_equipments():
+    try:
+        prod_line = request.args.get('prod_line', '')
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+        if prod_line:
+            query = "SELECT [id], [Equipment] FROM [Capture].[dbo].[EquipamentSAP] WHERE [ProdLine] LIKE ?"
+            cursor.execute(query, prod_line + '%')
+            results = cursor.fetchall()
+
+            if not results and '-' in prod_line:
+                new_prod_line = prod_line.split('-')[0]
+                cursor.execute(query, new_prod_line)
+                results = cursor.fetchall()
+
+        equipamentos = [{"id": row.id, "Equipment": row.Equipment} for row in results]
+        return jsonify(equipamentos)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@corrective.route('/api/update_comment', methods=['POST'])
+def update_comment():
+    id_corretiva = request.form.get('id_corretiva')
+    id_tecnico = request.form.get('id_tecnico')
+    comment = request.form.get('comment')
+    id_tipo_avaria = request.form.get('id_tipo_avaria')
+    parou = request.form.get('stopped_prod')
+    elegivel = request.form.get('elegivel_sistemica')
+    definida = request.form.get('definida_acao') 
+    
+    elegivel_bit = 1 if elegivel == "Sim" else 0
+    definida_bit = 1 if definida == "Sim" else 0
+
+    if not id_corretiva or not id_tecnico or not comment:
+        return jsonify({'error': 'Parâmetros insuficientes'}), 400
+
+    try:
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT id FROM corretiva_tecnicos
+            WHERE id_corretiva = ? AND id_tecnico = ? and data_fim IS NULL
+        ''', (id_corretiva, id_tecnico))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({'error': 'Registo nao encontrado para atualizacao'}), 404
+        else:
+            id_ct = row.id
+        
+        cursor.execute('''
+            UPDATE corretiva_tecnicos
+            SET maintenance_comment = ?, 
+                id_tipo_avaria = ?, 
+                data_fim = GETDATE(),
+                elegivel_sistemica = ?, 
+                definida_acao = ?
+            WHERE id = ?
+        ''', (comment, id_tipo_avaria, elegivel_bit, definida_bit, id_ct))
+
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'images')
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
+        invalid_files = []
+        files = request.files.getlist("images[]")
+        invalid_files = insert_files(cursor, id_ct, files, upload_folder)
+        
+        cursor.execute('''
+            UPDATE corretiva
+            SET stopped_production = ?
+            WHERE id = ?
+        ''', (parou, id_corretiva))
+        
+        if cursor.rowcount == 0:
+            flash('Registo não encontrado para atualização', category='error')
+            return jsonify({'status': 'error', 'message': 'Registo não encontrado para atualização!'}), 404
+
+        conn.commit()
+        if invalid_files and len(invalid_files) > 0:
+            message = (f"Intervenção Concluída!"
+                       f"No entanto, os seguintes ficheiros têm tipos inválidos e não foram carregados: "
+                       f"{', '.join(invalid_files)}")
+            flash(message, category='warning')
+            return jsonify({'status': 'warning', 'message': message})
+        else:
+            flash('Intervenção terminada e imagens adicionadas com sucesso!', category='success')
+            return jsonify({'status': 'success', 'message': 'Comentários e imagens adicionados com sucesso!'})
+    except Exception as e:
+        print(e)
+        flash('Erro ao fazer o comentário!', category='error')
+        return jsonify({'status': 'error', 'message': 'Erro ao fazer o comentário!'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
 

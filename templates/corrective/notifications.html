@@ -1,159 +1,171 @@
 {% if use_corrective_layout %} {% extends 'corrective/corrective.html' %} {%
 endif %} {% block content %}
+
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
-<div class="card mt-4 mb-4">
-  <div class="card-header">
-    <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Manutenções Pendentes</h5>
+<div class="container-fluid mt-2">
+  <div class="card mt-2 mb-2">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Manutenções Pendentes</h5>
+      <button
+        id="filterToggleBtn"
+        class="btn btn-outline-danger"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#filterCollapse"
+        aria-expanded="true"
+        aria-controls="filterCollapse">
+        <i id="filterIcon" class="fa-solid fa-filter-circle-xmark"></i>
+      </button>
     </div>
+    <div id="filterCollapse" class="collapse show">
+      <form
+        method="GET"
+        action="/notifications"
+        class="form-row justify-content-center">
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Linha de Produção</small>
+          <select name="filter_prod_line" class="form-control">
+            <option value="">Selecione a linha</option>
+          </select>
+        </div>
 
-    <form
-      method="GET"
-      action="/notifications"
-      class="form-row justify-content-center">
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Linha de Produção</small>
-        <select name="filter_prod_line" class="form-control">
-          <option value="">Selecione a linha</option>
-        </select>
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Número do Técnico</small>
+          <input
+            type="text"
+            name="filter_number"
+            class="form-control"
+            placeholder="Número do Técnico"
+            value="{{ request.args.get('filter_number', '') }}" />
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Número do Técnico</small>
-        <input
-          type="text"
-          name="filter_number"
-          class="form-control"
-          placeholder="Número do Técnico"
-          value="{{ request.args.get('filter_number', '') }}" />
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Por página</small>
+          <input
+            type="number"
+            name="page_size"
+            class="form-control"
+            value="{{ request.args.get('page_size', 10) }}"
+            min="1"
+            max="100"
+            placeholder="Itens por página" />
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Por página</small>
-        <input
-          type="number"
-          name="page_size"
-          class="form-control"
-          value="{{ request.args.get('page_size', 10) }}"
-          min="1"
-          max="100"
-          placeholder="Itens por página" />
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Data inicial</small>
+          <input
+            type="date"
+            name="start_date"
+            class="form-control"
+            value="{{ request.args.get('start_date', '') }}" />
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Data inicial</small>
-        <input
-          type="date"
-          name="start_date"
-          class="form-control"
-          value="{{ request.args.get('start_date', '') }}" />
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Data final</small>
+          <input
+            type="date"
+            name="end_date"
+            class="form-control"
+            value="{{ request.args.get('end_date', '') }}" />
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Data final</small>
-        <input
-          type="date"
-          name="end_date"
-          class="form-control"
-          value="{{ request.args.get('end_date', '') }}" />
-      </div>
-
-      <div class="form-group col-12 text-center mt-3">
-        <button type="submit" class="btn btn-primary mr-2">
-          <i class="fas fa-filter"></i> Filtrar
-        </button>
-        <a href="/notifications" class="btn btn-danger">Limpar</a>
-      </div>
-    </form>
+        <div
+          class="form-group col-md-3 d-flex align-items-end justify-content-center">
+          <button type="submit" class="btn btn-primary mr-2">
+            <i class="fas fa-filter"></i> Filtrar
+          </button>
+          <a href="/notifications" class="btn btn-danger">Limpar</a>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <div class="card-body table-responsive">
-    {% if notifications|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção Pendentes</p>
-    {% else %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Linha de Produção</th>
-          <th>Número do Operador</th>
-          <th>Descrição</th>
-          <th>Data de Criação</th>
-          <th>Equipamento</th>
-          <th>Parou Produção?</th>
-          <th>Estado SAP</th>
-          <th>SMS</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for notification in notifications %}
-        <tr>
-          <td>{{ notification.id }}</td>
-          <td>{{ notification.prod_line }}</td>
-          <td>{{ notification.n_operador }}</td>
-          <td>{{ notification.description }}</td>
-          <td class="data">{{ notification.data_pedido }}</td>
-          <td>{{ notification.equipament }}</td>
-          <td>{{ notification.stopped_production }}</td>
-          <td>
-            {% if notification.sap_order %} {{ notification.sap_order }} {% else
-            %}
-            <span class="text-muted">Aguarda criação</span>
-            {% endif %}
-          </td>
-          <td>
-            {% if notification.SMSState == '1' %} Enviado {% else %} Por Enviar
-            {% endif %}
-          </td>
-          <td>
-            <button
-              class="btn btn-info btn-md"
-              data-toggle="modal"
-              data-target="#detailsModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-equipament="{{ notification.equipament }}"
-              data-functional-location="{{ notification.functional_location }}"
-              data-sap-state="{{ notification.SAPState }}"
-              data-sms-state="{{ notification.SMSState }}"
-              data-sms-date="{{ notification.sms_date }}"
-              data-main-workcenter="{{ notification.main_workcenter }}">
-              <i class="fas fa-eye"></i>
-            </button>
-            {% if session['username'] %}
-            <button
-              class="btn btn-success btn-md check-association"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-prod-line="{{ notification.prod_line }}"
-              data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}"
-              data-id-tecnico="{{ session['id_mt'] }}">
-              <i class="fa-solid fa-play"></i>
-            </button>
+  <div class="card">
+    <div class="card-body table-responsive">
+      {% if notifications|length == 0 %}
+      <p class="text-center">Sem Pedidos de Manutenção Pendentes</p>
+      {% else %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Linha de Produção</th>
+            <th>Número do Operador</th>
+            <th>Descrição</th>
+            <th>Data de Criação</th>
+            <th>Equipamento</th>
+            <th>Parou Produção?</th>
+            <th>SMS</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for notification in notifications %}
+          <tr>
+            <td data-label="ID">{{ notification.id }}</td>
+            <td data-label="Linha">{{ notification.prod_line }}</td>
+            <td data-label="Operador">{{ notification.n_operador }}</td>
+            <td data-label="Descrição">{{ notification.description }}</td>
+            <td class="data" data-label="Data Pedido">
+              {{ notification.data_pedido }}
+            </td>
+            <td data-label="Equipamento">{{ notification.equipament }}</td>
+            <td data-label="Parou Prod?">
+              {{ notification.stopped_production }}
+            </td>
+            <td>
+              {% if notification.SMSState == '1' %} Enviado {% else %} Por
+              Enviar {% endif %}
+            </td>
+            <td data-label="Ações">
+              <button
+                class="btn btn-info btn-md mr-1"
+                data-bs-toggle="modal"
+                data-bs-target="#detailsModal"
+                data-id="{{ notification.id }}"
+                data-description="{{ notification.description }}"
+                data-equipament="{{ notification.equipament }}"
+                data-functional-location="{{ notification.functional_location }}"
+                data-sap-state="{{ notification.SAPState }}"
+                data-sms-state="{{ notification.SMSState }}"
+                data-sms-date="{{ notification.sms_date }}"
+                data-main-workcenter="{{ notification.main_workcenter }}">
+                <i class="fas fa-eye"></i>
+              </button>
+              {% if session['username'] %}
+              <button
+                class="btn btn-success btn-md check-association mr-1"
+                data-id="{{ notification.id }}"
+                data-description="{{ notification.description }}"
+                data-prod-line="{{ notification.prod_line }}"
+                data-equipament="{{ notification.equipament }}"
+                data-pedido-date="{{ notification.data_pedido }}"
+                data-id-tecnico="{{ session['id_mt'] }}">
+                <i class="fa-solid fa-play"></i>
+              </button>
 
-            <button
-              class="btn btn-danger btn-md"
-              data-toggle="modal"
-              data-target="#rejectModal"
-              data-id="{{ notification.id }}"
-              data-description="{{ notification.description }}"
-              data-prod-line="{{ notification.prod_line }}"
-              data-equipament="{{ notification.equipament }}"
-              data-pedido-date="{{ notification.data_pedido }}"
-              data-id-mt="{{ session['id_mt'] }}"
-              data-nome-mt="{{ session['nome'] }}">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include "components/pagination.html" %} {% endif %}
+              <button
+                class="btn btn-danger btn-md"
+                data-bs-toggle="modal"
+                data-bs-target="#rejectModal"
+                data-id="{{ notification.id }}"
+                data-description="{{ notification.description }}"
+                data-prod-line="{{ notification.prod_line }}"
+                data-equipament="{{ notification.equipament }}"
+                data-pedido-date="{{ notification.data_pedido }}"
+                data-id-mt="{{ session['id_mt'] }}"
+                data-nome-mt="{{ session['nome'] }}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "components/pagination.html" %} {% endif %}
+    </div>
   </div>
 </div>
 
@@ -165,6 +177,7 @@ endif %} {% block content %}
 <script>
   {% include "corrective/js/openModal.js" %}
   {% include "corrective/js/loadLines.js" %}
+  {% include "utils/javascript/collapse_filters.js" %}
 </script>
 
 {% endblock %}

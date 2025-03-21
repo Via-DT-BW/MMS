@@ -1,161 +1,177 @@
 {% extends 'corrective/corrective.html' %} {% block content %}
 <div class="col-md-12">{% include "messages/messages.html" %}</div>
 
-<div class="card mt-4 mb-4">
-  <div class="card-header">
-    <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Manutenções Finalizadas</h5>
+<div class="container-fluid mt-2">
+  <div class="card mt-2 mb-2">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Manutenções Finalizadas</h5>
+      <button
+        id="filterToggleBtn"
+        class="btn btn-outline-danger"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#filterCollapse"
+        aria-expanded="true"
+        aria-controls="filterCollapse">
+        <i id="filterIcon" class="fa-solid fa-filter-circle-xmark"></i>
+      </button>
     </div>
+    <div id="filterCollapse" class="collapse show">
+      <form
+        method="GET"
+        action="/finished"
+        class="form-row justify-content-center">
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted"
+            >Filtrar por linha de produção</small
+          >
+          <select name="filter_prod_line" class="form-control">
+            <option value="">Selecione a linha</option>
+          </select>
+        </div>
 
-    <form
-      method="GET"
-      action="/finished"
-      class="form-row justify-content-center">
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted"
-          >Filtrar por linha de produção</small
-        >
-        <select name="filter_prod_line" class="form-control">
-          <option value="">Selecione a linha</option>
-        </select>
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Equipamento da Linha</small>
+          <select
+            name="filter_equipment"
+            id="filter_equipment"
+            class="form-control">
+            <option value="">Selecione o equipamento</option>
+          </select>
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Data inicial</small>
-        <input
-          type="date"
-          name="start_date"
-          class="form-control"
-          value="{{ request.args.get('start_date', '') }}" />
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Data inicial</small>
+          <input
+            type="date"
+            name="start_date"
+            class="form-control"
+            value="{{ request.args.get('start_date', '') }}" />
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Data final</small>
-        <input
-          type="date"
-          name="end_date"
-          class="form-control"
-          value="{{ request.args.get('end_date', '') }}" />
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Data final</small>
+          <input
+            type="date"
+            name="end_date"
+            class="form-control"
+            value="{{ request.args.get('end_date', '') }}" />
+        </div>
 
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Itens por página</small>
-        <input
-          type="number"
-          name="page_size"
-          class="form-control"
-          value="{{ request.args.get('page_size', 10) }}"
-          min="1"
-          max="100"
-          placeholder="Itens por página" />
-      </div>
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Itens por página</small>
+          <input
+            type="number"
+            name="page_size"
+            class="form-control"
+            value="{{ request.args.get('page_size', 10) }}"
+            min="1"
+            max="100"
+            placeholder="Itens por página" />
+        </div>
 
-      <div
-        class="form-group col-md-3 col-sm-6 col-12 d-flex align-items-end justify-content-center">
-        <button type="submit" class="btn btn-primary mr-2">
-          <i class="fas fa-filter"></i> Filtrar
-        </button>
-        <a href="/finished" class="btn btn-danger">Limpar</a>
-      </div>
-    </form>
+        <div
+          class="form-group col-md-3 d-flex align-items-end justify-content-center">
+          <button type="submit" class="btn btn-primary mr-2">
+            <i class="fas fa-filter"></i> Filtrar
+          </button>
+          <a href="/finished" class="btn btn-danger">Limpar</a>
+        </div>
+      </form>
+    </div>
   </div>
+  <div class="card">
+    <div class="card-body table-responsive">
+      {% if finished|length == 0 %}
+      <p class="text-center">Sem Pedidos de Manutenção Concluídos</p>
+      {% else %}
+      <table class="table" id="finished">
+        <thead>
+          <tr>
+            <th>ID Corretiva</th>
+            <th>Linha de Produção</th>
+            <th>Nº do Operador</th>
+            <th>Descrição</th>
+            <th>Tempo de Manutenção (min)</th>
+            <th>Equipamento</th>
+            <th>Parou Produção?</th>
+            <th>Estado SAP</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fini in finished %}
+          <tr style="cursor: pointer" class="striped-row">
+            <td data-label="ID">{{ fini.id_corretiva }}</td>
+            <td data-label="Linha">{{ fini.prod_line }}</td>
+            <td data-label="Operador">{{ fini.n_operador }}</td>
+            <td data-label="Descrição">{{ fini.description }}</td>
+            <td data-label="Tempo Man.">
+              {% if fini.tempo_manutencao >= 0 %} {{ fini.tempo_manutencao }} {%
+              else %}
+              <span class="text-muted">Sem tempo definido</span>
+              {% endif %}
+            </td>
+            <td data-label="Equipamento">{{ fini.equipament }}</td>
+            <td data-label="Parou Prod?">{{ fini.stopped_production }}</td>
+            <td data-label="Ordem SAP">
+              {% if fini.sap_order %} {{ fini.sap_order }} {% else %}
+              <span class="text-muted">Aguarda criação</span>
+              {% endif %}
+            </td>
+            <td data-label="Ações">
+              <button
+                class="btn btn-info btn-md open-modal mr-1"
+                data-bs-toggle="modal"
+                data-bs-target="#detailsModal"
+                data-id="{{ fini.id_corretiva }}"
+                data-description="{{ fini.description }}"
+                data-equipament="{{ fini.equipament }}"
+                data-functional-location="{{ fini.functional_location }}"
+                data-sap-state="{{ fini.SAPState }}"
+                data-sms-state="{{ fini.SMSState }}"
+                data-sms-date="{{ fini.sms_date }}"
+                data-tempo-man="{{ fini.tempo_manutencao }}"
+                data-main-workcenter="{{ fini.main_workcenter }}"
+                data-inicio-man="{{ fini.data_inicio_man }}"
+                data-fim-man="{{ fini.data_fim_man }}"
+                data-comment="{{ fini.maintenance_comment }}">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button
+                class="btn btn-warning btn-md"
+                onclick="toggleComments({{ fini.id_corretiva }})">
+                <i class="fa-regular fa-rectangle-list"></i>
+              </button>
+            </td>
+          </tr>
+          <tr></tr>
+          <tr
+            id="comments-{{ fini.id_corretiva }}"
+            class="comment-row"
+            style="display: none">
+            <td colspan="10" class="bg-light">
+              <table class="table table-striped mt-3">
+                <thead>
+                  <tr style="background-color: white">
+                    <th>Técnico</th>
+                    <th>Comentário</th>
+                    <th>Tipo de Avaria</th>
+                    <th>Duração (minutos)</th>
+                    <th>Data Início</th>
+                    <th>Data Fim</th>
+                  </tr>
+                </thead>
+                <tbody class="comments-table-body"></tbody>
+              </table>
+            </td>
+          </tr>
 
-  <div class="card-body table-responsive">
-    {% if finished|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção Concluídos</p>
-    {% else %}
-    <table class="table" id="finished">
-      <thead>
-        <tr>
-          <th>ID Corretiva</th>
-          <th>Linha de Produção</th>
-          <th>Nº do Operador</th>
-          <th>Descrição</th>
-          <th>Tempo de Manutenção (min)</th>
-          <th>Equipamento</th>
-          <th>Parou Produção?</th>
-          <th>Estado SAP</th>
-          <th>SMS</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for fini in finished %}
-        <tr style="cursor: pointer" class="striped-row">
-          <td>{{ fini.id_corretiva }}</td>
-          <td>{{ fini.prod_line }}</td>
-          <td>{{ fini.n_operador }}</td>
-          <td>{{ fini.description }}</td>
-          <td>
-            {% if fini.tempo_manutencao >= 0 %} {{ fini.tempo_manutencao }} {%
-            else %}
-            <span class="text-muted">Sem tempo definido</span>
-            {% endif %}
-          </td>
-          <td>{{ fini.equipament }}</td>
-          <td>{{ fini.stopped_production }}</td>
-          <td>
-            {% if fini.sap_order %} {{ fini.sap_order }} {% else %}
-            <span class="text-muted">Aguarda criação</span>
-            {% endif %}
-          </td>
-          <td>
-            {% if fini.SMSState == '1' %} Enviado {% else %} Por Enviar {% endif
-            %}
-          </td>
-          <td>
-            <button
-              class="btn btn-info btn-md open-modal"
-              data-toggle="modal"
-              data-target="#detailsModal"
-              data-id="{{ fini.id_corretiva }}"
-              data-description="{{ fini.description }}"
-              data-equipament="{{ fini.equipament }}"
-              data-functional-location="{{ fini.functional_location }}"
-              data-sap-state="{{ fini.SAPState }}"
-              data-sms-state="{{ fini.SMSState }}"
-              data-sms-date="{{ fini.sms_date }}"
-              data-tempo-man="{{ fini.tempo_manutencao }}"
-              data-main-workcenter="{{ fini.main_workcenter }}"
-              data-inicio-man="{{ fini.data_inicio_man }}"
-              data-fim-man="{{ fini.data_fim_man }}"
-              data-comment="{{ fini.maintenance_comment }}">
-              <i class="fas fa-eye"></i>
-            </button>
-            <button
-              class="btn btn-warning btn-md"
-              onclick="toggleComments({{ fini.id_corretiva }})">
-              <i class="fa-regular fa-rectangle-list"></i>
-            </button>
-          </td>
-        </tr>
-        <tr></tr>
-        <tr
-          id="comments-{{ fini.id_corretiva }}"
-          class="comment-row"
-          style="display: none">
-          <td colspan="10" class="bg-light">
-            <table class="table table-striped mt-3">
-              <thead>
-                <tr style="background-color: white">
-                  <th>Nº Técnico</th>
-                  <th>Técnico</th>
-                  <th>Comentário</th>
-                  <th>Tipo de Avaria</th>
-                  <th>Duração (minutos)</th>
-                  <th>Data Início</th>
-                  <th>Data Fim</th>
-                </tr>
-              </thead>
-              <tbody class="comments-table-body"></tbody>
-            </table>
-          </td>
-        </tr>
-
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include "components/pagination.html" %} {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "components/pagination.html" %} {% endif %}
+    </div>
   </div>
 </div>
 
@@ -180,6 +196,34 @@
   {% include "corrective/js/openModal.js" %}
   {% include "corrective/js/toggleComments.js" %}
   {% include "corrective/js/loadLines.js" %}
+
+  function loadEquipments(prodLine) {
+    $.ajax({
+      url: "/get_equipments",
+      method: "GET",
+      data: { prod_line: prodLine },
+      success: function (data) {
+        let equipmentSelect = $('select[name="filter_equipment"]');
+        equipmentSelect.empty();
+        equipmentSelect.append('<option value="">Selecione o equipamento</option>');
+
+        data.forEach((equip) => {
+          equipmentSelect.append(`<option value="${equip.Equipment}">${equip.Equipment}</option>`);
+        });
+
+        let filterEquipmentValue = '{{ request.args.get("filter_equipment", "") }}';
+        console.log("Valor do filter_equipment vindo do request:", filterEquipmentValue);
+        if (filterEquipmentValue) {
+          equipmentSelect.val(filterEquipmentValue);
+          console.log("Tentando selecionar:", filterEquipmentValue, "-> Valor selecionado:", equipmentSelect.val());
+        }
+      },
+      error: function () {
+        alert("Erro ao carregar os equipamentos.");
+      }
+    });
+  }
+  {% include "utils/javascript/collapse_filters.js" %}
 </script>
 
 {% endblock %}

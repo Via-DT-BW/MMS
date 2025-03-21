@@ -1,226 +1,12 @@
 {% if use_corrective_layout %} {% extends 'corrective/corrective.html' %} {%
 endif %} {% block content %}
+
 <style>
   .working-row {
     background-color: #d1e7dd !important;
     font-size: 1.05rem;
   }
-</style>
 
-<div class="col-md-12">{% include "messages/messages.html" %}</div>
-
-<div class="card mt-4 mb-4">
-  <div class="card-header">
-    <div class="d-flex justify-content-start align-items-center mb-3">
-      <h5 class="m-0 text-center col-lg-12">Manutenções Em Curso</h5>
-    </div>
-
-    <form method="GET" action="/inwork" class="form-row justify-content-center">
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted"
-          >Filtrar por linha de produção</small
-        >
-        <select name="filter_prod_line" class="form-control">
-          <option value="">Selecione a linha</option>
-        </select>
-      </div>
-
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted"
-          >Filtrar por número do técnico</small
-        >
-        <input
-          type="text"
-          name="filter_number"
-          class="form-control"
-          placeholder="Número do Técnico"
-          value="{{ request.args.get('filter_number', '') }}" />
-      </div>
-
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Data inicial</small>
-        <input
-          type="date"
-          name="start_date"
-          class="form-control"
-          value="{{ request.args.get('start_date', '') }}" />
-      </div>
-
-      <div class="form-group col-md-3 col-sm-6 col-12 text-center">
-        <small class="form-text text-muted">Data final</small>
-        <input
-          type="date"
-          name="end_date"
-          class="form-control"
-          value="{{ request.args.get('end_date', '') }}" />
-      </div>
-
-      <div class="form-group col-md-3 col-sm-6 text-center">
-        <small class="form-text text-muted">Itens por página</small>
-        <input
-          type="number"
-          name="page_size"
-          class="form-control"
-          value="{{ request.args.get('page_size', 10) }}"
-          min="1"
-          max="100"
-          placeholder="Itens por página" />
-      </div>
-
-      <div
-        class="form-group col-md-3 col-sm-6 d-flex align-items-end justify-content-center">
-        <button type="submit" class="btn btn-primary mr-2">
-          <i class="fas fa-filter"></i> Filtrar
-        </button>
-        <a href="/inwork" class="btn btn-danger">Limpar</a>
-      </div>
-    </form>
-  </div>
-
-  <div class="card-body table-responsive">
-    {% if ongoing|length == 0 %}
-    <p class="text-center">Sem Pedidos de Manutenção Em Curso</p>
-    {% else %}
-    <table class="table" id="inwork">
-      <thead>
-        <tr>
-          <th>Corretiva</th>
-          <th>Linha de Produção</th>
-          <th>Técnico (último)</th>
-          <th>Descrição</th>
-          <th>Data de Início</th>
-          <th>Equipamento</th>
-          <th>Parou Produção?</th>
-          <th>Ações</th>
-          {% if session['username'] %}
-          <th>Criar Ordem</th>
-          {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for ongo in ongoing %}
-        <tr
-          {%
-          if
-          ongo.id_corretiva
-          in
-          tecnico_in_works
-          %}class="working-row"
-          {%
-          endif
-          %}>
-          <td>{{ ongo.id_corretiva }}</td>
-          <td>{{ ongo.prod_line }}</td>
-          <td>{{ ongo.nome}} - {{ongo.n_tecnico }}</td>
-          <td>{{ ongo.description }}</td>
-          <td class="data">{{ ongo.data_inicio }}</td>
-          <td>{{ ongo.equipament }}</td>
-          <td>{{ ongo.stopped_production }}</td>
-          <td>
-            <button
-              class="btn btn-info btn-md"
-              data-toggle="modal"
-              data-target="#detailsModal"
-              data-id="{{ ongo.id }}"
-              data-description="{{ ongo.description }}"
-              data-equipament="{{ ongo.equipament }}"
-              data-functional-location="{{ ongo.functional_location }}"
-              data-sap-state="{{ ongo.SAPState }}"
-              {%
-              if
-              ongo.sap_order
-              or
-              ongo.sap_order_number
-              %}
-              data-sap-order-num="{{ ongo.sap_order_number }}"
-              data-sap-order-date="{{ ongo.sap_order }}"
-              {%
-              endif
-              %}
-              data-sms-state="{{ ongo.SMSState }}"
-              data-sms-date="{{ ongo.sms_date }}"
-              data-main-workcenter="{{ ongo.main_workcenter }}">
-              <i class="fas fa-eye"></i>
-            </button>
-            {% if session['username'] %}
-            <button
-              class="btn btn-secondary btn-md"
-              data-toggle="modal"
-              data-target="#commentsModal"
-              data-id="{{ ongo.id }}"
-              data-id-corretiva="{{ ongo.id_corretiva }}"
-              data-description="{{ ongo.description }}"
-              data-prod-line="{{ ongo.prod_line }}"
-              data-equipament="{{ ongo.equipament }}"
-              data-ini-date="{{ ongo.data_inicio_man }}"
-              data-pedido-date="{{ ongo.data_pedido }}">
-              <i class="fa-solid fa-users"></i>
-            </button>
-            {% endif %}
-            <button
-              class="btn btn-warning btn-md"
-              onclick="toggleComments({{ ongo.id_corretiva }})">
-              <i class="fa-regular fa-rectangle-list"></i>
-            </button>
-            {% if session['username'] %} {% if ongo.id_corretiva not in
-            tecnico_in_works %}
-            <button
-              class="btn btn-success btn-md"
-              data-id-corretiva="{{ ongo.id_corretiva }}"
-              onclick="associateTechnician(this)">
-              <i class="fa-solid fa-user-plus ml-1"></i>
-            </button>
-            {% endif %}
-          </td>
-          <td>
-            {% if not ongo.sap_order or not ongo.sap_order_number %}
-            <a
-              class="custom-link"
-              onclick="criarOrdem(this, '{{ ongo.id_corretiva }}')">
-              <img
-                src="{{ url_for('static', filename='content/sap.png') }}"
-                alt="SAP Icon"
-                style="vertical-align: top; cursor: pointer" />
-            </a>
-            {% else %} Ordem nº: {{ ongo.sap_order_number}} {% endif %} {% endif
-            %}
-          </td>
-        </tr>
-        <tr></tr>
-        <tr
-          id="comments-{{ ongo.id_corretiva }}"
-          class="comment-row"
-          style="display: none">
-          <td colspan="10" class="bg-light">
-            <table class="table table-striped mt-3">
-              <thead>
-                <tr style="background-color: white">
-                  <th>Nº Técnico</th>
-                  <th>Técnico</th>
-                  <th>Comentário</th>
-                  <th>Tipo de Avaria</th>
-                  <th>Duração (minutos)</th>
-                  <th>Data Início</th>
-                  <th>Data Fim</th>
-                </tr>
-              </thead>
-              <tbody class="comments-table-body"></tbody>
-            </table>
-          </td>
-        </tr>
-
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include "components/pagination.html" %} {% endif %}
-  </div>
-</div>
-
-{% include "corrective/components/detailsModal.html" %} {% include
-"corrective/components/finishModal.html" %} {% include
-"corrective/components/commentsModal.html" %}
-
-<style>
   #inwork tbody tr:nth-child(odd) {
     background-color: #f2f2f2;
   }
@@ -316,6 +102,237 @@ endif %} {% block content %}
     transform: rotate(45deg);
   }
 </style>
+
+<div class="col-md-12">{% include "messages/messages.html" %}</div>
+
+<div class="container-fluid mt-2">
+  <div class="card mt-2 mb-2">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Manutenções Em Curso</h5>
+      <button
+        id="filterToggleBtn"
+        class="btn btn-outline-danger"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#filterCollapse"
+        aria-expanded="true"
+        aria-controls="filterCollapse">
+        <i id="filterIcon" class="fa-solid fa-filter-circle-xmark"></i>
+      </button>
+    </div>
+    <div id="filterCollapse" class="collapse show">
+      <form
+        method="GET"
+        action="/inwork"
+        class="form-row justify-content-center">
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted"
+            >Filtrar por linha de produção</small
+          >
+          <select name="filter_prod_line" class="form-control">
+            <option value="">Selecione a linha</option>
+          </select>
+        </div>
+
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted"
+            >Filtrar por número do técnico</small
+          >
+          <input
+            type="text"
+            name="filter_number"
+            class="form-control"
+            placeholder="Número do Técnico"
+            value="{{ request.args.get('filter_number', '') }}" />
+        </div>
+
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Data inicial</small>
+          <input
+            type="date"
+            name="start_date"
+            class="form-control"
+            value="{{ request.args.get('start_date', '') }}" />
+        </div>
+
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Data final</small>
+          <input
+            type="date"
+            name="end_date"
+            class="form-control"
+            value="{{ request.args.get('end_date', '') }}" />
+        </div>
+
+        <div class="form-group col-md-2 text-center col-9">
+          <small class="form-text text-muted">Itens por página</small>
+          <input
+            type="number"
+            name="page_size"
+            class="form-control"
+            value="{{ request.args.get('page_size', 10) }}"
+            min="1"
+            max="100"
+            placeholder="Itens por página" />
+        </div>
+
+        <div
+          class="form-group col-md-3 d-flex align-items-end justify-content-center">
+          <button type="submit" class="btn btn-primary mr-2">
+            <i class="fas fa-filter"></i> Filtrar
+          </button>
+          <a href="/inwork" class="btn btn-danger">Limpar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body table-responsive">
+      {% if ongoing|length == 0 %}
+      <p class="text-center">Sem Pedidos de Manutenção Em Curso</p>
+      {% else %}
+      <table class="table" id="inwork">
+        <thead>
+          <tr>
+            <th>Corretiva</th>
+            <th>Linha de Produção</th>
+            <th>Técnico (último)</th>
+            <th>Descrição</th>
+            <th>Data de Início</th>
+            <th>Equipamento</th>
+            <th>Parou Produção?</th>
+            <th>Ações</th>
+            {% if session['username'] %}
+            <th>Criar Ordem</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for ongo in ongoing %}
+          <tr
+            {%
+            if
+            ongo.id_corretiva
+            in
+            tecnico_in_works
+            %}class="working-row"
+            {%
+            endif
+            %}>
+            <td data-label="ID">{{ ongo.id_corretiva }}</td>
+            <td data-label="Linha">{{ ongo.prod_line }}</td>
+            <td data-label="Técnico">{{ ongo.nome}} - {{ongo.n_tecnico }}</td>
+            <td data-label="Descrição">{{ ongo.description }}</td>
+            <td data-label="Data Início" class="data">
+              {{ ongo.data_inicio }}
+            </td>
+            <td data-label="Equipamento">{{ ongo.equipament }}</td>
+            <td data-label="Parou Prod?">{{ ongo.stopped_production }}</td>
+            <td data-label="Ações">
+              <button
+                class="btn btn-info btn-md"
+                data-bs-toggle="modal"
+                data-bs-target="#detailsModal"
+                data-id="{{ ongo.id }}"
+                data-description="{{ ongo.description }}"
+                data-equipament="{{ ongo.equipament }}"
+                data-functional-location="{{ ongo.functional_location }}"
+                data-sap-state="{{ ongo.SAPState }}"
+                {%
+                if
+                ongo.sap_order
+                or
+                ongo.sap_order_number
+                %}
+                data-sap-order-num="{{ ongo.sap_order_number }}"
+                data-sap-order-date="{{ ongo.sap_order }}"
+                {%
+                endif
+                %}
+                data-sms-state="{{ ongo.SMSState }}"
+                data-sms-date="{{ ongo.sms_date }}"
+                data-main-workcenter="{{ ongo.main_workcenter }}">
+                <i class="fas fa-eye"></i>
+              </button>
+              {% if session['username'] %}
+              <button
+                class="btn btn-secondary btn-md"
+                data-bs-toggle="modal"
+                data-bs-target="#commentsModal"
+                data-id="{{ ongo.id }}"
+                data-id-corretiva="{{ ongo.id_corretiva }}"
+                data-description="{{ ongo.description }}"
+                data-prod-line="{{ ongo.prod_line }}"
+                data-equipament="{{ ongo.equipament }}"
+                data-ini-date="{{ ongo.data_inicio_man }}"
+                data-pedido-date="{{ ongo.data_pedido }}">
+                <i class="fa-solid fa-users"></i>
+              </button>
+              {% endif %}
+              <button
+                class="btn btn-warning btn-md"
+                onclick="toggleComments({{ ongo.id_corretiva }})">
+                <i class="fa-regular fa-rectangle-list"></i>
+              </button>
+              {% if session['username'] %} {% if ongo.id_corretiva not in
+              tecnico_in_works %}
+              <button
+                class="btn btn-success btn-md"
+                data-id-corretiva="{{ ongo.id_corretiva }}"
+                onclick="associateTechnician(this)">
+                <i class="fa-solid fa-user-plus ml-1"></i>
+              </button>
+              {% endif %}
+            </td>
+            <td data-label="Criar Ordem">
+              {% if not ongo.sap_order or not ongo.sap_order_number %}
+              <a
+                class="custom-link"
+                onclick="criarOrdem(this, '{{ ongo.id_corretiva }}')">
+                <img
+                  src="{{ url_for('static', filename='content/sap.png') }}"
+                  alt="SAP Icon"
+                  style="vertical-align: top; cursor: pointer" />
+              </a>
+              {% else %} Ordem nº: {{ ongo.sap_order_number}} {% endif %} {%
+              endif %}
+            </td>
+          </tr>
+          <tr></tr>
+          <tr
+            id="comments-{{ ongo.id_corretiva }}"
+            class="comment-row"
+            style="display: none">
+            <td colspan="10" class="bg-light">
+              <table class="table table-striped mt-3">
+                <thead>
+                  <tr style="background-color: white">
+                    <th>Técnico</th>
+                    <th>Comentário</th>
+                    <th>Tipo de Avaria</th>
+                    <th>Duração (minutos)</th>
+                    <th>Data Início</th>
+                    <th>Data Fim</th>
+                    <th>Fotos</th>
+                  </tr>
+                </thead>
+                <tbody class="comments-table-body"></tbody>
+              </table>
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "components/pagination.html" %} {% endif %}
+    </div>
+  </div>
+</div>
+
+{% include "corrective/components/detailsModal.html" %} {% include
+"corrective/components/finishModal.html" %} {% include
+"corrective/components/commentsModal.html" %}
+
 <script>
 
   {% include "corrective/js/sparesOrder.js" %}
@@ -380,6 +397,8 @@ endif %} {% block content %}
 
   {% include "corrective/js/openModal.js" %}
   {% include "corrective/js/comments.js" %}
+
+  {% include "utils/javascript/collapse_filters.js" %}
 </script>
 
 {% endblock %}

@@ -7,24 +7,25 @@
   aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="gamasModalLabel">Gamas do Equipamento</h5>
+      <div class="modal-header d-flex align-items-center">
+        <h5 class="modal-title mb-0" id="gamasModalLabel">
+          Lista de Tarefas do Equipamento
+        </h5>
+        <div class="ml-2" id="pdfButtonContainer"></div>
         <button
           type="button"
-          class="close"
+          class="btn-close"
           data-bs-dismiss="modal"
-          aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
+          aria-label="Fechar"></button>
       </div>
       <div class="modal-body">
         <div id="modalContent">Carregando...</div>
       </div>
       <div class="modal-footer">
         <button
-          class="btn btn-warning"
+          class="btn btn-warning text-white"
           onclick="editSelectedGamas('{{ equipamento_id }}')">
-          <i class="fa-solid fa-check mr-1"></i> Marcar como realizado
+          <i class="fa-solid fa-check me-1"></i> Marcar como realizado
         </button>
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
           Fechar

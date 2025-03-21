@@ -16,6 +16,8 @@ from routes.daily import daily_sec
 from routes.settings import settings_sec
 from routes.preventive import preventive_sec
 from routes.analytics import analytics_bp
+from apscheduler.schedulers.background import BackgroundScheduler
+from utils.delete_images import delete_old_photos
 
 app = Flask(__name__)
 
@@ -349,59 +351,6 @@ def get_tecnicos_associados(id_corretiva):
         if 'conn' in locals():
             conn.close()
 
-@app.route('/api/update_comment', methods=['POST'])
-def update_comment():
-    id_corretiva = request.form.get('id_corretiva')
-    id_tecnico = request.form.get('id_tecnico')
-    comment = request.form.get('comment')
-    id_tipo_avaria = request.form.get('id_tipo_avaria')
-    parou = request.form.get('stopped_prod')
-    elegivel = request.form.get('elegivel_sistemica')
-    definida = request.form.get('definida_acao') 
-    
-    elegivel_bit = 1 if elegivel == "Sim" else 0
-    definida_bit = 1 if definida == "Sim" else 0
-
-    if not id_corretiva or not id_tecnico or not comment:
-        return jsonify({'error': 'Parâmetros insuficientes'}), 400
-
-    try:
-        conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
-
-        cursor.execute('''
-            UPDATE corretiva_tecnicos
-            SET maintenance_comment = ?, 
-                id_tipo_avaria = ?, 
-                data_fim = GETDATE(),
-                elegivel_sistemica = ?, 
-                definida_acao = ?
-            WHERE id_corretiva = ? AND id_tecnico = ? and data_fim IS NULL
-        ''', (comment, id_tipo_avaria, elegivel_bit, definida_bit, id_corretiva, id_tecnico))
-
-        cursor.execute('''
-            UPDATE corretiva
-            SET stopped_production = ?
-            WHERE id = ?
-        ''', (parou, id_corretiva))
-        
-        if cursor.rowcount == 0:
-            flash('Registo não encontrado para atualização', category='error')
-            return jsonify({'status': 'error', 'message': 'Registo não encontrado para atualização!'}), 404
-
-        conn.commit()
-        flash('Comentário feito com sucesso!', category='success')
-        return jsonify({'status': 'success', 'message': 'Comentário feito com sucesso!'})
-    except Exception as e:
-        print(e)
-        flash('Erro ao fazer o comentário!', category='error')
-        return jsonify({'status': 'error', 'message': 'Erro ao fazer o comentário!'}), 500
-    finally:
-        if 'cursor' in locals():
-            cursor.close()
-        if 'conn' in locals():
-            conn.close()
-
 @app.route('/api/get_corrective_stats')
 def get_corrective_stats():
     try:
@@ -498,6 +447,7 @@ def get_corretiva_comments():
     )
 
     comments = [{
+        'id': row.comentario_id,
         'tecnico_nome': row.tecnico_nome,
         'n_tecnico': row.n_tecnico,
         'maintenance_comment': row.maintenance_comment,
@@ -508,6 +458,19 @@ def get_corretiva_comments():
     } for row in cursor.fetchall()]
     
     return jsonify(comments)
+
+@app.route('/api/get-ct-photos')
+def get_corretiva_photos():
+    comment_id = request.args.get('id', type=int)
+    if comment_id is None:
+        return jsonify({"error": "Parâmetro 'id' é obrigatório."}), 400
+
+    conn = pyodbc.connect(conexao_mms)
+    cursor = conn.cursor()
+    cursor.execute("SELECT image_path FROM tecnicos_images WHERE id_ct = ?", comment_id)
+    
+    photos = [row.image_path for row in cursor.fetchall()]
+    return jsonify(photos)
 
 @app.route('/api/check_comments', methods=['GET'])
 def check_comments():
@@ -862,6 +825,11 @@ def get_user_info_and_update_query(cursor, username):
             break 
 
     return user_email, query_update
+
+
+scheduler = BackgroundScheduler()
+#scheduler.add_job(delete_old_photos, 'interval', days=30)
+scheduler.start()
 
 if __name__ == "__main__":
     app.run(debug=True)
