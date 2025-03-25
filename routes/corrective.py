@@ -260,6 +260,7 @@ def corrective_order_by_mt():
                 var_descricao, equipament_var, paragem_producao, prod_line, 
                 var_numero_tecnico, tipo_manutencao, planned_date
             )
+            
             conn.commit()
 
             if planned_date:
