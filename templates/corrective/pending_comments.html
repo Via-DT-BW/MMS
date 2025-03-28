@@ -160,12 +160,12 @@
                 alert("Comentário editado com sucesso!");
                 myModal.hide();
                 location.reload();
-              } else {
-                alert("Erro ao editar comentário.");
               }
             },
             error: function () {
-              alert("Erro ao editar comentário.");
+              toastr.info(
+                "Tem que preencher todos os campos para guardar o comentário."
+              );
             },
           });
         });

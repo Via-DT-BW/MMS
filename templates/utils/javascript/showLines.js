@@ -20,9 +20,9 @@ function showLines() {
           areaContainer.className = "list-group-item";
 
           const areaTitle = document.createElement("p");
-          areaTitle.textContent = area.area;
+          areaTitle.textContent = `${area.area} - ${area.PL}`;
           areaTitle.className = "mb-0 fw-bold";
-          areaTitle.style.cursor = "pointer"; // Faz o título parecer clicável
+          areaTitle.style.cursor = "pointer";
           areaTitle.dataset.target = `dropdown-${index}`;
 
           const linhasDropdown = document.createElement("ul");

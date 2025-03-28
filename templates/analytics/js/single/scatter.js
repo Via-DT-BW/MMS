@@ -21,36 +21,58 @@ function loadScatterPlotChart() {
         item.resolutionTime,
       ]);
 
+      let xValues = scatterData.map((p) => p[0]);
+      let yValues = scatterData.map((p) => p[1]);
+
+      let xMin = Math.min(...xValues);
+      let xMax = Math.max(...xValues);
+      let yMin = Math.min(...yValues);
+      let yMax = Math.max(...yValues);
+
+      let getOptimalTickInterval = (min, max) => {
+        let range = max - min;
+        if (range < 10) return 1;
+        if (range < 50) return 5;
+        if (range < 100) return 10;
+        return Math.ceil(range / 10);
+      };
+
+      let xTickInterval = getOptimalTickInterval(xMin, xMax);
+      let yTickInterval = getOptimalTickInterval(yMin, yMax);
+
+      xMin = Math.floor(xMin / xTickInterval) * xTickInterval;
+      xMax = Math.ceil(xMax / xTickInterval) * xTickInterval;
+      yMin = Math.floor(yMin / yTickInterval) * yTickInterval;
+      yMax = Math.ceil(yMax / yTickInterval) * yTickInterval;
+
       Highcharts.chart("scatterPlotChart", {
         chart: {
           type: "scatter",
           zoomType: "xy",
         },
         title: {
-          text: null,
+          text: "Correlação entre Tempo de Resposta e Resolução",
         },
         xAxis: {
           title: {
             text: "Tempo de Resposta (min)",
           },
+          min: xMin,
+          max: xMax,
+          tickInterval: xTickInterval,
           startOnTick: true,
           endOnTick: true,
-          showLastLabel: true,
         },
         yAxis: {
           title: {
             text: "Tempo de Resolução (min)",
           },
+          min: yMin,
+          max: yMax,
+          tickInterval: yTickInterval,
         },
         legend: {
-          layout: "vertical",
-          align: "left",
-          verticalAlign: "top",
-          x: 100,
-          y: 70,
-          floating: true,
-          backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
-          borderWidth: 1,
+          enabled: false,
         },
         plotOptions: {
           scatter: {

@@ -198,7 +198,20 @@
   <div class="col-lg-12 col-md-12">
     <div class="card mt-2 mb-2 shadow-lg">
       <div class="card-header">
-        Evolução do Tempo (minutos) / Número de Intervenções
+        Evolução do Tempo (minutos) / Número de Intervenções (por Modo de Falha)
+      </div>
+      <div class="card-body">
+        <div id="timeEvolutionChartFailMode"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card mt-2 mb-2 shadow-lg">
+      <div class="card-header">
+        Evolução do Tempo (minutos) / Número de Intervenções (por Tipologia)
       </div>
       <div class="card-body">
         <div id="timeEvolutionChart"></div>
@@ -278,6 +291,7 @@
   {% include "analytics/js/single/graphicIntervention.js" %}
   {% include "analytics/js/single/equipmentPieChart.js" %}
   {% include "analytics/js/single/timeEvolution.js" %}
+  {% include "analytics/js/single/timeEvolutionFailMode.js" %}
   {% include "analytics/js/single/mediaResponseTime.js" %}
   {% include "analytics/js/single/mediaResolutionTime.js" %}
   {% include "analytics/js/single/mediaAvariaTime.js" %}
@@ -329,6 +343,7 @@
         loadTechnicianInterventionsChart();
         loadScatterPlotChart();
         loadMTBFByEquipmentChart();
+        loadTimeEvolutionChartFailMode();
     });
   });
 

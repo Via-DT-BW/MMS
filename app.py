@@ -293,7 +293,7 @@ def check_association():
 
     try:
         conn = pyodbc.connect(conexao_mms)
-        cursor = conn.cursor()
+        cursor = conn.cursor() 
 
         query = """
         SELECT c.id, c.description, c.equipament, c.data_pedido, c.prod_line
@@ -522,6 +522,9 @@ def save_comment():
 
         conn = pyodbc.connect(conexao_mms)
         cursor = conn.cursor()
+        
+        if not comment_id or not comment_text or not tipo_avaria_id:
+            return jsonify({"status": "error", "message": "Deve preencher todos os campos."}), 401
 
         cursor.execute("""
             UPDATE corretiva_tecnicos
@@ -645,21 +648,27 @@ def lines_per_area():
     
     query = """
         SELECT 
-            area,
-            STRING_AGG(prod_line, ', ') AS linhas_producao
+            p.area, 
+            STRING_AGG(p.prod_line, ', ') AS linhas_producao,
+            a.nome_PL AS PL
         FROM 
-            [Capture].[dbo].[ProdLineAreaPL]
+            [Capture].[dbo].[ProdLineAreaPL] p
+        JOIN 
+            [Capture].[dbo].[Area_PL] a
+            ON p.area = a.area
         GROUP BY 
-            area
+            p.area, a.nome_PL
         ORDER BY 
-            area;"""
+            p.area;
+        """
     cursor.execute(query)
     rows = cursor.fetchall()
     result = []
     for row in rows:
         result.append({
             "area": row[0],
-            "linhas": row[1]
+            "linhas": row[1],
+            "PL": row[2]
         })
 
     cursor.close()
