@@ -818,10 +818,10 @@ def admin_avarias():
 
     try:
         username = session.get('username')
-        conn = pyodbc.connect(conexao_mms)
+        conn = pyodbc.connect(conexao_capture)
         cursor = conn.cursor()
 
-        cursor.execute("EXEC AvariasPorArea")
+        cursor.execute("EXEC MMS.dbo.AvariasPorArea")
 
         tipos = cursor.fetchall()
 
@@ -834,6 +834,7 @@ def admin_avarias():
                 'id': tipo.tipo_id,
                 'tipo': tipo.tipo
             })
+            
 
         for linha in linhas:
             areas[linha.area_nome]["linhas"].append(linha.prod_line)
@@ -1191,10 +1192,118 @@ def add_contact():
         """, data['name'], data['numberBW'], data['email'], data['phoneNumber'], data['area'], data['shift'], data['role'])
 
         conn.commit()
+        flash('Contacto adicionado com sucesso!', category='success')
         return redirect(url_for('settings.contacts'))
     except Exception as e:
         print(f"Error adding contact: {e}")
         return "Error adding contact", 500
+
+@settings_sec.route('/pl_areas', methods=['GET'])
+def pl_areas():
+    try:
+        page = int(request.args.get('page', 1)) 
+        page_size = int(request.args.get('page_size', 40))
+        conn = pyodbc.connect(conexao_capture)
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT[id]
+                ,[area]
+                ,[nome_PL]
+            FROM [Capture].[dbo].[Area_PL]
+        """)
+        rows = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT count(*)
+            FROM [Capture].[dbo].[Area_PL]
+        """)
+        total_count = cursor.fetchone()[0]
+        pls = []
+
+        for row in rows:
+            pl = {
+                "id": row.id,
+                "Area": row.area,
+                "PL": row.nome_PL
+            }
+            pls.append(pl)
+
+        total_pages = (total_count + page_size - 1) // page_size
+        start_page = max(1, page - 3)
+        end_page = min(total_pages, page + 3)
+        
+        return render_template(
+            'configs/pl_areas.html',
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+            pls=pls,
+            start_page=start_page,
+            end_page=end_page,
+            maintenance="Settings"
+        )
+    except Exception as e:
+        print(e)
+        flash(f'Ocorreu um erro: {str(e)}', category='error')
+    finally:
+        cursor.close()
+        conn.close()
+        
+    return redirect(url_for('settings.settings'))
+
+@settings_sec.route('/update_pl/<int:pl_id>', methods=['POST'])
+def update_pl(pl_id):
+    try:
+        data = request.get_json()
+        pl_name = data.get('plName')
+
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        update_query = """
+            UPDATE [Capture].[dbo].[Area_PL]
+            SET nome_PL = ?
+            WHERE id = ?
+        """
+        cursor.execute(update_query, (pl_name, pl_id))
+        conn.commit()
+
+        return jsonify({'message': 'PL atualizado com sucesso!'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@settings_sec.route('/insert_pl', methods=['POST'])
+def insert_pl():
+    try:
+        data = request.get_json()
+        area = data.get('area')
+        pl_name = data.get('plName')
+
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        insert_query = """
+            INSERT INTO [Capture].[dbo].[Area_PL] (area, nome_PL)
+            VALUES (?, ?)
+        """
+        cursor.execute(insert_query, (area, pl_name))
+        conn.commit()
+
+        return jsonify({'message': 'PL inserido com sucesso!'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 @settings_sec.route('/contacts/remove', methods=['POST'])
 def remove_contact():

@@ -1,0 +1,50 @@
+<div
+  class="modal fade"
+  id="createPL"
+  tabindex="-1"
+  aria-labelledby="createPLLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="createPlForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createPLLabel">Inserir novo PL</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="newArea" class="form-label">Área</label>
+            <input
+              type="text"
+              class="form-control"
+              id="newArea"
+              name="area"
+              required />
+          </div>
+          <div class="mb-3">
+            <label for="newPlName" class="form-label">PL</label>
+            <input
+              type="text"
+              class="form-control"
+              id="newPlName"
+              name="plName"
+              required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Inserir PL</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -315,7 +315,44 @@ def get_weekly_maintenance_evolution():
                 "tipo": row.tipo
             })
 
-        print(result)
+        return jsonify(result)
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@analytics_bp.route("/api/get_weekly_maintenance_evolution_fail_mode", methods=['GET'])
+def get_weekly_maintenance_evolution_fail_mode():
+    filter_prod_line = request.args.get("filter_prod_line", "")
+    start_date = request.args.get("start_date", "")
+    end_date = request.args.get("end_date", "")
+    filter_shift = request.args.get("filter_shift", "")
+
+    if not filter_prod_line or not start_date or not end_date:
+        return jsonify({"error": "Preencha todos os filtros"}), 400
+
+    try:
+        conn = pyodbc.connect(conexao_capture)
+        cursor = conn.cursor()
+
+        cursor.execute("EXEC MMS.dbo.GetWeeklyMaintenanceEvolutionFailMode ?, ?, ?, ?", filter_prod_line, start_date, end_date, filter_shift)
+        rows = cursor.fetchall()
+        
+        result = []
+        for row in rows:
+            result.append({
+                "week_start": row.week_start.strftime("%Y-%m-%d"),
+                "total_minutes": row.total_minutes,
+                "total_incidents": row.total_incidents,
+                "description": row.description
+            })
+
         return jsonify(result)
 
     except Exception as e:

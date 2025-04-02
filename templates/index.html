@@ -25,114 +25,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
 
     <style>
-      html,
-      body {
-        overflow: hidden;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: "Montserrat", sans-serif;
-      }
-      .navbar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.3);
-        z-index: 10;
-        padding: 10px 0;
-      }
-
-      .navbar-brand img {
-        height: 70px;
-      }
-
-      .navbar-nav .nav-item {
-        margin: 0 12px;
-      }
-
-      .navbar-nav {
-        margin: 0 auto;
-        display: flex;
-        justify-content: center;
-        width: 100%;
-      }
-
-      .navbar-nav .nav-link {
-        position: relative;
-        color: white !important;
-        font-weight: 600;
-        transition: color 0.3s ease-in-out;
-      }
-
-      .navbar-nav .nav-link:hover {
-        color: #2efad9 !important;
-      }
-
-      .navbar-nav .nav-link::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        bottom: -3px;
-        width: 0;
-        height: 2px;
-        background-color: #2efad9;
-        transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
-      }
-
-      .navbar-nav .nav-link:hover::after {
-        width: 100%;
-        left: 0;
-      }
-
-      .video-bg {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        overflow: hidden;
-      }
-
-      .video-bg video {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        min-width: 100%;
-        min-height: 100%;
-        z-index: -1;
-      }
-
-      .video-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 1;
-      }
-
-      .video-content {
-        position: relative;
-        z-index: 2;
-        color: white;
-        text-align: center;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-
-      .video-bg footer {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        background: transparent;
-        color: white;
-        padding: 15px;
-        text-align: center;
-        z-index: 3;
-      }
+      {% include "css/index.css" %}
     </style>
   </head>
   <body>
@@ -151,7 +44,7 @@
         <div class="container-fluid">
           <a class="navbar-brand ms-3" href="#">
             <img src="static/initial_page/img/app_logo.png" alt="Logo" />
-            MMS
+            <span class="ms-2">MMS</span>
           </a>
           <button
             class="navbar-toggler"
@@ -232,6 +125,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="static/initial_page/js/jquery.singlePageNav.min.js"></script>
     <script>
+      $(document).ready(function(){
+        $('#navbarContent').on('show.bs.collapse', function () {
+          $('.video-content').hide();
+        });
+        $('#navbarContent').on('hide.bs.collapse', function () {
+          $('.video-content').show();
+        });
+      });
       {% include "utils/javascript/login.js" %}
     </script>
   </body>
