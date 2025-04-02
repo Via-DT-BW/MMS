@@ -559,12 +559,13 @@ def view_tarefas(gama_id):
 
         buffer = io.BytesIO()
         pdf = canvas.Canvas(buffer, pagesize=A4)
-        pdf.setTitle(f"Tarefas da Gama '{tarefas[0][2]}'")
 
         if tarefas:
-            titulo = f"Tarefas da Gama - {tarefas[0][2]}"
+            titulo = f"Lista de Tarefas - {tarefas[0][2]}"
+            pdf.setTitle(titulo)
         else:
-            titulo = "Nenhuma tarefa encontrada para esta gama."
+            titulo = "Nenhuma tarefa encontrada nesta Lista de Tarefas."
+            pdf.setTitle(titulo)
 
         pdf.drawString(100, 800, titulo)
         pdf.line(100, 790, 500, 790)
