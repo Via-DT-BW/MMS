@@ -325,10 +325,12 @@ $(document).ready(function () {
   let selectedProdLine = $('select[name="filter_prod_line"]').val();
   if (selectedProdLine) {
     loadEquipments(selectedProdLine);
+    loadFailMode(selectedProdLine);
   }
 
   $('select[name="filter_prod_line"]').on("change", function () {
     let prodLine = $(this).val();
     loadEquipments(prodLine);
+    loadFailMode(prodLine);
   });
 });
