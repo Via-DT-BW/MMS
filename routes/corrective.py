@@ -547,13 +547,13 @@ def finished():
         cursor = conn.cursor()
 
         page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 10, type=int)
+        page_size = request.args.get('page_size', 20, type=int)
         filter_equipment = request.args.get('filter_equipment', '', type=str)
         start_date = request.args.get('start_date', type=str)
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
-        print(filter_equipment)
-        
+        filter_desc= request.args.get('filter_desc', '', type=str)
+        print(filter_desc)
         cursor.execute("""
             EXEC GetCorretivaFinished
                 @PageNumber = ?, 
@@ -561,9 +561,10 @@ def finished():
                 @FilterEquipment = ?, 
                 @StartDate = ?, 
                 @EndDate = ?, 
-                @FilterProdLine = ?
+                @FilterProdLine = ?,
+                @desc = ?
             """,
-            page, page_size, filter_equipment, start_date, end_date, filter_prod_line
+            page, page_size, filter_equipment, start_date, end_date, filter_prod_line, filter_desc
         )
         finished = cursor.fetchall()
         if finished:
@@ -826,6 +827,33 @@ def get_equipments():
         equipamentos = [{"id": row.id, "Equipment": row.Equipment} for row in results]
         return jsonify(equipamentos)
     except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@corrective.route('/get_descriptions', methods=['GET'])
+def get_descriptions():
+    try:
+        prod_line = request.args.get('prod_line', '')
+        conn = pyodbc.connect(conexao_mms)
+        cursor = conn.cursor()
+        if prod_line:
+            query = "SELECT DISTINCT(description) as [desc] FROM [dbo].[corretiva] WHERE [prod_line] LIKE ?"
+            cursor.execute(query, prod_line + '%')
+            results = cursor.fetchall()
+
+            if not results and '-' in prod_line:
+                new_prod_line = prod_line.split('-')[0]
+                cursor.execute(query, new_prod_line)
+                results = cursor.fetchall()
+
+        descs = [{"description": row.desc} for row in results]
+
+        return jsonify(descs)
+    except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
