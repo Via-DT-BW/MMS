@@ -16,25 +16,39 @@ function loadParetoChart() {
         return;
       }
 
+      data.sort((a, b) => {
+        const totalA = Object.values(a.fail_modes).reduce(
+          (acc, curr) => acc + Number(curr),
+          0
+        );
+        const totalB = Object.values(b.fail_modes).reduce(
+          (acc, curr) => acc + Number(curr),
+          0
+        );
+        return totalB - totalA;
+      });
       let categories = data.map((item) => item.equipament);
-      let seriesData = {};
-      let incidents = data.map((item) => item.n_incidents);
 
+      let allFailModes = new Set();
       data.forEach((item) => {
-        Object.entries(item.fail_modes).forEach(([mode, minutes]) => {
-          if (!seriesData[mode]) {
-            seriesData[mode] = [];
-          }
-          seriesData[mode].push(minutes || 0);
+        Object.keys(item.fail_modes).forEach((mode) => {
+          allFailModes.add(mode);
         });
       });
 
-      let series = Object.keys(seriesData).map((mode) => ({
-        name: mode,
-        data: seriesData[mode],
-        stack: "equipaments",
-      }));
+      let series = [];
+      allFailModes.forEach((mode) => {
+        let modeData = data.map((item) => {
+          return item.fail_modes[mode] || 0;
+        });
+        series.push({
+          name: mode,
+          data: modeData,
+          stack: "equipaments",
+        });
+      });
 
+      let incidents = data.map((item) => item.n_incidents);
       series.push({
         name: "Número de Incidentes",
         type: "spline",

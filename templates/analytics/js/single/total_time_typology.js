@@ -16,7 +16,6 @@ function loadParetoChartTipologia() {
         return;
       }
 
-      // 1. Agregar os minutos por equipamento para ordená-los (maior para menor)
       let equipmentTotals = {};
       data.forEach((item) => {
         for (let equip in item.equipaments) {
@@ -28,7 +27,6 @@ function loadParetoChartTipologia() {
         (a, b) => equipmentTotals[b] - equipmentTotals[a]
       );
 
-      // 2. Construir as séries de colunas para cada tipologia
       let seriesColumns = data.map((item) => {
         let dataArray = equipmentCategories.map(
           (equip) => item.equipaments[equip] || 0
@@ -40,16 +38,12 @@ function loadParetoChartTipologia() {
         };
       });
 
-      // 3. Estimar os incidentes por equipamento
-      // Para cada tipologia, distribuímos os incidentes proporcionalmente ao tempo de manutenção de cada equipamento.
       let equipmentIncidents = {};
       data.forEach((item) => {
         let tipTotal = 0;
-        // Soma total de minutos dessa tipologia (soma dos valores de todos os equipamentos)
         for (let equip in item.equipaments) {
           tipTotal += item.equipaments[equip];
         }
-        // Para cada equipamento nessa tipologia, calcular a fração dos incidentes
         for (let equip in item.equipaments) {
           let incidentEst =
             tipTotal > 0
@@ -59,11 +53,10 @@ function loadParetoChartTipologia() {
           equipmentIncidents[equip] += incidentEst;
         }
       });
-      let splineData = equipmentCategories.map(
-        (equip) => equipmentIncidents[equip] || 0
+      let splineData = equipmentCategories.map((equip) =>
+        Math.round(equipmentIncidents[equip] || 0)
       );
 
-      // 4. Construir o gráfico Pareto
       Highcharts.chart("paretoChartTipologia", {
         chart: {
           type: "column",

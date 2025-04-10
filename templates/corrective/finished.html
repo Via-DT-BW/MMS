@@ -165,7 +165,7 @@
           {% endfor %}
         </tbody>
       </table>
-      {% include "components/pagination.html" %} {% endif %}
+      {% include "corrective/components/finishedPage.html" %} {% endif %}
     </div>
   </div>
 </div>
@@ -206,8 +206,8 @@
           equipmentSelect.append(`<option value="${equip.Equipment}">${equip.Equipment}</option>`);
         });
 
-        let filterEquipmentValue = '{{ request.args.get("filter_equipment", "") }}';
 
+        let filterEquipmentValue = '{{ request.args.get("filter_equipment", "") }}';
         if (filterEquipmentValue) {
           equipmentSelect.val(filterEquipmentValue);
         }
