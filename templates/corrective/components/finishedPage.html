@@ -1,0 +1,63 @@
+{% set filters = request.args.to_dict() %} {% if filters.page is defined %} {%
+set _ = filters.pop('page') %} {% endif %}
+
+<nav aria-label="Navegação de página">
+  <ul class="pagination justify-content-center">
+    {% if page > 1 %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="{{ url_for('corrective.finished', page=page-1, **filters) }}"
+        aria-label="Anterior">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+
+    <li class="page-item {% if page == 1 %}active{% endif %}">
+      <a
+        class="page-link"
+        href="{{ url_for('corrective.finished', page=1, **filters) }}"
+        >1</a
+      >
+    </li>
+
+    {% set start_neighbor = page - 3 %} {% set end_neighbor = page + 3 %} {% if
+    start_neighbor < 2 %} {% set start_neighbor = 2 %} {% endif %} {% if
+    end_neighbor > total_pages - 1 %} {% set end_neighbor = total_pages - 1 %}
+    {% endif %} {% if start_neighbor > 2 %}
+    <li class="page-item disabled">
+      <span class="page-link">...</span>
+    </li>
+    {% endif %} {% for p in range(start_neighbor, end_neighbor + 1) %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+      <a
+        class="page-link"
+        href="{{ url_for('corrective.finished', page=p, **filters) }}"
+        >{{ p }}</a
+      >
+    </li>
+    {% endfor %} {% if end_neighbor < total_pages - 1 %}
+    <li class="page-item disabled">
+      <span class="page-link">...</span>
+    </li>
+    {% endif %} {% if total_pages > 1 %}
+    <li class="page-item {% if page == total_pages %}active{% endif %}">
+      <a
+        class="page-link"
+        href="{{ url_for('corrective.finished', page=total_pages, **filters) }}"
+        >{{ total_pages }}</a
+      >
+    </li>
+    {% endif %} {% if page < total_pages %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="{{ url_for('corrective.finished', page=page+1, **filters) }}"
+        aria-label="Próximo">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>

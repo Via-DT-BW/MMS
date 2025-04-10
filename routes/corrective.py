@@ -543,7 +543,7 @@ def finish_maintenance():
 @corrective.route('/finished', methods=['GET'])
 def finished():
     try:
-        conn = pyodbc.connect(conexao_mms)
+        conn = pyodbc.connect(conexao_capture)
         cursor = conn.cursor()
 
         page = request.args.get('page', 1, type=int)
@@ -553,9 +553,9 @@ def finished():
         end_date = request.args.get('end_date', type=str)
         filter_prod_line = request.args.get('filter_prod_line', '', type=str)
         filter_desc= request.args.get('filter_desc', '', type=str)
-        print(filter_desc)
+        
         cursor.execute("""
-            EXEC GetCorretivaFinished
+            EXEC MMS.dbo.GetCorretivaFinished
                 @PageNumber = ?, 
                 @PageSize = ?, 
                 @FilterEquipment = ?, 
@@ -837,10 +837,10 @@ def get_equipments():
 def get_descriptions():
     try:
         prod_line = request.args.get('prod_line', '')
-        conn = pyodbc.connect(conexao_mms)
+        conn = pyodbc.connect(conexao_capture)
         cursor = conn.cursor()
         if prod_line:
-            query = "SELECT DISTINCT(description) as [desc] FROM [dbo].[corretiva] WHERE [prod_line] LIKE ?"
+            query = "SELECT DISTINCT(description) as [desc] FROM MMS.[dbo].[corretiva] WHERE [prod_line] LIKE ?"
             cursor.execute(query, prod_line + '%')
             results = cursor.fetchall()
 
